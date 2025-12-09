@@ -37,6 +37,16 @@ export type SettingsStackParamList = {
   MFPImport: undefined;
 };
 
+// Onboarding Stack
+export type OnboardingStackParamList = {
+  GoalSelection: undefined;
+  BaselineMetrics: undefined;
+  TimelinePreferences: undefined;
+  DietPreferences: undefined;
+  PrivacySettings: undefined;
+  OnboardingComplete: undefined;
+};
+
 // Main Tab Navigator
 export type MainTabParamList = {
   HomeTab: NavigatorScreenParams<HomeStackParamList>;
@@ -48,8 +58,8 @@ export type MainTabParamList = {
 // Root Navigator
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
+  Onboarding: NavigatorScreenParams<OnboardingStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;
-  Onboarding: undefined;
 };
 
 // Screen props helpers
@@ -77,6 +87,9 @@ export type SettingsScreenProps<T extends keyof SettingsStackParamList> = Native
   SettingsStackParamList,
   T
 >;
+
+export type OnboardingScreenProps<T extends keyof OnboardingStackParamList> =
+  NativeStackScreenProps<OnboardingStackParamList, T>;
 
 export type MainTabScreenProps<T extends keyof MainTabParamList> = BottomTabScreenProps<
   MainTabParamList,
