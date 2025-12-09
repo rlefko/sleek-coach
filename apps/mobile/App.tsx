@@ -10,10 +10,14 @@ import { queryClient, setupOnlineManager } from '@/lib/queryClient';
 import { useAuthStore } from '@/stores/authStore';
 import { RootNavigator } from '@/navigation';
 import { ErrorBoundary } from '@/components/ui';
+import { useOfflineSync } from '@/hooks';
 
 const AppContent: React.FC = () => {
   const { theme, isDark } = useAppTheme();
   const hydrate = useAuthStore((state) => state.hydrate);
+
+  // Enable offline sync for pending check-ins and nutrition
+  useOfflineSync();
 
   useEffect(() => {
     // Hydrate auth state from storage

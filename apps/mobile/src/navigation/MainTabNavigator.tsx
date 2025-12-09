@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Icon } from 'react-native-paper';
 import { useAppTheme } from '@/theme';
-import { HomeScreen } from '@/screens/home';
-import { ProgressScreen } from '@/screens/progress';
+import { HomeScreen, CheckInScreen, NutritionLogScreen } from '@/screens/home';
+import { ProgressScreen, PhotoComparisonScreen } from '@/screens/progress';
 import { CoachScreen } from '@/screens/coach';
 import { SettingsScreen } from '@/screens/settings';
 import type {
@@ -22,14 +22,33 @@ const CoachStack = createNativeStackNavigator<CoachStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 const HomeNavigator = () => (
-  <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
+  <HomeStack.Navigator>
+    <HomeStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+    <HomeStack.Screen
+      name="CheckIn"
+      component={CheckInScreen}
+      options={{ title: 'Check-in', headerBackTitle: 'Home' }}
+    />
+    <HomeStack.Screen
+      name="NutritionLog"
+      component={NutritionLogScreen}
+      options={{ title: 'Log Nutrition', headerBackTitle: 'Home' }}
+    />
   </HomeStack.Navigator>
 );
 
 const ProgressNavigator = () => (
-  <ProgressStack.Navigator screenOptions={{ headerShown: false }}>
-    <ProgressStack.Screen name="Progress" component={ProgressScreen} />
+  <ProgressStack.Navigator>
+    <ProgressStack.Screen
+      name="Progress"
+      component={ProgressScreen}
+      options={{ headerShown: false }}
+    />
+    <ProgressStack.Screen
+      name="PhotoComparison"
+      component={PhotoComparisonScreen}
+      options={{ title: 'Compare Photos', headerBackTitle: 'Progress' }}
+    />
   </ProgressStack.Navigator>
 );
 
