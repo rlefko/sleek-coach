@@ -24,8 +24,11 @@ module.exports = {
     },
   },
   moduleNameMapper: {
-    // Storage mock must be first for priority
+    // Mock storage - handle both aliased and relative paths
     '^@/lib/storage$': '<rootDir>/src/lib/__mocks__/storage.ts',
+    '^(\\.\\./)+lib/storage$': '<rootDir>/src/lib/__mocks__/storage.ts',
+    '^\\./lib/storage$': '<rootDir>/src/lib/__mocks__/storage.ts',
+    // General path alias
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
