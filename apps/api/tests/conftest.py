@@ -18,6 +18,7 @@ from app.auth.models import RefreshToken  # noqa: F401
 from app.checkins.models import CheckIn  # noqa: F401
 from app.database import get_session
 from app.main import app
+from app.nutrition.models import NutritionDay  # noqa: F401
 from app.photos.models import ProgressPhoto  # noqa: F401
 from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401
 
