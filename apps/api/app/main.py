@@ -12,6 +12,7 @@ from slowapi.errors import RateLimitExceeded
 from app.api.v1.router import api_router
 from app.auth.router import router as auth_router
 from app.checkins.router import router as checkins_router
+from app.coach_ai.router import router as coach_router
 from app.config import get_settings
 from app.database import close_db, init_db
 from app.integrations.router import router as integrations_router
@@ -73,6 +74,7 @@ def create_application() -> FastAPI:
     app.include_router(photos_router, prefix=settings.api_v1_prefix)
     app.include_router(nutrition_router, prefix=settings.api_v1_prefix)
     app.include_router(integrations_router, prefix=settings.api_v1_prefix)
+    app.include_router(coach_router, prefix=settings.api_v1_prefix)
 
     return app
 
