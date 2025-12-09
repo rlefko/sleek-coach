@@ -56,6 +56,20 @@ class Settings(BaseSettings):
     rate_limit_requests: int = 100
     rate_limit_period: int = 60
 
+    # OpenAI / AI Coach
+    openai_api_key: str = ""
+    openai_default_model: str = "gpt-4o-mini"
+    openai_timeout_seconds: int = 60
+    coach_default_model_tier: str = "standard"
+    coach_max_conversation_history: int = 20
+    coach_context_max_tokens: int = 4000
+    coach_cache_ttl_seconds: int = 300
+
+    # Safety thresholds
+    coach_min_calories_female: int = 1200
+    coach_min_calories_male: int = 1500
+    coach_max_deficit: int = 1000
+
     @property
     def is_development(self) -> bool:
         """Check if running in development mode."""
