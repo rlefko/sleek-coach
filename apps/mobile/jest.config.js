@@ -28,4 +28,7 @@ module.exports = {
   },
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  // Support npm workspaces - look for node_modules in parent directories
+  modulePaths: ['<rootDir>', '<rootDir>/../../node_modules'],
+  roots: ['<rootDir>/src'],
 };

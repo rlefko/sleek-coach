@@ -1,35 +1,6 @@
 import { useAuthStore } from '@/stores/authStore';
 
-// Mock the storage module
-jest.mock('@/lib/storage', () => {
-  const mockStorage = new Map<string, string>();
-  return {
-    storage: {
-      getString: jest.fn((key: string) => mockStorage.get(key)),
-      set: jest.fn((key: string, value: string) => mockStorage.set(key, value)),
-      delete: jest.fn((key: string) => mockStorage.delete(key)),
-      contains: jest.fn((key: string) => mockStorage.has(key)),
-      clearAll: jest.fn(() => mockStorage.clear()),
-    },
-    zustandStorage: {
-      getItem: jest.fn((name: string) => mockStorage.get(name) ?? null),
-      setItem: jest.fn((name: string, value: string) => mockStorage.set(name, value)),
-      removeItem: jest.fn((name: string) => mockStorage.delete(name)),
-    },
-    secureStorage: {
-      setToken: jest.fn((key: string, value: string) => mockStorage.set(key, value)),
-      getToken: jest.fn((key: string) => mockStorage.get(key)),
-      deleteToken: jest.fn((key: string) => mockStorage.delete(key)),
-      hasToken: jest.fn((key: string) => mockStorage.has(key)),
-    },
-    storageHelpers: {
-      set: jest.fn(),
-      get: jest.fn(),
-      remove: jest.fn(),
-      clear: jest.fn(),
-    },
-  };
-});
+// Storage is mocked globally in jest.setup.js
 
 describe('authStore', () => {
   beforeEach(() => {
