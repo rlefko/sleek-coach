@@ -5,7 +5,7 @@ import asyncio
 import sys
 import time
 
-import asyncpg
+import asyncpg  # type: ignore[import-untyped]
 
 
 async def wait_for_db(
