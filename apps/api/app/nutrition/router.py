@@ -93,10 +93,7 @@ async def get_nutrition_range(
     else:
         items = await service.get_by_date_range(current_user.id, from_date, to_date)
         return NutritionListResponse(
-            items=[
-                NutritionDayResponse.model_validate(n, from_attributes=True)
-                for n in items
-            ],
+            items=[NutritionDayResponse.model_validate(n, from_attributes=True) for n in items],
             total=len(items),
             from_date=from_date,
             to_date=to_date,

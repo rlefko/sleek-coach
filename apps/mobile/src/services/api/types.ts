@@ -292,6 +292,58 @@ export interface ChatMessage {
   errorMessage?: string;
 }
 
+// Password Change
+export interface PasswordChangeRequest {
+  current_password: string;
+  new_password: string;
+}
+
+// Data Export
+export interface ExportCheckIn {
+  date: string;
+  weight_kg: number | null;
+  notes: string | null;
+  energy_level: number | null;
+  sleep_quality: number | null;
+  mood: number | null;
+  created_at: string;
+}
+
+export interface ExportNutritionDay {
+  date: string;
+  calories: number | null;
+  protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
+  fiber_g: number | null;
+  source: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface UserDataExport {
+  user: User;
+  check_ins: ExportCheckIn[];
+  nutrition_days: ExportNutritionDay[];
+  photo_count: number;
+  exported_at: string;
+}
+
+// MFP Import
+export interface MFPImportResponse {
+  total_rows: number;
+  imported: number;
+  skipped: number;
+  errors: string[];
+  date_range_start: string | null;
+  date_range_end: string | null;
+}
+
+// Message Response
+export interface MessageResponse {
+  message: string;
+}
+
 // API Error
 export interface ApiError {
   detail: string | { msg: string; type: string; loc: string[] }[];

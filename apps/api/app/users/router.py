@@ -1,16 +1,19 @@
 """User profile API endpoints."""
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import CurrentUser
+from app.auth.schemas import MessageResponse
 from app.database import get_session
 
 from .schemas import (
     DietPreferencesResponse,
     DietPreferencesUpdate,
+    UserDataExport,
     UserGoalResponse,
     UserGoalUpdate,
     UserProfileResponse,
@@ -145,3 +148,90 @@ async def update_preferences(
         meals_per_day=preferences.meals_per_day,
         macro_targets=preferences.macro_targets,
     )
+
+
+@router.get("/me/export", response_model=UserDataExport)
+async def export_data(
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> UserDataExport:
+    """Export all user data for GDPR compliance.
+
+    Returns complete user data including profile, goals, preferences,
+    check-ins, and nutrition records. Photos are not included but
+    a count is provided.
+    """
+    service = UserService(session)
+
+    # Get user with relations
+    user = await service.get_user_with_relations(current_user.id)
+
+    # Build user response
+    profile_response = None
+    if user and user.profile:
+        profile_response = UserProfileResponse(
+            display_name=user.profile.display_name,
+            height_cm=user.profile.height_cm,
+            sex=user.profile.sex,
+            birth_year=user.profile.birth_year,
+            activity_level=user.profile.activity_level,
+            timezone=user.profile.timezone,
+        )
+
+    goal_response = None
+    if user and user.goal:
+        goal_response = UserGoalResponse(
+            goal_type=user.goal.goal_type,
+            target_weight_kg=user.goal.target_weight_kg,
+            pace_preference=user.goal.pace_preference,
+            target_date=user.goal.target_date,
+        )
+
+    preferences_response = None
+    if user and user.diet_preferences:
+        preferences_response = DietPreferencesResponse(
+            diet_type=user.diet_preferences.diet_type,
+            allergies=user.diet_preferences.allergies or [],
+            disliked_foods=user.diet_preferences.disliked_foods or [],
+            meals_per_day=user.diet_preferences.meals_per_day,
+            macro_targets=user.diet_preferences.macro_targets,
+        )
+
+    user_response = UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        is_active=current_user.is_active,
+        is_verified=current_user.is_verified,
+        created_at=current_user.created_at,
+        profile=profile_response,
+        goal=goal_response,
+        preferences=preferences_response,
+    )
+
+    # Get export data
+    check_ins, nutrition_days, photo_count = await service.export_user_data(current_user.id)
+
+    return UserDataExport(
+        user=user_response,
+        check_ins=check_ins,
+        nutrition_days=nutrition_days,
+        photo_count=photo_count,
+        exported_at=datetime.utcnow(),
+    )
+
+
+@router.delete("/me", response_model=MessageResponse)
+async def delete_account(
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> MessageResponse:
+    """Delete current user's account and all associated data.
+
+    This action is irreversible. All user data including profile,
+    goals, preferences, check-ins, nutrition records, and photo
+    metadata will be permanently deleted.
+    """
+    service = UserService(session)
+    await service.delete_user(current_user.id)
+
+    return MessageResponse(message="Account deleted successfully")

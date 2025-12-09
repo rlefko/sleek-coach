@@ -151,9 +151,7 @@ class PhotoService:
         """
         query = select(ProgressPhoto).where(ProgressPhoto.user_id == user_id)
         count_query = (
-            select(func.count())
-            .select_from(ProgressPhoto)
-            .where(ProgressPhoto.user_id == user_id)
+            select(func.count()).select_from(ProgressPhoto).where(ProgressPhoto.user_id == user_id)
         )
 
         if from_date:

@@ -76,12 +76,8 @@ class MacroTargetsRequest(BaseModel):
     height_cm: float = Field(ge=50, le=300)
     age: int = Field(ge=10, le=120)
     sex: str = Field(pattern="^(male|female)$")
-    activity_level: str = Field(
-        pattern="^(sedentary|light|moderate|active|very_active)$"
-    )
-    goal_type: str = Field(
-        pattern="^(fat_loss|muscle_gain|maintenance|recomp|performance)$"
-    )
+    activity_level: str = Field(pattern="^(sedentary|light|moderate|active|very_active)$")
+    goal_type: str = Field(pattern="^(fat_loss|muscle_gain|maintenance|recomp|performance)$")
     pace: str = Field(default="moderate", pattern="^(slow|moderate|aggressive)$")
 
 

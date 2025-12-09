@@ -6,7 +6,13 @@ import { useAppTheme } from '@/theme';
 import { HomeScreen, CheckInScreen, NutritionLogScreen } from '@/screens/home';
 import { ProgressScreen, PhotoComparisonScreen } from '@/screens/progress';
 import { CoachScreen, CoachPlanScreen } from '@/screens/coach';
-import { SettingsScreen } from '@/screens/settings';
+import {
+  SettingsScreen,
+  EditProfileScreen,
+  EditGoalsScreen,
+  EditPreferencesScreen,
+  MFPImportScreen,
+} from '@/screens/settings';
 import type {
   MainTabParamList,
   HomeStackParamList,
@@ -64,8 +70,32 @@ const CoachNavigator = () => (
 );
 
 const SettingsNavigator = () => (
-  <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
-    <SettingsStack.Screen name="Settings" component={SettingsScreen} />
+  <SettingsStack.Navigator>
+    <SettingsStack.Screen
+      name="Settings"
+      component={SettingsScreen}
+      options={{ headerShown: false }}
+    />
+    <SettingsStack.Screen
+      name="EditProfile"
+      component={EditProfileScreen}
+      options={{ title: 'Edit Profile', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="EditGoals"
+      component={EditGoalsScreen}
+      options={{ title: 'Edit Goals', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="EditPreferences"
+      component={EditPreferencesScreen}
+      options={{ title: 'Diet Preferences', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="MFPImport"
+      component={MFPImportScreen}
+      options={{ title: 'Import from MFP', headerBackTitle: 'Settings' }}
+    />
   </SettingsStack.Navigator>
 );
 

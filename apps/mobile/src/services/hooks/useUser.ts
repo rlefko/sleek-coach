@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { userService } from '../api';
+import { userService, authService } from '../api';
 import { queryKeys } from '@/lib/queryKeys';
-import type { UserProfileUpdate, UserGoalUpdate, DietPreferencesUpdate } from '../api/types';
+import { useAuthStore } from '@/stores/authStore';
+import type {
+  UserProfileUpdate,
+  UserGoalUpdate,
+  DietPreferencesUpdate,
+  PasswordChangeRequest,
+} from '../api/types';
 
 export const useUser = () => {
   return useQuery({
@@ -39,6 +45,29 @@ export const useUpdatePreferences = () => {
     mutationFn: (data: DietPreferencesUpdate) => userService.updatePreferences(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user.me() });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (data: PasswordChangeRequest) => authService.changePassword(data),
+  });
+};
+
+export const useExportData = () => {
+  return useMutation({
+    mutationFn: () => userService.exportData(),
+  });
+};
+
+export const useDeleteAccount = () => {
+  const logout = useAuthStore((state) => state.logout);
+
+  return useMutation({
+    mutationFn: () => userService.deleteAccount(),
+    onSuccess: () => {
+      logout();
     },
   });
 };
