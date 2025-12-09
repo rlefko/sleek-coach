@@ -24,6 +24,8 @@ module.exports = {
     },
   },
   moduleNameMapper: {
+    // Storage mock must be first for priority
+    '^@/lib/storage$': '<rootDir>/src/lib/__mocks__/storage.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['**/__tests__/**/*.test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
