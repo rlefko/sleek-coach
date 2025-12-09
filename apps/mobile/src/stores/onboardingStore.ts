@@ -1,18 +1,20 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from '@/lib/storage';
-
-type GoalType = 'fat_loss' | 'muscle_gain' | 'recomp' | 'maintenance' | 'performance';
-type Sex = 'male' | 'female' | 'other' | 'prefer_not_to_say';
-type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
-type PacePreference = 'slow' | 'moderate' | 'aggressive';
-type PhotoVisibility = 'private' | 'coach_only';
+import type {
+  GoalType,
+  Sex,
+  ActivityLevel,
+  PacePreference,
+  DietType,
+  PhotoVisibility,
+} from '@/schemas/onboardingSchemas';
 
 interface OnboardingData {
-  // Goal selection
+  // Step 1: Goal Selection
   goalType?: GoalType;
 
-  // Baseline metrics
+  // Step 2: Baseline Metrics
   currentWeightKg?: number;
   targetWeightKg?: number;
   heightCm?: number;
@@ -20,17 +22,20 @@ interface OnboardingData {
   sex?: Sex;
   activityLevel?: ActivityLevel;
 
-  // Preferences
+  // Step 3: Timeline Preferences
   pacePreference?: PacePreference;
-  targetDate?: string;
-  dietType?: string;
+  targetDate?: string | null;
+
+  // Step 4: Diet Preferences
+  dietType?: DietType;
   allergies?: string[];
   dislikedFoods?: string[];
   mealsPerDay?: number;
 
-  // Privacy
+  // Step 5: Privacy Settings
   allowWebSearch?: boolean;
   photoVisibility?: PhotoVisibility;
+  allowDataSharing?: boolean;
 }
 
 interface OnboardingState {
@@ -38,6 +43,7 @@ interface OnboardingState {
   totalSteps: number;
   data: OnboardingData;
   isComplete: boolean;
+  isSubmitting: boolean;
 }
 
 interface OnboardingActions {
@@ -45,15 +51,27 @@ interface OnboardingActions {
   nextStep: () => void;
   previousStep: () => void;
   updateData: (data: Partial<OnboardingData>) => void;
+  setSubmitting: (submitting: boolean) => void;
   complete: () => void;
   reset: () => void;
 }
 
 const initialState: OnboardingState = {
   currentStep: 0,
-  totalSteps: 5,
-  data: {},
+  totalSteps: 6,
+  data: {
+    // Default values
+    mealsPerDay: 3,
+    allergies: [],
+    dislikedFoods: [],
+    allowWebSearch: true,
+    photoVisibility: 'private',
+    allowDataSharing: false,
+    pacePreference: 'moderate',
+    dietType: 'none',
+  },
   isComplete: false,
+  isSubmitting: false,
 };
 
 export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
@@ -81,6 +99,8 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
         set((state) => ({
           data: { ...state.data, ...newData },
         })),
+
+      setSubmitting: (submitting) => set({ isSubmitting: submitting }),
 
       complete: () => set({ isComplete: true }),
 
