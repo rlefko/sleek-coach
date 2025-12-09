@@ -15,8 +15,10 @@ os.environ["DATABASE_URL"] = "postgresql+asyncpg://test:test@localhost:5432/test
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 
 from app.auth.models import RefreshToken  # noqa: F401
+from app.checkins.models import CheckIn  # noqa: F401
 from app.database import get_session
 from app.main import app
+from app.photos.models import ProgressPhoto  # noqa: F401
 from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401
 
 # Test database URL (use SQLite for fast unit tests)

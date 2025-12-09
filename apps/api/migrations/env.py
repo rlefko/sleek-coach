@@ -20,6 +20,8 @@ if config.config_file_name is not None:
 
 # Import all models here to ensure they are registered for autogenerate
 from app.auth.models import RefreshToken  # noqa: F401, E402
+from app.checkins.models import CheckIn  # noqa: F401, E402
+from app.photos.models import ProgressPhoto  # noqa: F401, E402
 from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401, E402
 
 target_metadata = SQLModel.metadata
