@@ -5,7 +5,7 @@ import { Icon } from 'react-native-paper';
 import { useAppTheme } from '@/theme';
 import { HomeScreen, CheckInScreen, NutritionLogScreen } from '@/screens/home';
 import { ProgressScreen, PhotoComparisonScreen } from '@/screens/progress';
-import { CoachScreen } from '@/screens/coach';
+import { CoachScreen, CoachPlanScreen } from '@/screens/coach';
 import { SettingsScreen } from '@/screens/settings';
 import type {
   MainTabParamList,
@@ -53,8 +53,13 @@ const ProgressNavigator = () => (
 );
 
 const CoachNavigator = () => (
-  <CoachStack.Navigator screenOptions={{ headerShown: false }}>
-    <CoachStack.Screen name="Coach" component={CoachScreen} />
+  <CoachStack.Navigator>
+    <CoachStack.Screen name="Coach" component={CoachScreen} options={{ headerShown: false }} />
+    <CoachStack.Screen
+      name="CoachPlan"
+      component={CoachPlanScreen}
+      options={{ title: 'Weekly Plan', headerBackTitle: 'Coach' }}
+    />
   </CoachStack.Navigator>
 );
 

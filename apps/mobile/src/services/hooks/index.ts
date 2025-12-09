@@ -15,3 +15,11 @@ export {
   useCalculateMacroTargets,
 } from './useNutrition';
 export { usePhotos, usePhoto, useUploadPhoto, useDeletePhoto } from './usePhotos';
+export {
+  useInsights,
+  usePlan,
+  useGeneratePlan,
+  useChat,
+  useChatStream,
+  useChatSessions,
+} from './useCoach';

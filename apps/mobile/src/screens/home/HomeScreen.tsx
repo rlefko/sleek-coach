@@ -13,6 +13,7 @@ import {
   QuickActionFAB,
   NextBestActionCard,
   determineNextBestAction,
+  CoachPlanWidget,
 } from '@/components/home';
 import { SyncStatusIndicator } from '@/components/common';
 import { LoadingSpinner, EmptyState } from '@/components/ui';
@@ -145,6 +146,13 @@ export const HomeScreen: React.FC = () => {
     });
   }, [navigation]);
 
+  const handleViewPlan = useCallback(() => {
+    // Navigate to coach plan screen
+    navigation.getParent<NativeStackNavigationProp<MainTabParamList>>()?.navigate('CoachTab', {
+      screen: 'CoachPlan',
+    });
+  }, [navigation]);
+
   const handleNextAction = useCallback(() => {
     switch (nextAction) {
       case 'log_checkin':
@@ -204,6 +212,10 @@ export const HomeScreen: React.FC = () => {
           onPress={handleLogWeight}
         />
 
+        <View style={styles.widgetSpacer}>
+          <CoachPlanWidget todayNutrition={todayNutrition} onPress={handleViewPlan} />
+        </View>
+
         <NextBestActionCard actionType={nextAction} onPress={handleNextAction} />
 
         {!hasCheckinToday && !hasNutritionToday && checkinsData?.items.length === 0 && (
@@ -237,5 +249,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: spacing.md,
+  },
+  widgetSpacer: {
+    marginTop: spacing.md,
   },
 });

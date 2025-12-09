@@ -4,4 +4,5 @@ export { userService } from './userService';
 export { checkinService } from './checkinService';
 export { nutritionService } from './nutritionService';
 export { photoService } from './photoService';
+export { coachService } from './coachService';
 export * from './types';

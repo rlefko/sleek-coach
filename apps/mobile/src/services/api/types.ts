@@ -193,6 +193,105 @@ export interface PhotoPresignResponse {
   expires_at: string;
 }
 
+// Coach Chat Types - matching backend schemas from apps/api/app/coach_ai/schemas.py
+export interface ChatRequest {
+  message: string;
+  session_id?: string;
+}
+
+export interface ToolTrace {
+  tool_name: string;
+  tool_description: string;
+  input_summary: string;
+  output_summary: string;
+  source_citations: string[] | null;
+  latency_ms: number;
+  cached: boolean;
+}
+
+export interface DataGap {
+  field: string;
+  description: string;
+  suggestion: string;
+}
+
+export interface ChatResponse {
+  message: string;
+  session_id: string;
+  tool_trace: ToolTrace[] | null;
+  confidence: number;
+  data_gaps: DataGap[] | null;
+  disclaimers: string[] | null;
+  tokens_used: number;
+}
+
+export type StreamEventType = 'token' | 'tool_start' | 'tool_end' | 'done' | 'error';
+
+export interface StreamEvent {
+  type: StreamEventType;
+  data: string | Record<string, unknown>;
+}
+
+export interface DailyTarget {
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+}
+
+export interface WeeklyPlanRequest {
+  start_date?: string;
+  preferences?: Record<string, string>;
+}
+
+export interface WeeklyPlanResponse {
+  plan_id: string;
+  week_start: string;
+  daily_targets: DailyTarget;
+  focus_areas: string[];
+  recommendations: string[];
+  confidence: number;
+}
+
+export interface InsightItem {
+  type: 'trend' | 'achievement' | 'recommendation' | 'warning';
+  title: string;
+  description: string;
+  data: Record<string, unknown> | null;
+  action: string | null;
+}
+
+export interface InsightsResponse {
+  generated_at: string;
+  insights: InsightItem[];
+  data_quality_score: number;
+}
+
+export interface ChatSession {
+  id: string;
+  created_at: string;
+  last_message_at: string;
+  message_count: number;
+  title?: string;
+}
+
+export type ChatMessageRole = 'user' | 'assistant';
+export type ChatMessageStatus = 'sending' | 'streaming' | 'complete' | 'error';
+
+export interface ChatMessage {
+  id: string;
+  role: ChatMessageRole;
+  content: string;
+  timestamp: string;
+  sessionId: string;
+  toolTrace?: ToolTrace[];
+  confidence?: number;
+  dataGaps?: DataGap[];
+  disclaimers?: string[];
+  status: ChatMessageStatus;
+  errorMessage?: string;
+}
+
 // API Error
 export interface ApiError {
   detail: string | { msg: string; type: string; loc: string[] }[];
