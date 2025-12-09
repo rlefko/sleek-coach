@@ -100,8 +100,8 @@ jobs:
         env:
           APP_ENV: testing
           SECRET_KEY: test-secret-key-minimum-32-characters-long
-          DATABASE_URL: sqlite+aiosqlite:///:memory:
-          REDIS_URL: redis://localhost:6379/0
+          DATABASE_URL: "sqlite+aiosqlite:///:memory:"
+          REDIS_URL: "redis://localhost:6379/0"
           JWT_SECRET_KEY: test-jwt-secret-minimum-32-characters
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
