@@ -1,0 +1,17 @@
+{
+  "name": "sleek-coach",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/mobile"
+  ],
+  "scripts": {
+    "mobile": "npm --workspace=apps/mobile",
+    "mobile:start": "npm --workspace=apps/mobile run start",
+    "mobile:lint": "npm --workspace=apps/mobile run lint",
+    "mobile:test": "npm --workspace=apps/mobile run test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

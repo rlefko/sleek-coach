@@ -1,0 +1,1 @@
+"""Sleek Coach API application."""
