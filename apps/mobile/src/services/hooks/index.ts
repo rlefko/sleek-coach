@@ -14,3 +14,4 @@ export {
   useLogNutrition,
   useCalculateMacroTargets,
 } from './useNutrition';
+export { usePhotos, usePhoto, useUploadPhoto, useDeletePhoto } from './usePhotos';
