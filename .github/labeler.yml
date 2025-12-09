@@ -1,0 +1,65 @@
+# Label rules for PR auto-labeling
+
+# Backend changes
+backend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/api/**/*'
+
+# Mobile changes
+mobile:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/mobile/**/*'
+
+# Infrastructure changes
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'infra/**/*'
+
+# CI/CD changes
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**/*'
+          - '**/*.md'
+          - '!CHANGELOG.md'
+
+# Dependencies
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/package.json'
+          - '**/package-lock.json'
+          - '**/pyproject.toml'
+          - '**/uv.lock'
+          - '**/requirements*.txt'
+
+# Database/migrations
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/api/migrations/**/*'
+          - 'apps/api/app/**/models.py'
+
+# Tests
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/api/tests/**/*'
+          - 'apps/mobile/**/__tests__/**/*'
+          - 'apps/mobile/**/*.test.ts'
+          - 'apps/mobile/**/*.test.tsx'
+
+# Coach AI
+ai:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/api/app/coach_ai/**/*'
