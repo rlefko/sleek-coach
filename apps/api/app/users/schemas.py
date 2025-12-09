@@ -1,7 +1,7 @@
 """User request/response schemas."""
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -83,3 +83,40 @@ class UserResponse(BaseModel):
     profile: UserProfileResponse | None
     goal: UserGoalResponse | None
     preferences: DietPreferencesResponse | None
+
+
+# Data Export Schemas
+class ExportCheckIn(BaseModel):
+    """Check-in data for export."""
+
+    date: date
+    weight_kg: float | None
+    notes: str | None
+    energy_level: int | None
+    sleep_quality: int | None
+    mood: int | None
+    created_at: datetime
+
+
+class ExportNutritionDay(BaseModel):
+    """Nutrition day data for export."""
+
+    date: date
+    calories: int | None
+    protein_g: float | None
+    carbs_g: float | None
+    fat_g: float | None
+    fiber_g: float | None
+    source: str
+    notes: str | None
+    created_at: datetime
+
+
+class UserDataExport(BaseModel):
+    """Complete user data export for GDPR compliance."""
+
+    user: UserResponse
+    check_ins: list[ExportCheckIn]
+    nutrition_days: list[ExportNutritionDay]
+    photo_count: int
+    exported_at: datetime

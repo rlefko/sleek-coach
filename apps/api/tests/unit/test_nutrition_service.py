@@ -96,9 +96,7 @@ class TestCreateOrUpdate:
         assert nutrition.fat_g is None
 
     @pytest.mark.asyncio
-    async def test_create_with_notes(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_create_with_notes(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test creating nutrition with notes."""
         data = NutritionDayCreate(
             date=date.today(),
@@ -115,9 +113,7 @@ class TestGetByDate:
     """Tests for get_by_date method."""
 
     @pytest.mark.asyncio
-    async def test_get_existing_date(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_get_existing_date(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test retrieving nutrition for an existing date."""
         data = NutritionDayCreate(date=date.today(), calories=2000)
         await service.create_or_update(user_id, data)
@@ -155,9 +151,7 @@ class TestGetByDateRange:
     """Tests for get_by_date_range method."""
 
     @pytest.mark.asyncio
-    async def test_get_date_range(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_get_date_range(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test retrieving nutrition for a date range."""
         # Create entries for multiple days
         for i in range(5):
@@ -188,9 +182,7 @@ class TestGetAggregatedStats:
     """Tests for get_aggregated_stats method."""
 
     @pytest.mark.asyncio
-    async def test_aggregated_stats(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_aggregated_stats(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test aggregated nutrition statistics."""
         # Create entries
         for i in range(3):
@@ -230,9 +222,7 @@ class TestDeleteByDate:
     """Tests for delete_by_date method."""
 
     @pytest.mark.asyncio
-    async def test_delete_existing(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_delete_existing(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test deleting an existing nutrition day."""
         data = NutritionDayCreate(date=date.today(), calories=2000)
         await service.create_or_update(user_id, data)
@@ -245,9 +235,7 @@ class TestDeleteByDate:
         assert nutrition is None
 
     @pytest.mark.asyncio
-    async def test_delete_nonexistent(
-        self, service: NutritionService, user_id: uuid.UUID
-    ) -> None:
+    async def test_delete_nonexistent(self, service: NutritionService, user_id: uuid.UUID) -> None:
         """Test deleting a nonexistent nutrition day."""
         deleted = await service.delete_by_date(user_id, date.today())
 

@@ -108,9 +108,7 @@ async def sync_checkins(
         CheckInSyncResult(
             date=cast("date", r["date"]),
             status=cast("str", r["status"]),
-            server_version=CheckInResponse.model_validate(
-                r["server_version"], from_attributes=True
-            )
+            server_version=CheckInResponse.model_validate(r["server_version"], from_attributes=True)
             if r["server_version"]
             else None,
         )

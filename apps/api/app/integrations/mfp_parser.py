@@ -353,6 +353,5 @@ def _is_empty_row(row: MFPNutritionRow) -> bool:
         True if all nutrition values are None.
     """
     return all(
-        v is None
-        for v in [row.calories, row.protein_g, row.carbs_g, row.fat_g, row.fiber_g]
+        v is None for v in [row.calories, row.protein_g, row.carbs_g, row.fat_g, row.fiber_g]
     )
