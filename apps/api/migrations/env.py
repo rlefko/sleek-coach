@@ -19,7 +19,8 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import all models here to ensure they are registered for autogenerate
-# These imports will be added as models are created in subsequent phases
+from app.auth.models import RefreshToken  # noqa: F401, E402
+from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401, E402
 
 target_metadata = SQLModel.metadata
 
