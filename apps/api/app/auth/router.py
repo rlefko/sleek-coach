@@ -11,6 +11,7 @@ from .dependencies import CurrentUser
 from .schemas import (
     LoginRequest,
     MessageResponse,
+    PasswordChangeRequest,
     RefreshRequest,
     RegisterRequest,
     TokenResponse,
@@ -95,9 +96,7 @@ async def refresh(
     ip_address, user_agent = get_client_info(request)
     service = AuthService(session)
 
-    token_pair = await service.refresh_tokens(
-        data.refresh_token, ip_address, user_agent
-    )
+    token_pair = await service.refresh_tokens(data.refresh_token, ip_address, user_agent)
 
     return TokenResponse(
         access_token=token_pair.access_token,
@@ -136,3 +135,20 @@ async def logout_all(
     count = await service.logout_all(current_user.id)
 
     return MessageResponse(message=f"Logged out from {count} sessions")
+
+
+@router.post("/change-password", response_model=MessageResponse)
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> MessageResponse:
+    """Change the current user's password.
+
+    Requires authentication. Validates the current password before
+    updating to the new password.
+    """
+    service = AuthService(session)
+    await service.change_password(current_user.id, data.current_password, data.new_password)
+
+    return MessageResponse(message="Password changed successfully")

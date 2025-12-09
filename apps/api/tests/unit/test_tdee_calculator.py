@@ -1,6 +1,5 @@
 """Tests for TDEE and macro calculations."""
 
-
 from app.nutrition.calculator import (
     ACTIVITY_MULTIPLIERS,
     MIN_CALORIES_FEMALE,

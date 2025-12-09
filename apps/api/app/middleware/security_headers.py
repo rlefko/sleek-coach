@@ -41,8 +41,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # HSTS only in production
         if settings.is_production:
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains"
-            )
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         return response

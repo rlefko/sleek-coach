@@ -1,5 +1,11 @@
 import { apiClient } from './client';
-import type { LoginRequest, RegisterRequest, TokenResponse } from './types';
+import type {
+  LoginRequest,
+  RegisterRequest,
+  TokenResponse,
+  PasswordChangeRequest,
+  MessageResponse,
+} from './types';
 
 export const authService = {
   login: (data: LoginRequest): Promise<TokenResponse> => apiClient.post('/auth/login', data, false),
@@ -10,8 +16,11 @@ export const authService = {
   refresh: (refreshToken: string): Promise<TokenResponse> =>
     apiClient.post('/auth/refresh', { refresh_token: refreshToken }, false),
 
-  logout: (refreshToken: string): Promise<{ message: string }> =>
+  logout: (refreshToken: string): Promise<MessageResponse> =>
     apiClient.post('/auth/logout', { refresh_token: refreshToken }),
 
-  logoutAll: (): Promise<{ message: string }> => apiClient.post('/auth/logout-all'),
+  logoutAll: (): Promise<MessageResponse> => apiClient.post('/auth/logout-all'),
+
+  changePassword: (data: PasswordChangeRequest): Promise<MessageResponse> =>
+    apiClient.post('/auth/change-password', data),
 };

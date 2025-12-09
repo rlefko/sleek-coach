@@ -7,6 +7,8 @@ import type {
   UserGoalUpdate,
   DietPreferences,
   DietPreferencesUpdate,
+  UserDataExport,
+  MessageResponse,
 } from './types';
 
 export const userService = {
@@ -19,4 +21,8 @@ export const userService = {
 
   updatePreferences: (data: DietPreferencesUpdate): Promise<DietPreferences> =>
     apiClient.patch('/me/preferences', data),
+
+  exportData: (): Promise<UserDataExport> => apiClient.get('/me/export'),
+
+  deleteAccount: (): Promise<MessageResponse> => apiClient.delete('/me'),
 };

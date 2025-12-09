@@ -332,8 +332,8 @@ async def test_mfp_import_success(client: AsyncClient) -> None:
     headers = await get_auth_headers(client, "nutrition_import@example.com")
 
     csv_content = f"""Date,Calories,Protein (g),Carbohydrates (g),Fat (g),Fiber (g)
-{date.today().strftime('%m/%d/%Y')},2000,150,200,70,30
-{(date.today() - timedelta(days=1)).strftime('%m/%d/%Y')},1800,140,180,65,25
+{date.today().strftime("%m/%d/%Y")},2000,150,200,70,30
+{(date.today() - timedelta(days=1)).strftime("%m/%d/%Y")},1800,140,180,65,25
 """
     zip_content = create_test_zip(csv_content)
 
@@ -365,7 +365,7 @@ async def test_mfp_import_skip_existing(client: AsyncClient) -> None:
 
     # Import with overlapping date
     csv_content = f"""Date,Calories,Protein (g)
-{date.today().strftime('%m/%d/%Y')},2000,150
+{date.today().strftime("%m/%d/%Y")},2000,150
 """
     zip_content = create_test_zip(csv_content)
 
@@ -402,7 +402,7 @@ async def test_mfp_import_overwrite_existing(client: AsyncClient) -> None:
 
     # Import with overwrite=true
     csv_content = f"""Date,Calories,Protein (g)
-{date.today().strftime('%m/%d/%Y')},2000,150
+{date.today().strftime("%m/%d/%Y")},2000,150
 """
     zip_content = create_test_zip(csv_content)
 

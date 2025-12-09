@@ -46,9 +46,7 @@ class AuthService:
             ConflictError: If email already registered.
         """
         # Check for existing user
-        existing = await self.session.execute(
-            select(User).where(User.email == data.email.lower())
-        )
+        existing = await self.session.execute(select(User).where(User.email == data.email.lower()))
         if existing.scalar_one_or_none():
             raise ConflictError("Email already registered")
 
@@ -68,9 +66,7 @@ class AuthService:
         self.session.add_all([profile, goal, preferences])
 
         # Create tokens
-        token_pair, refresh_expires, refresh_hash = create_token_pair(
-            user.id, user.email
-        )
+        token_pair, refresh_expires, refresh_hash = create_token_pair(user.id, user.email)
 
         # Store refresh token
         refresh_token = RefreshToken(
@@ -106,9 +102,7 @@ class AuthService:
         Raises:
             UnauthorizedError: If credentials are invalid.
         """
-        result = await self.session.execute(
-            select(User).where(User.email == data.email.lower())
-        )
+        result = await self.session.execute(select(User).where(User.email == data.email.lower()))
         user = result.scalar_one_or_none()
 
         if not user or not verify_password(data.password, user.hashed_password):
@@ -118,9 +112,7 @@ class AuthService:
             raise UnauthorizedError("Account is disabled")
 
         # Create tokens
-        token_pair, refresh_expires, refresh_hash = create_token_pair(
-            user.id, user.email
-        )
+        token_pair, refresh_expires, refresh_hash = create_token_pair(user.id, user.email)
 
         # Store refresh token
         refresh_token = RefreshToken(
@@ -188,9 +180,7 @@ class AuthService:
             raise UnauthorizedError("User not found or inactive")
 
         # Create new token pair
-        token_pair, refresh_expires, refresh_hash = create_token_pair(
-            user.id, user.email
-        )
+        token_pair, refresh_expires, refresh_hash = create_token_pair(user.id, user.email)
 
         # Store new refresh token
         new_refresh_token = RefreshToken(
@@ -244,3 +234,33 @@ class AuthService:
 
         await self.session.commit()
         return len(tokens)
+
+    async def change_password(
+        self,
+        user_id: uuid.UUID,
+        current_password: str,
+        new_password: str,
+    ) -> None:
+        """Change user's password.
+
+        Args:
+            user_id: The user's ID.
+            current_password: The current password for verification.
+            new_password: The new password to set.
+
+        Raises:
+            UnauthorizedError: If current password is incorrect.
+        """
+        result = await self.session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise UnauthorizedError("User not found")
+
+        if not verify_password(current_password, user.hashed_password):
+            raise UnauthorizedError("Current password is incorrect")
+
+        user.hashed_password = hash_password(new_password)
+        user.updated_at = datetime.utcnow()
+
+        await self.session.commit()
