@@ -14,7 +14,9 @@ from app.auth.router import router as auth_router
 from app.checkins.router import router as checkins_router
 from app.config import get_settings
 from app.database import close_db, init_db
+from app.integrations.router import router as integrations_router
 from app.middleware import RequestIDMiddleware, SecurityHeadersMiddleware, limiter
+from app.nutrition.router import router as nutrition_router
 from app.photos.router import router as photos_router
 from app.users.router import router as users_router
 
@@ -69,6 +71,8 @@ def create_application() -> FastAPI:
     app.include_router(users_router, prefix=settings.api_v1_prefix)
     app.include_router(checkins_router, prefix=settings.api_v1_prefix)
     app.include_router(photos_router, prefix=settings.api_v1_prefix)
+    app.include_router(nutrition_router, prefix=settings.api_v1_prefix)
+    app.include_router(integrations_router, prefix=settings.api_v1_prefix)
 
     return app
 
