@@ -1,0 +1,208 @@
+# CD Pipeline - Deploy to AWS ECS
+#
+# Triggered on push to main or manual dispatch.
+# Builds Docker image, pushes to ECR, runs migrations, and deploys to ECS.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: sleek-coach-api
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # Build and push Docker image to ECR
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.set-output.outputs.image_uri }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Set image URI output
+        id: set-output
+        run: |
+          echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  # Deploy to staging environment (auto on push to main)
+  deploy-staging:
+    name: Deploy Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Run database migrations
+        id: migrate
+        run: |
+          echo "Running Alembic migrations..."
+          TASK_ARN=$(aws ecs run-task \
+            --cluster sleek-coach-staging-cluster \
+            --task-definition sleek-coach-staging-api \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ vars.SUBNET_IDS }}],securityGroups=[${{ vars.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
+            --launch-type FARGATE \
+            --overrides '{"containerOverrides":[{"name":"api","command":["alembic","upgrade","head"]}]}' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          echo "Migration task started: $TASK_ARN"
+          echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
+
+          echo "Waiting for migration task to complete..."
+          aws ecs wait tasks-stopped \
+            --cluster sleek-coach-staging-cluster \
+            --tasks $TASK_ARN
+
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster sleek-coach-staging-cluster \
+            --tasks $TASK_ARN \
+            --query 'tasks[0].containers[0].exitCode' \
+            --output text)
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration failed with exit code $EXIT_CODE"
+            exit 1
+          fi
+
+          echo "Migration completed successfully"
+
+      - name: Update ECS service
+        run: |
+          echo "Updating ECS service..."
+          aws ecs update-service \
+            --cluster sleek-coach-staging-cluster \
+            --service sleek-coach-staging-api \
+            --force-new-deployment
+
+      - name: Wait for deployment to stabilize
+        run: |
+          echo "Waiting for service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster sleek-coach-staging-cluster \
+            --services sleek-coach-staging-api
+          echo "Deployment to staging completed successfully"
+
+  # Deploy to production environment (requires manual approval)
+  deploy-production:
+    name: Deploy Production
+    needs: [build, deploy-staging]
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Run database migrations
+        id: migrate
+        run: |
+          echo "Running Alembic migrations..."
+          TASK_ARN=$(aws ecs run-task \
+            --cluster sleek-coach-production-cluster \
+            --task-definition sleek-coach-production-api \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ vars.SUBNET_IDS }}],securityGroups=[${{ vars.SECURITY_GROUP }}],assignPublicIp=DISABLED}" \
+            --launch-type FARGATE \
+            --overrides '{"containerOverrides":[{"name":"api","command":["alembic","upgrade","head"]}]}' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          echo "Migration task started: $TASK_ARN"
+          echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
+
+          echo "Waiting for migration task to complete..."
+          aws ecs wait tasks-stopped \
+            --cluster sleek-coach-production-cluster \
+            --tasks $TASK_ARN
+
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster sleek-coach-production-cluster \
+            --tasks $TASK_ARN \
+            --query 'tasks[0].containers[0].exitCode' \
+            --output text)
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration failed with exit code $EXIT_CODE"
+            exit 1
+          fi
+
+          echo "Migration completed successfully"
+
+      - name: Update ECS service
+        run: |
+          echo "Updating ECS service..."
+          aws ecs update-service \
+            --cluster sleek-coach-production-cluster \
+            --service sleek-coach-production-api \
+            --force-new-deployment
+
+      - name: Wait for deployment to stabilize
+        run: |
+          echo "Waiting for service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster sleek-coach-production-cluster \
+            --services sleek-coach-production-api
+          echo "Deployment to production completed successfully"
