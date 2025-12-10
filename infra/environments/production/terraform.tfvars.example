@@ -1,0 +1,39 @@
+# Production Environment Configuration
+# Copy this to terraform.tfvars and customize as needed
+
+aws_region = "us-east-1"
+
+# VPC - Different CIDR from staging
+vpc_cidr           = "10.1.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+single_nat_gateway = false  # HA: NAT per AZ
+
+# RDS - Production sized
+db_instance_class        = "db.t3.medium"
+db_allocated_storage     = 100
+db_max_allocated_storage = 500
+db_multi_az              = true
+db_backup_retention      = 30
+db_deletion_protection   = true
+db_performance_insights  = true
+
+# ElastiCache - HA configuration
+redis_node_type       = "cache.t3.small"
+redis_num_cache_nodes = 2
+
+# ECS - Production resources
+ecs_cpu           = 512
+ecs_memory        = 1024
+ecs_desired_count = 2
+ecs_min_capacity  = 2
+ecs_max_capacity  = 10
+
+# Docker image tag
+image_tag = "production"
+
+# Logging
+log_retention_days = 90
+container_insights = true
+
+# Debugging disabled in production
+enable_ecs_exec = false
