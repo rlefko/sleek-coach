@@ -15,8 +15,14 @@ from app.checkins.router import router as checkins_router
 from app.coach_ai.router import router as coach_router
 from app.config import get_settings
 from app.database import close_db, init_db
+from app.dependencies import close_redis, init_redis
 from app.integrations.router import router as integrations_router
-from app.middleware import RequestIDMiddleware, SecurityHeadersMiddleware, limiter
+from app.middleware import (
+    PerformanceMiddleware,
+    RequestIDMiddleware,
+    SecurityHeadersMiddleware,
+    limiter,
+)
 from app.nutrition.router import router as nutrition_router
 from app.photos.router import router as photos_router
 from app.users.router import router as users_router
@@ -31,9 +37,11 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # Startup
     logger.info("Starting application", app_name=settings.app_name, env=settings.app_env)
     await init_db()
+    await init_redis()
     yield
     # Shutdown
     logger.info("Shutting down application")
+    await close_redis()
     await close_db()
 
 
@@ -53,7 +61,9 @@ def create_application() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
-    # Security middleware (order matters - first added = last executed)
+    # Middleware (order matters - first added = last executed)
+    # Performance middleware should run first to capture full request time
+    app.add_middleware(PerformanceMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIDMiddleware)
 

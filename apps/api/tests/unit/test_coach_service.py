@@ -318,7 +318,7 @@ class TestCoachServiceChat:
         sample_ai_session: AISession,
         sample_coach_context: CoachContext,
     ) -> None:
-        """Test that conversation history is trimmed to 20 messages."""
+        """Test that conversation history is trimmed to 12 messages (6 rounds)."""
         service = CoachService(mock_db_session)
 
         # Pre-populate with 22 messages
@@ -361,8 +361,8 @@ class TestCoachServiceChat:
 
                             await service.chat(sample_user_id, "Hello")
 
-        # Should be trimmed to 20
-        assert len(sample_ai_session.conversation_history) == 20
+        # Should be trimmed to 12 (6 rounds for token optimization)
+        assert len(sample_ai_session.conversation_history) == 12
 
 
 class TestCoachServiceCalculateConfidence:

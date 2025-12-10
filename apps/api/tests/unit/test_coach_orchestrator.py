@@ -374,13 +374,13 @@ class TestCoachOrchestratorBuildMessages:
         orchestrator: CoachOrchestrator,
         sample_coach_context: CoachContext,
     ) -> None:
-        """Test that history is limited to last 10 messages."""
+        """Test that history is limited to last 6 messages (3 rounds)."""
         history = [ChatMessage(role="user", content=f"msg{i}") for i in range(15)]
 
         messages = orchestrator._build_messages("Current", sample_coach_context, history)
 
-        # Should have: system + 10 history + current = 12
-        assert len(messages) == 12
+        # Should have: system + 6 history + current = 8
+        assert len(messages) == 8
 
 
 class TestCoachOrchestratorGeneratePlan:
