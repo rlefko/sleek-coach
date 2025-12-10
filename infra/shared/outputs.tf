@@ -12,3 +12,8 @@ output "ecr_repository_name" {
   description = "Name of the ECR repository"
   value       = module.ecr.repository_name
 }
+
+output "github_actions_role_arn" {
+  description = "ARN of the IAM role for GitHub Actions to assume"
+  value       = module.github_oidc.role_arn
+}

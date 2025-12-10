@@ -37,3 +37,16 @@ module "ecr" {
     Shared = "true"
   }
 }
+
+# GitHub Actions OIDC for CD pipeline
+module "github_oidc" {
+  source = "../modules/github-oidc"
+
+  github_org         = "rlefko"
+  github_repo        = "sleek-coach"
+  ecr_repository_arn = module.ecr.repository_arn
+
+  tags = {
+    Shared = "true"
+  }
+}
