@@ -1,11 +1,8 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  testEnvironment: 'node',
+  preset: 'react-native',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
-  },
   transformIgnorePatterns: [
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|victory-native|react-native-paper|react-native-vector-icons|react-native-reanimated|react-native-gesture-handler|react-native-screens|react-native-safe-area-context|@tanstack/react-query|zustand)',
   ],
@@ -16,11 +13,26 @@ module.exports = {
     '!src/**/index.ts',
   ],
   coverageThreshold: {
+    // Global thresholds - starting low, will increase as coverage improves
     global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0,
+      branches: 5,
+      functions: 4,
+      lines: 8,
+      statements: 8,
+    },
+    // Store coverage - high priority, well tested
+    './src/stores/**/*.ts': {
+      branches: 50,
+      functions: 85,
+      lines: 70,
+      statements: 70,
+    },
+    // Schema coverage - pure functions, fully tested
+    './src/schemas/**/*.ts': {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100,
     },
   },
   moduleNameMapper: {

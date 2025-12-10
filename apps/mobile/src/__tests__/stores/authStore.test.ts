@@ -88,4 +88,79 @@ describe('authStore', () => {
       expect(useAuthStore.getState().isLoading).toBe(false);
     });
   });
+
+  describe('hydrate', () => {
+    it('should set authenticated state when tokens exist in storage', async () => {
+      // Mock secureStorage to return tokens
+      const secureStorage = require('@/lib/storage').secureStorage;
+      secureStorage.getToken = jest.fn((key: string) => {
+        if (key === 'accessToken') return 'stored-access-token';
+        if (key === 'refreshToken') return 'stored-refresh-token';
+        return null;
+      });
+
+      const { hydrate } = useAuthStore.getState();
+      await hydrate();
+
+      const state = useAuthStore.getState();
+      expect(state.accessToken).toBe('stored-access-token');
+      expect(state.refreshToken).toBe('stored-refresh-token');
+      expect(state.isAuthenticated).toBe(true);
+      expect(state.isLoading).toBe(false);
+    });
+
+    it('should not authenticate when tokens are missing', async () => {
+      // Mock secureStorage to return null (no tokens)
+      const secureStorage = require('@/lib/storage').secureStorage;
+      secureStorage.getToken = jest.fn(() => null);
+
+      // Reset store state
+      const { logout, hydrate } = useAuthStore.getState();
+      logout();
+
+      await hydrate();
+
+      const state = useAuthStore.getState();
+      expect(state.accessToken).toBeNull();
+      expect(state.refreshToken).toBeNull();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.isLoading).toBe(false);
+    });
+
+    it('should not authenticate when only access token exists', async () => {
+      // Mock secureStorage to return only access token
+      const secureStorage = require('@/lib/storage').secureStorage;
+      secureStorage.getToken = jest.fn((key: string) => {
+        if (key === 'accessToken') return 'stored-access-token';
+        return null;
+      });
+
+      const { logout, hydrate } = useAuthStore.getState();
+      logout();
+
+      await hydrate();
+
+      const state = useAuthStore.getState();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.isLoading).toBe(false);
+    });
+
+    it('should not authenticate when only refresh token exists', async () => {
+      // Mock secureStorage to return only refresh token
+      const secureStorage = require('@/lib/storage').secureStorage;
+      secureStorage.getToken = jest.fn((key: string) => {
+        if (key === 'refreshToken') return 'stored-refresh-token';
+        return null;
+      });
+
+      const { logout, hydrate } = useAuthStore.getState();
+      logout();
+
+      await hydrate();
+
+      const state = useAuthStore.getState();
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.isLoading).toBe(false);
+    });
+  });
 });
