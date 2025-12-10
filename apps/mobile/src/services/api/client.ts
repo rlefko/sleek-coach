@@ -2,13 +2,29 @@ import { getApiBaseUrl } from '@/constants/config';
 import { useAuthStore } from '@/stores/authStore';
 import type { ApiError, TokenResponse } from './types';
 
+// Default request timeout in milliseconds (30 seconds)
+const DEFAULT_TIMEOUT_MS = 30000;
+
 class ApiClient {
   private baseUrl: string;
   private isRefreshing = false;
   private refreshPromise: Promise<void> | null = null;
+  private defaultTimeout: number;
 
-  constructor() {
+  constructor(timeout = DEFAULT_TIMEOUT_MS) {
     this.baseUrl = getApiBaseUrl();
+    this.defaultTimeout = timeout;
+  }
+
+  private createAbortController(timeoutMs: number = this.defaultTimeout): {
+    controller: AbortController;
+    timeoutId: ReturnType<typeof setTimeout>;
+  } {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, timeoutMs);
+    return { controller, timeoutId };
   }
 
   private getHeaders(includeAuth = true): HeadersInit {
@@ -69,20 +85,53 @@ class ApiClient {
     const headers = this.getHeaders(requiresAuth);
     const url = `${this.baseUrl}${endpoint}`;
 
-    let response = await fetch(url, {
-      ...options,
-      headers: { ...headers, ...options.headers },
-    });
+    const { controller, timeoutId } = this.createAbortController();
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers: { ...headers, ...options.headers },
+        signal: controller.signal,
+      });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw {
+          detail: 'Request timed out. Please check your connection and try again.',
+          status: 408,
+        } as ApiError;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     // Handle 401 - try to refresh token
     if (response.status === 401 && requiresAuth) {
       try {
         await this.handleRefreshToken();
         const newHeaders = this.getHeaders(true);
-        response = await fetch(url, {
-          ...options,
-          headers: { ...newHeaders, ...options.headers },
-        });
+        const { controller: retryController, timeoutId: retryTimeoutId } =
+          this.createAbortController();
+        try {
+          response = await fetch(url, {
+            ...options,
+            headers: { ...newHeaders, ...options.headers },
+            signal: retryController.signal,
+          });
+        } catch (error) {
+          clearTimeout(retryTimeoutId);
+          if (error instanceof Error && error.name === 'AbortError') {
+            throw {
+              detail: 'Request timed out. Please check your connection and try again.',
+              status: 408,
+            } as ApiError;
+          }
+          throw error;
+        } finally {
+          clearTimeout(retryTimeoutId);
+        }
       } catch {
         // Refresh failed, error already handled
         throw { detail: 'Session expired. Please log in again.', status: 401 } as ApiError;

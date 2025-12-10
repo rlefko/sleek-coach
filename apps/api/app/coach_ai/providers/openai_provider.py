@@ -18,15 +18,21 @@ if TYPE_CHECKING:
 class OpenAIProvider(LLMProvider):
     """OpenAI GPT provider implementation."""
 
-    def __init__(self, config: ModelConfig, api_key: str) -> None:
+    # Default timeout values in seconds
+    DEFAULT_TIMEOUT = 60.0  # 60 seconds for non-streaming
+    STREAMING_TIMEOUT = 120.0  # 120 seconds for streaming
+
+    def __init__(self, config: ModelConfig, api_key: str, timeout: float | None = None) -> None:
         """Initialize the OpenAI provider.
 
         Args:
             config: Model configuration with settings.
             api_key: OpenAI API key.
+            timeout: Optional timeout in seconds (defaults to DEFAULT_TIMEOUT).
         """
         self.config = config
-        self.client = AsyncOpenAI(api_key=api_key)
+        self.timeout = timeout or self.DEFAULT_TIMEOUT
+        self.client = AsyncOpenAI(api_key=api_key, timeout=self.timeout)
 
     async def chat(
         self,
