@@ -55,9 +55,7 @@ class TestWeightLossPolicyInput:
         self, policy: WeightLossPolicy, user_context: UserContext
     ) -> None:
         """Test that normal weight loss requests are allowed."""
-        result = policy.check_input(
-            "How can I lose weight healthily?", user_context
-        )
+        result = policy.check_input("How can I lose weight healthily?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -67,9 +65,7 @@ class TestWeightLossPolicyInput:
     ) -> None:
         """Test that sustainable rate requests are allowed."""
         # General healthy weight loss questions without specific numbers
-        result = policy.check_input(
-            "What is a healthy rate of weight loss?", user_context
-        )
+        result = policy.check_input("What is a healthy rate of weight loss?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -79,9 +75,7 @@ class TestWeightLossPolicyInput:
     ) -> None:
         """Test that rapid weight loss in kg is flagged when user weight is known."""
         # 80kg * 1% = 0.8kg safe rate, 5 lbs is way above in pounds
-        result = policy.check_input(
-            "I want to lose 5 lbs per week", user_context
-        )
+        result = policy.check_input("I want to lose 5 lbs per week", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -93,9 +87,7 @@ class TestWeightLossPolicyInput:
     ) -> None:
         """Test that rapid weight loss in lbs is flagged."""
         # 5 lbs = ~2.3kg, way above safe rate
-        result = policy.check_input(
-            "Can I lose 5 lbs a week?", user_context
-        )
+        result = policy.check_input("Can I lose 5 lbs a week?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -105,9 +97,7 @@ class TestWeightLossPolicyInput:
     ) -> None:
         """Test that rapid weight loss is flagged even without weight data."""
         # More than 1kg/week is concerning without context - use lbs for reliable match
-        result = policy.check_input(
-            "I want to lose 5 lbs per week", user_context_no_weight
-        )
+        result = policy.check_input("I want to lose 5 lbs per week", user_context_no_weight)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -116,9 +106,7 @@ class TestWeightLossPolicyInput:
         self, policy: WeightLossPolicy, user_context: UserContext
     ) -> None:
         """Test detection of 'drop X fast' pattern."""
-        result = policy.check_input(
-            "How can I drop 5 kg fast?", user_context
-        )
+        result = policy.check_input("How can I drop 5 kg fast?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -127,9 +115,7 @@ class TestWeightLossPolicyInput:
         self, policy: WeightLossPolicy, user_context: UserContext
     ) -> None:
         """Test detection of 'drop X quick' pattern in lbs."""
-        result = policy.check_input(
-            "I need to drop 10 lbs quick for an event", user_context
-        )
+        result = policy.check_input("I need to drop 10 lbs quick for an event", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -138,9 +124,7 @@ class TestWeightLossPolicyInput:
         self, policy: WeightLossPolicy, user_context: UserContext
     ) -> None:
         """Test that response mentions safe rate based on user's weight."""
-        result = policy.check_input(
-            "I want to lose 3 kg per week", user_context
-        )
+        result = policy.check_input("I want to lose 3 kg per week", user_context)
 
         assert result.message is not None
         # Should mention the calculated safe rate (~0.8kg for 80kg person)
@@ -150,9 +134,7 @@ class TestWeightLossPolicyInput:
         self, policy: WeightLossPolicy, user_context: UserContext
     ) -> None:
         """Test that response is encouraging, not shaming."""
-        result = policy.check_input(
-            "I want to lose 5 lbs a week", user_context
-        )
+        result = policy.check_input("I want to lose 5 lbs a week", user_context)
 
         assert result.message is not None
         assert "understand" in result.message.lower() or "fast results" in result.message.lower()
@@ -163,9 +145,7 @@ class TestWeightLossPolicyInput:
     ) -> None:
         """Test that rates near but below threshold are allowed."""
         # 1 lb/week = ~0.45kg, well within safe range
-        result = policy.check_input(
-            "I want to lose 1 lb per week", user_context
-        )
+        result = policy.check_input("I want to lose 1 lb per week", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW

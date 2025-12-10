@@ -83,9 +83,7 @@ class TestGetUserProfileTool:
         mock_user.diet_preferences.macro_targets = {"protein": 150}
 
         with patch("app.users.service.UserService") as mock_svc:
-            mock_svc.return_value.get_user_with_relations = AsyncMock(
-                return_value=mock_user
-            )
+            mock_svc.return_value.get_user_with_relations = AsyncMock(return_value=mock_user)
             result = await tool.execute(user_id)
 
         assert result.success is True
@@ -107,9 +105,7 @@ class TestGetUserProfileTool:
         mock_user.diet_preferences = None
 
         with patch("app.users.service.UserService") as mock_svc:
-            mock_svc.return_value.get_user_with_relations = AsyncMock(
-                return_value=mock_user
-            )
+            mock_svc.return_value.get_user_with_relations = AsyncMock(return_value=mock_user)
             result = await tool.execute(user_id)
 
         assert result.success is True
@@ -195,9 +191,7 @@ class TestGetAdherenceMetricsTool:
         assert result.data["current_streak"] == 3  # 3 consecutive days
 
     @pytest.mark.asyncio
-    async def test_execute_calculates_streak_correctly(
-        self, tool: GetAdherenceMetricsTool
-    ) -> None:
+    async def test_execute_calculates_streak_correctly(self, tool: GetAdherenceMetricsTool) -> None:
         """Test streak calculation with gap in check-ins."""
         user_id = str(uuid.uuid4())
         today = date.today()
@@ -231,9 +225,7 @@ class TestGetAdherenceMetricsTool:
 
         with patch("app.checkins.service.CheckInService") as mock_checkin_svc:
             with patch("app.nutrition.service.NutritionService") as mock_nutrition_svc:
-                mock_checkin_svc.return_value.get_by_date_range = AsyncMock(
-                    return_value=([], 0)
-                )
+                mock_checkin_svc.return_value.get_by_date_range = AsyncMock(return_value=([], 0))
                 mock_nutrition_svc.return_value.get_aggregated_stats = AsyncMock(
                     return_value={"logged_days": 0}
                 )
@@ -245,9 +237,7 @@ class TestGetAdherenceMetricsTool:
         assert result.data["total_checkins"] == 0
 
     @pytest.mark.asyncio
-    async def test_execute_handles_exception(
-        self, tool: GetAdherenceMetricsTool
-    ) -> None:
+    async def test_execute_handles_exception(self, tool: GetAdherenceMetricsTool) -> None:
         """Test execute handles exceptions gracefully."""
         user_id = str(uuid.uuid4())
 
@@ -270,12 +260,8 @@ class TestGetAdherenceMetricsTool:
 
         mock_checkins = [
             MagicMock(date=today, weight_kg=80.0, adherence_score=0.8),
-            MagicMock(
-                date=today - timedelta(days=1), weight_kg=80.1, adherence_score=0.9
-            ),
-            MagicMock(
-                date=today - timedelta(days=2), weight_kg=80.2, adherence_score=0.7
-            ),
+            MagicMock(date=today - timedelta(days=1), weight_kg=80.1, adherence_score=0.9),
+            MagicMock(date=today - timedelta(days=2), weight_kg=80.2, adherence_score=0.7),
         ]
 
         with patch("app.checkins.service.CheckInService") as mock_checkin_svc:

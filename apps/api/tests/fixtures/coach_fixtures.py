@@ -304,9 +304,7 @@ async def test_ai_session(db_session: AsyncSession, test_user: User) -> AISessio
 
 
 @pytest.fixture
-async def test_ai_session_with_history(
-    db_session: AsyncSession, test_user: User
-) -> AISession:
+async def test_ai_session_with_history(db_session: AsyncSession, test_user: User) -> AISession:
     """Create a test AI session with conversation history."""
     session = AISession(
         user_id=test_user.id,
@@ -316,9 +314,15 @@ async def test_ai_session_with_history(
         last_message_at=datetime.utcnow(),
         conversation_history=[
             {"role": "user", "content": "How much protein should I eat?"},
-            {"role": "assistant", "content": "Based on your goals, I recommend 150g of protein daily."},
+            {
+                "role": "assistant",
+                "content": "Based on your goals, I recommend 150g of protein daily.",
+            },
             {"role": "user", "content": "That sounds like a lot. Is it really necessary?"},
-            {"role": "assistant", "content": "Yes, for fat loss while preserving muscle, higher protein is beneficial."},
+            {
+                "role": "assistant",
+                "content": "Yes, for fat loss while preserving muscle, higher protein is beneficial.",
+            },
         ],
     )
     db_session.add(session)

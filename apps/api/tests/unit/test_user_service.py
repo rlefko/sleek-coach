@@ -167,9 +167,7 @@ class TestUserServiceUpdatePreferences:
         return prefs
 
     @pytest.mark.asyncio
-    async def test_update_preferences_success(
-        self, mock_preferences: DietPreferences
-    ) -> None:
+    async def test_update_preferences_success(self, mock_preferences: DietPreferences) -> None:
         """Test successful preferences update."""
         mock_session = AsyncMock(spec=AsyncSession)
         mock_result = MagicMock()
@@ -186,9 +184,7 @@ class TestUserServiceUpdatePreferences:
         assert mock_session.commit.called
 
     @pytest.mark.asyncio
-    async def test_update_preferences_partial(
-        self, mock_preferences: DietPreferences
-    ) -> None:
+    async def test_update_preferences_partial(self, mock_preferences: DietPreferences) -> None:
         """Test partial preferences update."""
         mock_session = AsyncMock(spec=AsyncSession)
         mock_result = MagicMock()

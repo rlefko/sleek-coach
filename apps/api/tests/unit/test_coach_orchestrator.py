@@ -104,18 +104,14 @@ class TestCoachOrchestratorGetProvider:
 class TestCoachOrchestratorGetToolRegistry:
     """Tests for _get_tool_registry method."""
 
-    def test_get_tool_registry_creates_and_caches(
-        self, orchestrator: CoachOrchestrator
-    ) -> None:
+    def test_get_tool_registry_creates_and_caches(self, orchestrator: CoachOrchestrator) -> None:
         """Test that _get_tool_registry creates and caches registry."""
         registry1 = orchestrator._get_tool_registry()
         registry2 = orchestrator._get_tool_registry()
 
         assert registry1 is registry2  # Same instance
 
-    def test_get_tool_registry_registers_tools(
-        self, orchestrator: CoachOrchestrator
-    ) -> None:
+    def test_get_tool_registry_registers_tools(self, orchestrator: CoachOrchestrator) -> None:
         """Test that internal tools are registered."""
         registry = orchestrator._get_tool_registry()
 
@@ -215,9 +211,7 @@ class TestCoachOrchestratorProcessMessage:
                 )
                 mock_get_registry.return_value = mock_registry
 
-                with patch.object(
-                    orchestrator, "_log_tool_call", new_callable=AsyncMock
-                ):
+                with patch.object(orchestrator, "_log_tool_call", new_callable=AsyncMock):
                     result = await orchestrator.process_message(
                         user_id=sample_user_id,
                         message="What's my profile?",
@@ -271,9 +265,7 @@ class TestCoachOrchestratorProcessMessage:
                 )
                 mock_get_registry.return_value = mock_registry
 
-                with patch.object(
-                    orchestrator, "_log_tool_call", new_callable=AsyncMock
-                ):
+                with patch.object(orchestrator, "_log_tool_call", new_callable=AsyncMock):
                     result = await orchestrator.process_message(
                         user_id=sample_user_id,
                         message="Loop forever",
@@ -333,9 +325,7 @@ class TestCoachOrchestratorBuildMessages:
         sample_coach_context: CoachContext,
     ) -> None:
         """Test that messages include system prompt."""
-        messages = orchestrator._build_messages(
-            "Hello", sample_coach_context, None
-        )
+        messages = orchestrator._build_messages("Hello", sample_coach_context, None)
 
         assert messages[0].role == "system"
         assert len(messages[0].content) > 0
@@ -346,9 +336,7 @@ class TestCoachOrchestratorBuildMessages:
         sample_coach_context: CoachContext,
     ) -> None:
         """Test that messages include user message."""
-        messages = orchestrator._build_messages(
-            "Hello coach!", sample_coach_context, None
-        )
+        messages = orchestrator._build_messages("Hello coach!", sample_coach_context, None)
 
         assert messages[-1].role == "user"
         assert messages[-1].content == "Hello coach!"
@@ -359,9 +347,7 @@ class TestCoachOrchestratorBuildMessages:
         sample_coach_context: CoachContext,
     ) -> None:
         """Test that system prompt includes context."""
-        messages = orchestrator._build_messages(
-            "Hello", sample_coach_context, None
-        )
+        messages = orchestrator._build_messages("Hello", sample_coach_context, None)
 
         system_content = messages[0].content
         # Context summary should be included
@@ -378,9 +364,7 @@ class TestCoachOrchestratorBuildMessages:
             ChatMessage(role="assistant", content="Previous answer"),
         ]
 
-        messages = orchestrator._build_messages(
-            "New question", sample_coach_context, history
-        )
+        messages = orchestrator._build_messages("New question", sample_coach_context, history)
 
         # Should have: system + history (2) + current
         assert len(messages) == 4
@@ -391,13 +375,9 @@ class TestCoachOrchestratorBuildMessages:
         sample_coach_context: CoachContext,
     ) -> None:
         """Test that history is limited to last 10 messages."""
-        history = [
-            ChatMessage(role="user", content=f"msg{i}") for i in range(15)
-        ]
+        history = [ChatMessage(role="user", content=f"msg{i}") for i in range(15)]
 
-        messages = orchestrator._build_messages(
-            "Current", sample_coach_context, history
-        )
+        messages = orchestrator._build_messages("Current", sample_coach_context, history)
 
         # Should have: system + 10 history + current = 12
         assert len(messages) == 12

@@ -182,9 +182,7 @@ class TestContextBuilder:
         assert builder.session is mock_session
 
     @pytest.mark.asyncio
-    async def test_build_context_creates_coach_context(
-        self, builder: ContextBuilder
-    ) -> None:
+    async def test_build_context_creates_coach_context(self, builder: ContextBuilder) -> None:
         """Test that build_context returns CoachContext."""
         from unittest.mock import patch
 
@@ -203,20 +201,28 @@ class TestContextBuilder:
         assert context.user_id == user_id
 
     @pytest.mark.asyncio
-    async def test_build_context_calls_all_loaders(
-        self, builder: ContextBuilder
-    ) -> None:
+    async def test_build_context_calls_all_loaders(self, builder: ContextBuilder) -> None:
         """Test that build_context calls all loader methods."""
         from unittest.mock import patch
 
         user_id = uuid.uuid4()
 
         with patch.object(builder, "_load_user_data", new_callable=AsyncMock) as mock_load_user:
-            with patch.object(builder, "_load_checkins", new_callable=AsyncMock) as mock_load_checkins:
-                with patch.object(builder, "_load_weight_trend", new_callable=AsyncMock) as mock_load_trend:
-                    with patch.object(builder, "_load_nutrition", new_callable=AsyncMock) as mock_load_nutrition:
-                        with patch.object(builder, "_load_adherence", new_callable=AsyncMock) as mock_load_adherence:
-                            with patch.object(builder, "_load_targets", new_callable=AsyncMock) as mock_load_targets:
+            with patch.object(
+                builder, "_load_checkins", new_callable=AsyncMock
+            ) as mock_load_checkins:
+                with patch.object(
+                    builder, "_load_weight_trend", new_callable=AsyncMock
+                ) as mock_load_trend:
+                    with patch.object(
+                        builder, "_load_nutrition", new_callable=AsyncMock
+                    ) as mock_load_nutrition:
+                        with patch.object(
+                            builder, "_load_adherence", new_callable=AsyncMock
+                        ) as mock_load_adherence:
+                            with patch.object(
+                                builder, "_load_targets", new_callable=AsyncMock
+                            ) as mock_load_targets:
                                 await builder.build_context(user_id)
 
                                 mock_load_user.assert_called_once()
@@ -227,9 +233,7 @@ class TestContextBuilder:
                                 mock_load_targets.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_build_context_respects_flags(
-        self, builder: ContextBuilder
-    ) -> None:
+    async def test_build_context_respects_flags(self, builder: ContextBuilder) -> None:
         """Test that build_context respects include flags."""
         from unittest.mock import patch
 
@@ -237,10 +241,18 @@ class TestContextBuilder:
 
         with patch.object(builder, "_load_user_data", new_callable=AsyncMock):
             with patch.object(builder, "_load_checkins", new_callable=AsyncMock):
-                with patch.object(builder, "_load_weight_trend", new_callable=AsyncMock) as mock_load_trend:
-                    with patch.object(builder, "_load_nutrition", new_callable=AsyncMock) as mock_load_nutrition:
-                        with patch.object(builder, "_load_adherence", new_callable=AsyncMock) as mock_load_adherence:
-                            with patch.object(builder, "_load_targets", new_callable=AsyncMock) as mock_load_targets:
+                with patch.object(
+                    builder, "_load_weight_trend", new_callable=AsyncMock
+                ) as mock_load_trend:
+                    with patch.object(
+                        builder, "_load_nutrition", new_callable=AsyncMock
+                    ) as mock_load_nutrition:
+                        with patch.object(
+                            builder, "_load_adherence", new_callable=AsyncMock
+                        ) as mock_load_adherence:
+                            with patch.object(
+                                builder, "_load_targets", new_callable=AsyncMock
+                            ) as mock_load_targets:
                                 await builder.build_context(
                                     user_id,
                                     include_nutrition=False,
@@ -255,9 +267,7 @@ class TestContextBuilder:
                                 mock_load_targets.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_load_adherence_calculates_streak(
-        self, builder: ContextBuilder
-    ) -> None:
+    async def test_load_adherence_calculates_streak(self, builder: ContextBuilder) -> None:
         """Test that _load_adherence calculates streak correctly."""
         from datetime import date, timedelta
 
@@ -279,9 +289,7 @@ class TestContextBuilder:
         assert context.adherence_metrics["current_streak"] == 3
 
     @pytest.mark.asyncio
-    async def test_load_adherence_calculates_rates(
-        self, builder: ContextBuilder
-    ) -> None:
+    async def test_load_adherence_calculates_rates(self, builder: ContextBuilder) -> None:
         """Test that _load_adherence calculates completion rates."""
         context = CoachContext(user_id=uuid.uuid4())
         context.recent_checkins = [

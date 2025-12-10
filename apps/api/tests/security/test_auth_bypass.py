@@ -85,14 +85,15 @@ class TestMalformedTokenRejection:
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("token", [
-        "not-a-jwt",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",  # Header only
-        "a.b.c",
-    ])
-    async def test_malformed_tokens_rejected(
-        self, client: AsyncClient, token: str
-    ) -> None:
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "not-a-jwt",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",  # Header only
+            "a.b.c",
+        ],
+    )
+    async def test_malformed_tokens_rejected(self, client: AsyncClient, token: str) -> None:
         """Test various malformed tokens are rejected."""
         response = await client.get(
             "/api/v1/me",
@@ -143,9 +144,7 @@ class TestPayloadTampering:
     """Tests for JWT payload tampering."""
 
     @pytest.mark.asyncio
-    async def test_modified_user_id_rejected(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_modified_user_id_rejected(self, client: AsyncClient) -> None:
         """Test that modifying user ID in payload invalidates token."""
         import secrets
 
@@ -185,9 +184,11 @@ class TestPayloadTampering:
         import base64
         import json
 
-        header = base64.urlsafe_b64encode(
-            json.dumps({"alg": "none", "typ": "JWT"}).encode()
-        ).rstrip(b"=").decode()
+        header = (
+            base64.urlsafe_b64encode(json.dumps({"alg": "none", "typ": "JWT"}).encode())
+            .rstrip(b"=")
+            .decode()
+        )
 
         payload_data = {
             "sub": str(valid_user_id),
@@ -195,9 +196,7 @@ class TestPayloadTampering:
             "iat": datetime.utcnow().timestamp(),
             "type": "access",
         }
-        payload = base64.urlsafe_b64encode(
-            json.dumps(payload_data).encode()
-        ).rstrip(b"=").decode()
+        payload = base64.urlsafe_b64encode(json.dumps(payload_data).encode()).rstrip(b"=").decode()
 
         # Token with no signature
         none_algo_token = f"{header}.{payload}."
@@ -271,7 +270,9 @@ class TestTokenTypeValidation:
             "iat": datetime.utcnow(),
             "jti": secrets.token_urlsafe(16),
         }
-        refresh_token = jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+        refresh_token = jwt.encode(
+            payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+        )
 
         response = await client.get(
             "/api/v1/me",

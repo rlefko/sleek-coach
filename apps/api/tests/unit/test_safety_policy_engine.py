@@ -65,9 +65,7 @@ class TestSafetyPolicyEngineCheckInput:
         self, engine: SafetyPolicyEngine, user_context: UserContext
     ) -> None:
         """Test that normal input passes all policies."""
-        result = await engine.check_input(
-            "How much protein should I eat daily?", user_context
-        )
+        result = await engine.check_input("How much protein should I eat daily?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -77,9 +75,7 @@ class TestSafetyPolicyEngineCheckInput:
         self, engine: SafetyPolicyEngine, user_context: UserContext
     ) -> None:
         """Test that eating disorder triggers are caught."""
-        result = await engine.check_input(
-            "I want to purge after eating", user_context
-        )
+        result = await engine.check_input("I want to purge after eating", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -93,9 +89,7 @@ class TestSafetyPolicyEngineCheckInput:
         # Note: MODIFY action doesn't return early in the engine, it continues checking
         # The policy logs the violation but still returns passed=True for the overall check
         # This is intentional - MODIFY modifies the response, it doesn't block it
-        result = await engine.check_input(
-            "I want to eat only 800 calories per day", user_context
-        )
+        result = await engine.check_input("I want to eat only 800 calories per day", user_context)
 
         # The policy was triggered (logged), but MODIFY doesn't block the flow
         # So overall check passes. If we want to verify the policy was triggered,
@@ -107,9 +101,7 @@ class TestSafetyPolicyEngineCheckInput:
         self, engine: SafetyPolicyEngine, user_context: UserContext
     ) -> None:
         """Test that medical policy triggers are caught."""
-        result = await engine.check_input(
-            "Do I have diabetes based on my symptoms?", user_context
-        )
+        result = await engine.check_input("Do I have diabetes based on my symptoms?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -120,9 +112,7 @@ class TestSafetyPolicyEngineCheckInput:
     ) -> None:
         """Test that eating disorder policy takes priority over others."""
         # This message triggers both ED (purge) and calorie policies
-        result = await engine.check_input(
-            "I want to purge and only eat 500 calories", user_context
-        )
+        result = await engine.check_input("I want to purge and only eat 500 calories", user_context)
 
         # ED should be caught first
         assert result.violation_type == "eating_disorder_signal"
@@ -171,7 +161,10 @@ class TestSafetyPolicyEngineCheckOutput:
 
         # Medical condition mentioned triggers disclaimer or allows
         if result.modified_content is not None:
-            assert "disclaimer" in result.modified_content.lower() or "consult" in result.modified_content.lower()
+            assert (
+                "disclaimer" in result.modified_content.lower()
+                or "consult" in result.modified_content.lower()
+            )
         else:
             # The action can be ALLOW (no modification needed) or MODIFY or even BLOCK
             assert result.action in (PolicyAction.ALLOW, PolicyAction.MODIFY, PolicyAction.BLOCK)

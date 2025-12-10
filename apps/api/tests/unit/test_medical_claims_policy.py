@@ -55,9 +55,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that normal nutrition questions are allowed."""
-        result = policy.check_input(
-            "What should I eat for lunch?", user_context
-        )
+        result = policy.check_input("What should I eat for lunch?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -66,9 +64,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that fitness questions are allowed."""
-        result = policy.check_input(
-            "How often should I exercise?", user_context
-        )
+        result = policy.check_input("How often should I exercise?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -77,9 +73,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that diagnosis requests are flagged."""
-        result = policy.check_input(
-            "Do I have diabetes based on my symptoms?", user_context
-        )
+        result = policy.check_input("Do I have diabetes based on my symptoms?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -89,9 +83,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that medication questions are flagged."""
-        result = policy.check_input(
-            "Should I take medication for my weight?", user_context
-        )
+        result = policy.check_input("Should I take medication for my weight?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -100,9 +92,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that prescription change requests are flagged."""
-        result = policy.check_input(
-            "Should I stop my medication to lose weight?", user_context
-        )
+        result = policy.check_input("Should I stop my medication to lose weight?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -111,9 +101,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that referral response lists medical professionals."""
-        result = policy.check_input(
-            "Do I have a thyroid condition?", user_context
-        )
+        result = policy.check_input("Do I have a thyroid condition?", user_context)
 
         assert result.message is not None
         assert "physician" in result.message.lower() or "doctor" in result.message.lower()
@@ -123,9 +111,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that questions about medical conditions get disclaimer."""
-        result = policy.check_input(
-            "Can I still lose weight with diabetes?", user_context
-        )
+        result = policy.check_input("Can I still lose weight with diabetes?", user_context)
 
         # This is a general question, so it's allowed but with disclaimer
         assert result.passed is True
@@ -136,9 +122,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that pregnancy-related questions get disclaimer."""
-        result = policy.check_input(
-            "What should I eat while pregnant?", user_context
-        )
+        result = policy.check_input("What should I eat while pregnant?", user_context)
 
         assert result.passed is True
         assert result.disclaimer is not None
@@ -147,9 +131,7 @@ class TestMedicalClaimsPolicyInput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that thyroid-related questions get disclaimer."""
-        result = policy.check_input(
-            "How does thyroid affect my weight?", user_context
-        )
+        result = policy.check_input("How does thyroid affect my weight?", user_context)
 
         assert result.passed is True
         assert result.disclaimer is not None
@@ -173,9 +155,7 @@ class TestMedicalClaimsPolicyOutput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that diagnostic statements are blocked."""
-        result = policy.check_output(
-            "Based on your symptoms, you have diabetes.", user_context
-        )
+        result = policy.check_output("Based on your symptoms, you have diabetes.", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.BLOCK
@@ -186,9 +166,7 @@ class TestMedicalClaimsPolicyOutput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that 'may have diabetes' diagnoses are blocked."""
-        result = policy.check_output(
-            "You may have diabetes based on your symptoms.", user_context
-        )
+        result = policy.check_output("You may have diabetes based on your symptoms.", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.BLOCK
@@ -197,9 +175,7 @@ class TestMedicalClaimsPolicyOutput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that 'this sounds like a disease' diagnoses are blocked."""
-        result = policy.check_output(
-            "This sounds like a disease.", user_context
-        )
+        result = policy.check_output("This sounds like a disease.", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.BLOCK
@@ -208,9 +184,7 @@ class TestMedicalClaimsPolicyOutput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that blocked responses include medical referral."""
-        result = policy.check_output(
-            "You probably have diabetes.", user_context
-        )
+        result = policy.check_output("You probably have diabetes.", user_context)
 
         assert result.message is not None
         assert "healthcare" in result.message.lower() or "medical" in result.message.lower()
@@ -224,15 +198,16 @@ class TestMedicalClaimsPolicyOutput:
         )
 
         # Medical condition mentioned triggers either disclaimer or block
-        assert result.disclaimer is not None or result.action in (PolicyAction.MODIFY, PolicyAction.BLOCK)
+        assert result.disclaimer is not None or result.action in (
+            PolicyAction.MODIFY,
+            PolicyAction.BLOCK,
+        )
 
     def test_disclaimer_mentions_consult_provider(
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that disclaimer mentions consulting a provider."""
-        result = policy.check_output(
-            "Thyroid issues can affect metabolism.", user_context
-        )
+        result = policy.check_output("Thyroid issues can affect metabolism.", user_context)
 
         assert result.disclaimer is not None
         assert "consult" in result.disclaimer.lower()
@@ -241,9 +216,7 @@ class TestMedicalClaimsPolicyOutput:
         self, policy: MedicalClaimsPolicy, user_context: UserContext
     ) -> None:
         """Test that general health advice without conditions is allowed."""
-        result = policy.check_output(
-            "Eating more fiber can help with digestion.", user_context
-        )
+        result = policy.check_output("Eating more fiber can help with digestion.", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW

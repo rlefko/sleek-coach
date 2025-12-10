@@ -42,9 +42,7 @@ class TestEatingDisorderPolicyInput:
         self, policy: EatingDisorderPolicy, user_context: UserContext
     ) -> None:
         """Test that healthy weight loss questions are allowed."""
-        result = policy.check_input(
-            "What is a healthy rate of weight loss?", user_context
-        )
+        result = policy.check_input("What is a healthy rate of weight loss?", user_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -57,9 +55,7 @@ class TestEatingDisorderPolicyInput:
         keyword: str,
     ) -> None:
         """Test that all ED keywords are detected."""
-        result = policy.check_input(
-            f"I want to {keyword} after eating", user_context
-        )
+        result = policy.check_input(f"I want to {keyword} after eating", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -127,9 +123,7 @@ class TestEatingDisorderPolicyInput:
         self, policy: EatingDisorderPolicy, user_context: UserContext
     ) -> None:
         """Test detection of punishment phrases."""
-        result = policy.check_input(
-            "How should I punish myself for eating too much?", user_context
-        )
+        result = policy.check_input("How should I punish myself for eating too much?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG
@@ -147,9 +141,7 @@ class TestEatingDisorderPolicyInput:
         self, policy: EatingDisorderPolicy, user_context: UserContext
     ) -> None:
         """Test detection of purging phrases."""
-        result = policy.check_input(
-            "How do I make myself throw up after eating?", user_context
-        )
+        result = policy.check_input("How do I make myself throw up after eating?", user_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.FLAG

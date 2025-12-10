@@ -12,9 +12,7 @@ from app.users.models import User
 
 
 @pytest.fixture
-async def authenticated_user(
-    db_session: AsyncSession, settings: Any
-) -> tuple[User, str]:
+async def authenticated_user(db_session: AsyncSession, settings: Any) -> tuple[User, str]:
     """Create an authenticated user with valid token and profile."""
     import secrets
 
@@ -53,12 +51,15 @@ class TestSQLInjectionInEmail:
     """Tests for SQL injection in email fields."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "'; DROP TABLE users; --",
-        "admin@example.com' OR '1'='1",
-        "admin@example.com'; SELECT * FROM users; --",
-        "' UNION SELECT * FROM users --@example.com",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "'; DROP TABLE users; --",
+            "admin@example.com' OR '1'='1",
+            "admin@example.com'; SELECT * FROM users; --",
+            "' UNION SELECT * FROM users --@example.com",
+        ],
+    )
     async def test_sql_injection_in_registration_email(
         self, client: AsyncClient, payload: str
     ) -> None:
@@ -78,13 +79,14 @@ class TestSQLInjectionInEmail:
         assert "internal" not in response.text.lower() or response.status_code < 500
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "'; DROP TABLE users; --",
-        "admin@example.com' OR '1'='1",
-    ])
-    async def test_sql_injection_in_login_email(
-        self, client: AsyncClient, payload: str
-    ) -> None:
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "'; DROP TABLE users; --",
+            "admin@example.com' OR '1'='1",
+        ],
+    )
+    async def test_sql_injection_in_login_email(self, client: AsyncClient, payload: str) -> None:
         """Test SQL injection attempts in login email are handled safely."""
         response = await client.post(
             "/api/v1/auth/login",
@@ -102,11 +104,14 @@ class TestSQLInjectionInSearch:
     """Tests for SQL injection in search/filter parameters."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "2024-01-01'; DROP TABLE check_in; --",
-        "2024-01-01' OR '1'='1",
-        "'; SELECT * FROM users WHERE ''='",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "2024-01-01'; DROP TABLE check_in; --",
+            "2024-01-01' OR '1'='1",
+            "'; SELECT * FROM users WHERE ''='",
+        ],
+    )
     async def test_sql_injection_in_date_parameters(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
@@ -155,12 +160,15 @@ class TestXSSInUserInput:
     """
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "<script>alert('xss')</script>",
-        "<img src=x onerror=alert('xss')>",
-        "javascript:alert('xss')",
-        "<svg onload=alert('xss')>",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "<script>alert('xss')</script>",
+            "<img src=x onerror=alert('xss')>",
+            "javascript:alert('xss')",
+            "<svg onload=alert('xss')>",
+        ],
+    )
     async def test_xss_in_profile_display_name(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
@@ -187,10 +195,13 @@ class TestXSSInUserInput:
             assert response.headers.get("content-type", "").startswith("application/json")
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "<script>alert('xss')</script>",
-        "<img src=x onerror=alert('xss')>",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "<script>alert('xss')</script>",
+            "<img src=x onerror=alert('xss')>",
+        ],
+    )
     async def test_xss_in_checkin_notes(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
@@ -228,13 +239,16 @@ class TestCommandInjection:
     """
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "; cat /etc/passwd",
-        "| ls -la",
-        "`whoami`",
-        "$(cat /etc/passwd)",
-        "&& rm -rf /",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "; cat /etc/passwd",
+            "| ls -la",
+            "`whoami`",
+            "$(cat /etc/passwd)",
+            "&& rm -rf /",
+        ],
+    )
     async def test_command_injection_in_display_name(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
@@ -267,12 +281,15 @@ class TestPathTraversal:
     """Tests for path traversal vulnerabilities."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        "../../../etc/passwd",
-        "....//....//....//etc/passwd",
-        "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
-        "..\\..\\..\\windows\\system32\\config\\sam",
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "../../../etc/passwd",
+            "....//....//....//etc/passwd",
+            "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd",
+            "..\\..\\..\\windows\\system32\\config\\sam",
+        ],
+    )
     async def test_path_traversal_in_photo_key(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
@@ -297,11 +314,14 @@ class TestNoSQLInjection:
     """Tests for NoSQL injection vulnerabilities."""
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("payload", [
-        {"$gt": ""},
-        {"$ne": None},
-        {"$where": "this.password == 'test'"},
-    ])
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            {"$gt": ""},
+            {"$ne": None},
+            {"$where": "this.password == 'test'"},
+        ],
+    )
     async def test_nosql_injection_in_json_fields(
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: Any
     ) -> None:
@@ -323,9 +343,7 @@ class TestHeaderInjection:
     """Tests for HTTP header injection vulnerabilities."""
 
     @pytest.mark.asyncio
-    async def test_crlf_injection_in_auth_header(
-        self, client: AsyncClient
-    ) -> None:
+    async def test_crlf_injection_in_auth_header(self, client: AsyncClient) -> None:
         """Test CRLF injection in Authorization header."""
         # Attempt to inject additional headers via CRLF
         malicious_header = "Bearer token\r\nX-Injected: true"

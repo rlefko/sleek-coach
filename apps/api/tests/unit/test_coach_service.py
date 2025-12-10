@@ -161,9 +161,7 @@ class TestCoachServiceChat:
                                 action=PolicyAction.ALLOW,
                             )
 
-                            response = await service.chat(
-                                sample_user_id, "Hello coach!"
-                            )
+                            response = await service.chat(sample_user_id, "Hello coach!")
 
         assert isinstance(response, ChatResponse)
         assert response.message == "Hello! How can I help?"
@@ -202,9 +200,7 @@ class TestCoachServiceChat:
                     with patch.object(
                         service.orchestrator, "process_message", new_callable=AsyncMock
                     ) as mock_orchestrator:
-                        response = await service.chat(
-                            sample_user_id, "I want to purge"
-                        )
+                        response = await service.chat(sample_user_id, "I want to purge")
 
                         # Orchestrator should not be called
                         mock_orchestrator.assert_not_called()
@@ -258,9 +254,7 @@ class TestCoachServiceChat:
                                 modified_content="Try 1100 calories. [Disclaimer: 1200 is minimum for women]",
                             )
 
-                            response = await service.chat(
-                                sample_user_id, "What calories?"
-                            )
+                            response = await service.chat(sample_user_id, "What calories?")
 
         assert "Disclaimer" in response.message
 
@@ -535,9 +529,7 @@ class TestCoachServiceGetInsights:
 
             response = await service.get_insights(sample_user_id)
 
-        trend_insight = next(
-            (i for i in response.insights if i.type == "trend"), None
-        )
+        trend_insight = next((i for i in response.insights if i.type == "trend"), None)
         assert trend_insight is not None
         assert "down" in trend_insight.data.get("direction", "")
 
@@ -563,9 +555,7 @@ class TestCoachServiceGetInsights:
             response = await service.get_insights(sample_user_id)
 
         # Should have achievement for high adherence
-        achievement = next(
-            (i for i in response.insights if i.type == "achievement"), None
-        )
+        achievement = next((i for i in response.insights if i.type == "achievement"), None)
         assert achievement is not None
 
     @pytest.mark.asyncio
@@ -590,9 +580,7 @@ class TestCoachServiceGetInsights:
             response = await service.get_insights(sample_user_id)
 
         # Should have recommendation for low adherence
-        recommendation = next(
-            (i for i in response.insights if i.type == "recommendation"), None
-        )
+        recommendation = next((i for i in response.insights if i.type == "recommendation"), None)
         assert recommendation is not None
 
 

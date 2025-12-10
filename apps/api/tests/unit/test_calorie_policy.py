@@ -64,9 +64,7 @@ class TestCaloriePolicyInput:
         self, policy: CaloriePolicy, male_context: UserContext
     ) -> None:
         """Test that normal calorie requests are allowed."""
-        result = policy.check_input(
-            "I want to eat about 1800 calories a day", male_context
-        )
+        result = policy.check_input("I want to eat about 1800 calories a day", male_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
@@ -102,18 +100,14 @@ class TestCaloriePolicyInput:
         assert result.action == PolicyAction.MODIFY
         assert "1200" in result.message  # Female minimum
 
-    def test_detects_under_pattern(
-        self, policy: CaloriePolicy, male_context: UserContext
-    ) -> None:
+    def test_detects_under_pattern(self, policy: CaloriePolicy, male_context: UserContext) -> None:
         """Test detection of 'under X calories' pattern."""
         result = policy.check_input("Can I eat under 1200 calories?", male_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
 
-    def test_detects_only_pattern(
-        self, policy: CaloriePolicy, female_context: UserContext
-    ) -> None:
+    def test_detects_only_pattern(self, policy: CaloriePolicy, female_context: UserContext) -> None:
         """Test detection of 'only X calories' pattern."""
         result = policy.check_input("I only want 800 calories a day", female_context)
 
@@ -124,9 +118,7 @@ class TestCaloriePolicyInput:
         self, policy: CaloriePolicy, male_context: UserContext
     ) -> None:
         """Test detection of 'less than X calories' pattern."""
-        result = policy.check_input(
-            "Can I eat less than 1400 calories?", male_context
-        )
+        result = policy.check_input("Can I eat less than 1400 calories?", male_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -140,9 +132,7 @@ class TestCaloriePolicyInput:
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW
 
-    def test_allows_male_at_minimum(
-        self, policy: CaloriePolicy, male_context: UserContext
-    ) -> None:
+    def test_allows_male_at_minimum(self, policy: CaloriePolicy, male_context: UserContext) -> None:
         """Test that male minimum (1500) is allowed."""
         result = policy.check_input("I want to eat 1500 calories", male_context)
 
@@ -200,9 +190,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, male_context: UserContext
     ) -> None:
         """Test that low calorie recommendations for males get disclaimer."""
-        result = policy.check_output(
-            "Aim for 1400 calories to speed up weight loss.", male_context
-        )
+        result = policy.check_output("Aim for 1400 calories to speed up weight loss.", male_context)
 
         assert result.passed is False
         assert result.action == PolicyAction.MODIFY
@@ -213,9 +201,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, male_context: UserContext
     ) -> None:
         """Test detection of 'eat around X' pattern."""
-        result = policy.check_output(
-            "You should eat around 1200 calories daily.", male_context
-        )
+        result = policy.check_output("You should eat around 1200 calories daily.", male_context)
 
         assert result.passed is False
         assert result.disclaimer is not None
@@ -224,9 +210,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, female_context: UserContext
     ) -> None:
         """Test detection of 'target of X' pattern."""
-        result = policy.check_output(
-            "Set a target of 1000 calories per day.", female_context
-        )
+        result = policy.check_output("Set a target of 1000 calories per day.", female_context)
 
         assert result.passed is False
         assert result.disclaimer is not None
@@ -235,9 +219,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, male_context: UserContext
     ) -> None:
         """Test detection of 'aim for X' pattern."""
-        result = policy.check_output(
-            "Aim for 1300 calories to maximize fat loss.", male_context
-        )
+        result = policy.check_output("Aim for 1300 calories to maximize fat loss.", male_context)
 
         assert result.passed is False
         assert result.disclaimer is not None
@@ -246,9 +228,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, female_context: UserContext
     ) -> None:
         """Test that disclaimer mentions medical consultation."""
-        result = policy.check_output(
-            "Try eating 1000 calories for a week.", female_context
-        )
+        result = policy.check_output("Try eating 1000 calories for a week.", female_context)
 
         assert result.disclaimer is not None
         assert (
@@ -261,9 +241,7 @@ class TestCaloriePolicyOutput:
         self, policy: CaloriePolicy, female_context: UserContext
     ) -> None:
         """Test that recommendations above minimum are allowed."""
-        result = policy.check_output(
-            "I recommend eating 1400 calories per day.", female_context
-        )
+        result = policy.check_output("I recommend eating 1400 calories per day.", female_context)
 
         assert result.passed is True
         assert result.action == PolicyAction.ALLOW

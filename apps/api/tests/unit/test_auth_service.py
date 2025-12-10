@@ -216,9 +216,7 @@ class TestAuthServiceRefreshTokens:
         with patch("app.auth.service.decode_token") as mock_decode:
             mock_decode.return_value = MagicMock(token_type="refresh")
             with patch("app.auth.service.hash_token", return_value="hashed"):
-                with pytest.raises(
-                    UnauthorizedError, match="Refresh token is invalid or expired"
-                ):
+                with pytest.raises(UnauthorizedError, match="Refresh token is invalid or expired"):
                     await service.refresh_tokens("valid_format_token")
 
     @pytest.mark.asyncio
@@ -384,9 +382,7 @@ class TestAuthServiceChangePassword:
 
         with patch("app.auth.service.verify_password", return_value=True):
             with patch("app.auth.service.hash_password", return_value="new_hash"):
-                await service.change_password(
-                    mock_user.id, "old_password", "new_password"
-                )
+                await service.change_password(mock_user.id, "old_password", "new_password")
 
         assert mock_user.hashed_password == "new_hash"
         assert mock_session.commit.called
@@ -401,12 +397,11 @@ class TestAuthServiceChangePassword:
 
         service = AuthService(mock_session)
 
-        with patch("app.auth.service.verify_password", return_value=False), pytest.raises(
-            UnauthorizedError, match="Current password is incorrect"
+        with (
+            patch("app.auth.service.verify_password", return_value=False),
+            pytest.raises(UnauthorizedError, match="Current password is incorrect"),
         ):
-            await service.change_password(
-                mock_user.id, "wrong_password", "new_password"
-            )
+            await service.change_password(mock_user.id, "wrong_password", "new_password")
 
     @pytest.mark.asyncio
     async def test_change_password_user_not_found(self) -> None:
