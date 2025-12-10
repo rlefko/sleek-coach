@@ -60,6 +60,16 @@ class DietType(str, Enum):
     KOSHER = "kosher"
 
 
+class ConsentType(str, Enum):
+    """User consent type options."""
+
+    TERMS_OF_SERVICE = "terms_of_service"
+    PRIVACY_POLICY = "privacy_policy"
+    WEB_SEARCH = "web_search"
+    ANALYTICS = "analytics"
+    PHOTO_AI_ACCESS = "photo_ai_access"
+
+
 class User(SQLModel, table=True):
     """Core user table for authentication."""
 
@@ -205,3 +215,42 @@ class DietPreferences(SQLModel, table=True):
 
     # Relationship
     user: User = Relationship(back_populates="diet_preferences")
+
+
+class UserConsent(SQLModel, table=True):
+    """User consent tracking for legal compliance."""
+
+    __tablename__ = "user_consent"
+
+    id: uuid.UUID = Field(
+        default_factory=uuid.uuid4,
+        sa_column=Column(UUID(as_uuid=True), primary_key=True, nullable=False),
+    )
+    user_id: uuid.UUID = Field(
+        sa_column=Column(
+            UUID(as_uuid=True),
+            ForeignKey("user.id", ondelete="CASCADE"),
+            nullable=False,
+            index=True,
+        ),
+    )
+    consent_type: ConsentType = Field(
+        sa_column=Column(String(50), nullable=False),
+    )
+    granted: bool = Field(default=True)
+    version: str = Field(max_length=20)
+    granted_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+    )
+    revoked_at: datetime | None = Field(default=None)
+    ip_address: str | None = Field(default=None, max_length=45)
+    user_agent: str | None = Field(default=None, max_length=500)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+    )
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
+    )

@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
-from .models import ActivityLevel, DietType, GoalType, PacePreference, Sex
+from .models import ActivityLevel, ConsentType, DietType, GoalType, PacePreference, Sex
 
 
 # Profile Schemas
@@ -120,3 +120,27 @@ class UserDataExport(BaseModel):
     nutrition_days: list[ExportNutritionDay]
     photo_count: int
     exported_at: datetime
+
+
+# Consent Schemas
+class ConsentResponse(BaseModel):
+    """User consent response."""
+
+    consent_type: ConsentType
+    granted: bool
+    version: str
+    granted_at: datetime
+    revoked_at: datetime | None
+
+
+class ConsentRequest(BaseModel):
+    """User consent grant/update request."""
+
+    consent_type: ConsentType
+    granted: bool = True
+
+
+class ConsentsListResponse(BaseModel):
+    """List of user consents response."""
+
+    consents: list[ConsentResponse]

@@ -35,6 +35,16 @@ DISCLAIMERS = {
         "**Safety:** Before starting a new exercise program, consult with a healthcare provider, "
         "especially if you have any pre-existing health conditions."
     ),
+    "professional_consultation": (
+        "For personalized advice about diet, exercise, or health conditions, "
+        "please consult with qualified professionals such as a registered dietitian, "
+        "certified personal trainer, or healthcare provider."
+    ),
+    "not_medical_advice": (
+        "**Important:** The information provided by this AI coach is for general "
+        "educational purposes only and is not intended as a substitute for "
+        "professional medical advice, diagnosis, or treatment."
+    ),
 }
 
 

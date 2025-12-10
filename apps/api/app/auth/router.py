@@ -44,12 +44,25 @@ async def register(
     """Register a new user account.
 
     Creates a new user with email and password, initializes empty profile,
-    goals, and diet preferences, and returns JWT tokens.
+    goals, and diet preferences, records consent for terms and privacy policy,
+    and returns JWT tokens.
     """
+    from app.users.consent_service import UserConsentService
+
     ip_address, user_agent = get_client_info(request)
     service = AuthService(session)
 
-    _, token_pair = await service.register(data, ip_address, user_agent)
+    user, token_pair = await service.register(data, ip_address, user_agent)
+
+    # Record consent for terms of service and privacy policy
+    consent_service = UserConsentService(session)
+    await consent_service.grant_registration_consents(
+        user_id=user.id,
+        terms_version=data.accepted_terms_version,
+        privacy_version=data.accepted_privacy_version,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
 
     return TokenResponse(
         access_token=token_pair.access_token,

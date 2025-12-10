@@ -10,7 +10,12 @@ from app.auth.dependencies import CurrentUser
 from app.auth.schemas import MessageResponse
 from app.database import get_session
 
+from .consent_service import UserConsentService
+from .models import ConsentType
 from .schemas import (
+    ConsentRequest,
+    ConsentResponse,
+    ConsentsListResponse,
     DietPreferencesResponse,
     DietPreferencesUpdate,
     UserDataExport,
@@ -235,3 +240,125 @@ async def delete_account(
     await service.delete_user(current_user.id)
 
     return MessageResponse(message="Account deleted successfully")
+
+
+# Consent endpoints
+@router.get("/me/consents", response_model=ConsentsListResponse)
+async def get_consents(
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ConsentsListResponse:
+    """Get all consent records for the current user.
+
+    Returns a list of all consent records including terms of service,
+    privacy policy, and optional consents like web search and analytics.
+    """
+    service = UserConsentService(session)
+    consents = await service.get_user_consents(current_user.id)
+
+    return ConsentsListResponse(
+        consents=[
+            ConsentResponse(
+                consent_type=c.consent_type,
+                granted=c.granted,
+                version=c.version,
+                granted_at=c.granted_at,
+                revoked_at=c.revoked_at,
+            )
+            for c in consents
+        ]
+    )
+
+
+@router.post("/me/consents", response_model=ConsentResponse)
+async def grant_consent(
+    data: ConsentRequest,
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ConsentResponse:
+    """Grant or update a user consent.
+
+    Records the user's consent for a specific consent type (e.g., web search,
+    analytics). If consent already exists, it will be updated.
+    """
+    from app.legal.router import (
+        PRIVACY_POLICY_VERSION,
+        TERMS_OF_SERVICE_VERSION,
+    )
+
+    # Determine version based on consent type
+    version_map = {
+        ConsentType.TERMS_OF_SERVICE: TERMS_OF_SERVICE_VERSION,
+        ConsentType.PRIVACY_POLICY: PRIVACY_POLICY_VERSION,
+        ConsentType.WEB_SEARCH: "1.0",
+        ConsentType.ANALYTICS: "1.0",
+        ConsentType.PHOTO_AI_ACCESS: "1.0",
+    }
+    version = version_map.get(data.consent_type, "1.0")
+
+    service = UserConsentService(session)
+
+    if data.granted:
+        consent = await service.grant_consent(
+            user_id=current_user.id,
+            consent_type=data.consent_type,
+            version=version,
+        )
+    else:
+        consent = await service.revoke_consent(
+            user_id=current_user.id,
+            consent_type=data.consent_type,
+        )
+        if consent is None:
+            # Create a revoked consent record if none exists
+            consent = await service.grant_consent(
+                user_id=current_user.id,
+                consent_type=data.consent_type,
+                version=version,
+            )
+            consent = await service.revoke_consent(
+                user_id=current_user.id,
+                consent_type=data.consent_type,
+            )
+
+    return ConsentResponse(
+        consent_type=consent.consent_type,
+        granted=consent.granted,
+        version=consent.version,
+        granted_at=consent.granted_at,
+        revoked_at=consent.revoked_at,
+    )
+
+
+@router.delete("/me/consents/{consent_type}", response_model=ConsentResponse)
+async def revoke_consent(
+    consent_type: ConsentType,
+    current_user: CurrentUser,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ConsentResponse:
+    """Revoke a specific user consent.
+
+    Marks the specified consent as revoked. Note that revoking certain
+    consents (like web search) may affect available features.
+    """
+    from fastapi import HTTPException
+
+    service = UserConsentService(session)
+    consent = await service.revoke_consent(
+        user_id=current_user.id,
+        consent_type=consent_type,
+    )
+
+    if consent is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No consent record found for type: {consent_type}",
+        )
+
+    return ConsentResponse(
+        consent_type=consent.consent_type,
+        granted=consent.granted,
+        version=consent.version,
+        granted_at=consent.granted_at,
+        revoked_at=consent.revoked_at,
+    )

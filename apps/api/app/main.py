@@ -17,6 +17,7 @@ from app.config import get_settings
 from app.database import close_db, init_db
 from app.dependencies import close_redis, init_redis
 from app.integrations.router import router as integrations_router
+from app.legal.router import router as legal_router
 from app.middleware import (
     PerformanceMiddleware,
     RequestIDMiddleware,
@@ -85,6 +86,7 @@ def create_application() -> FastAPI:
     app.include_router(nutrition_router, prefix=settings.api_v1_prefix)
     app.include_router(integrations_router, prefix=settings.api_v1_prefix)
     app.include_router(coach_router, prefix=settings.api_v1_prefix)
+    app.include_router(legal_router, prefix=settings.api_v1_prefix)
 
     return app
 

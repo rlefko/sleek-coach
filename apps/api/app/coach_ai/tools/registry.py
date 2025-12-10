@@ -3,17 +3,26 @@
 from __future__ import annotations
 
 import json
+import uuid
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from app.coach_ai.providers.base import ToolDefinition
 from app.coach_ai.tools.base import BaseTool, ToolResult
+from app.users.models import ConsentType
 
 if TYPE_CHECKING:
     import redis.asyncio as redis
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = structlog.get_logger()
+
+# Mapping from tool names to consent types
+TOOL_CONSENT_MAP: dict[str, ConsentType] = {
+    "search_web": ConsentType.WEB_SEARCH,
+    "fetch_recipe": ConsentType.WEB_SEARCH,
+}
 
 
 class ToolRegistry:
@@ -162,6 +171,48 @@ class ToolRegistry:
     def _has_consent(self, user_id: str, tool_name: str) -> bool:
         """Check if user has consented to an external tool."""
         return tool_name in self._user_consents.get(user_id, set())
+
+    async def load_user_consents_from_db(
+        self,
+        user_id: str,
+        session: AsyncSession,
+    ) -> None:
+        """Load user consents from database into memory.
+
+        This method should be called when starting a user session to sync
+        database consent records with the in-memory consent cache.
+
+        Args:
+            user_id: The user's ID (as string).
+            session: Database session.
+        """
+        from app.users.consent_service import UserConsentService
+
+        consent_service = UserConsentService(session)
+        try:
+            user_uuid = uuid.UUID(user_id)
+        except ValueError:
+            logger.warning("invalid_user_id_format", user_id=user_id)
+            return
+
+        consents = await consent_service.get_user_consents(user_uuid)
+
+        # Clear existing in-memory consents for this user
+        self._user_consents[user_id] = set()
+
+        # Map database consents to tool names
+        for consent in consents:
+            if consent.granted and consent.revoked_at is None:
+                # Find all tools that map to this consent type
+                for tool_name, consent_type in TOOL_CONSENT_MAP.items():
+                    if consent.consent_type == consent_type:
+                        self._user_consents[user_id].add(tool_name)
+
+        logger.debug(
+            "user_consents_loaded",
+            user_id=user_id,
+            consent_count=len(self._user_consents.get(user_id, set())),
+        )
 
     async def _get_cached(self, key: str) -> Any | None:
         """Get cached tool result."""

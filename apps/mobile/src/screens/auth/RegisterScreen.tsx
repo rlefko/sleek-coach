@@ -9,6 +9,7 @@ import { FormInput } from '@/components/forms';
 import { PasswordStrengthIndicator } from '@/components/onboarding';
 import { useAppTheme, spacing } from '@/theme';
 import { useRegister } from '@/services/hooks/useAuth';
+import { useLegalVersions } from '@/services/hooks/useLegal';
 import { registerSchema, RegisterFormData } from '@/schemas/authSchemas';
 import type { AuthScreenProps } from '@/navigation/types';
 
@@ -20,6 +21,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const registerMutation = useRegister();
+  const { data: legalVersions } = useLegalVersions();
 
   const {
     control,
@@ -45,6 +47,8 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       await registerMutation.mutateAsync({
         email: data.email,
         password: data.password,
+        accepted_terms_version: legalVersions?.terms_of_service_version || '1.0',
+        accepted_privacy_version: legalVersions?.privacy_policy_version || '1.0',
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -152,9 +156,21 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
                   <Text
                     variant="bodyMedium"
                     style={[styles.checkboxLabel, { color: theme.colors.onSurface }]}
-                    onPress={() => onChange(!value)}
                   >
-                    I accept the Terms of Service and Privacy Policy
+                    I accept the{' '}
+                    <Text
+                      style={{ color: theme.colors.primary, textDecorationLine: 'underline' }}
+                      onPress={() => navigation.navigate('TermsOfService')}
+                    >
+                      Terms of Service
+                    </Text>{' '}
+                    and{' '}
+                    <Text
+                      style={{ color: theme.colors.primary, textDecorationLine: 'underline' }}
+                      onPress={() => navigation.navigate('PrivacyPolicy')}
+                    >
+                      Privacy Policy
+                    </Text>
                   </Text>
                   {error && (
                     <Text

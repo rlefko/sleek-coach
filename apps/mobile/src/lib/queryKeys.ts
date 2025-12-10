@@ -43,4 +43,14 @@ export const queryKeys = {
     session: (sessionId: string) => [...queryKeys.coach.all, 'session', sessionId] as const,
     messages: (sessionId: string) => [...queryKeys.coach.all, 'messages', sessionId] as const,
   },
+
+  // Legal
+  legal: {
+    all: ['legal'] as const,
+    privacyPolicy: () => [...queryKeys.legal.all, 'privacy-policy'] as const,
+    termsOfService: () => [...queryKeys.legal.all, 'terms-of-service'] as const,
+    dataRetention: () => [...queryKeys.legal.all, 'data-retention'] as const,
+    versions: () => [...queryKeys.legal.all, 'versions'] as const,
+    consents: () => [...queryKeys.legal.all, 'consents'] as const,
+  },
 } as const;

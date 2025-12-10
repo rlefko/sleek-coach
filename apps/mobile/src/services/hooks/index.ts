@@ -23,3 +23,10 @@ export {
   useChatStream,
   useChatSessions,
 } from './useCoach';
+export {
+  usePrivacyPolicy,
+  useTermsOfService,
+  useDataRetention,
+  useLegalVersions,
+} from './useLegal';
+export { useConsents, useGrantConsent, useRevokeConsent, useHasConsent } from './useConsent';
