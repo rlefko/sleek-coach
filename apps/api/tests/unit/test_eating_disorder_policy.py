@@ -5,7 +5,6 @@ import pytest
 from app.coach_ai.policies.base import PolicyAction, PolicySeverity, UserContext
 from app.coach_ai.policies.eating_disorder_policy import (
     ED_KEYWORDS,
-    ED_PHRASES,
     EatingDisorderPolicy,
 )
 

@@ -1,12 +1,11 @@
 """Security tests for injection vulnerabilities."""
 
-import uuid
 from datetime import date, datetime, timedelta
 from typing import Any
 
-from jose import jwt
 import pytest
 from httpx import AsyncClient
+from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.users.models import User
@@ -112,7 +111,7 @@ class TestSQLInjectionInSearch:
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
         """Test SQL injection in date range parameters."""
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         response = await client.get(
             f"/api/v1/checkins?from_date={payload}&to_date=2024-12-31",
@@ -131,7 +130,7 @@ class TestSQLInjectionInSearch:
         self, client: AsyncClient, authenticated_user: tuple[User, str]
     ) -> None:
         """Test SQL injection in pagination parameters."""
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         # Try to inject via limit parameter
         response = await client.get(
@@ -169,7 +168,7 @@ class TestXSSInUserInput:
 
         API should either reject the input or store it safely without executing.
         """
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         response = await client.patch(
             "/api/v1/me/profile",
@@ -200,7 +199,7 @@ class TestXSSInUserInput:
         Notes are user-provided text that should be stored as-is.
         XSS prevention happens on frontend rendering.
         """
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         response = await client.post(
             "/api/v1/checkins",
@@ -243,7 +242,7 @@ class TestCommandInjection:
 
         API should store as plain text without executing shell commands.
         """
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         response = await client.patch(
             "/api/v1/me/profile",
@@ -278,7 +277,7 @@ class TestPathTraversal:
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: str
     ) -> None:
         """Test path traversal in photo S3 key is prevented."""
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         # If there's a photo endpoint that accepts keys
         response = await client.post(
@@ -307,7 +306,7 @@ class TestNoSQLInjection:
         self, client: AsyncClient, authenticated_user: tuple[User, str], payload: Any
     ) -> None:
         """Test NoSQL injection in JSON fields is prevented."""
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         # Try to inject via goal_type which expects a string
         response = await client.patch(
@@ -344,7 +343,7 @@ class TestHeaderInjection:
         self, client: AsyncClient, authenticated_user: tuple[User, str]
     ) -> None:
         """Test newline injection in User-Agent header."""
-        user, token = authenticated_user
+        _user, token = authenticated_user
 
         malicious_ua = "Mozilla/5.0\r\nX-Injected: true"
 

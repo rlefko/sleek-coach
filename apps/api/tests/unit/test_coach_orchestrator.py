@@ -9,10 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.coach_ai.context_builder import CoachContext
 from app.coach_ai.models import AISession, SessionStatus
 from app.coach_ai.orchestrator import CoachOrchestrator, OrchestratorResult
-from app.coach_ai.providers.base import Message
 from app.coach_ai.schemas import ChatMessage, DailyTarget, WeeklyPlanResponse
 from app.coach_ai.tools.base import ToolResult
-
 from tests.fixtures.llm_mocks import MockLLMResponse
 
 
@@ -98,7 +96,7 @@ class TestCoachOrchestratorGetProvider:
         with patch("app.coach_ai.orchestrator.get_settings") as mock_settings:
             mock_settings.return_value.openai_api_key = "test-key"
             with patch("app.coach_ai.orchestrator.OpenAIProvider") as mock_provider:
-                provider = orchestrator._get_provider("standard")
+                _provider = orchestrator._get_provider("standard")
 
                 mock_provider.assert_called_once()
 

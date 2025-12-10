@@ -78,6 +78,7 @@ class WeightLossPolicy(BasePolicy):
                                 ),
                             )
                 except ValueError:
+                    # Regex matched non-numeric text; skip this match
                     pass
 
         return PolicyResult(passed=True, action=PolicyAction.ALLOW)
@@ -119,6 +120,7 @@ class WeightLossPolicy(BasePolicy):
                             disclaimer=disclaimer,
                         )
                 except ValueError:
+                    # Regex matched non-numeric text; skip this match
                     pass
 
         return PolicyResult(passed=True, action=PolicyAction.ALLOW)

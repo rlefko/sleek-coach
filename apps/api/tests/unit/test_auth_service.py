@@ -50,7 +50,7 @@ class TestAuthServiceRegister:
                     datetime.utcnow() + timedelta(days=7),
                     "refresh_hash",
                 )
-                user, token_pair = await service.register(data)
+                _user, _token_pair = await service.register(data)
 
         assert mock_session.add.called
         assert mock_session.commit.called
@@ -88,7 +88,6 @@ class TestAuthServiceRegister:
                 await service.register(data)
 
         # Check the query used lowercase email
-        call_args = mock_session.execute.call_args_list[0]
         # The select statement should query with lowercase email
 
 
@@ -121,7 +120,7 @@ class TestAuthServiceLogin:
                     datetime.utcnow() + timedelta(days=7),
                     "refresh_hash",
                 )
-                user, token_pair = await service.login(data)
+                user, _token_pair = await service.login(data)
 
         assert user == mock_user
         assert mock_session.commit.called
@@ -253,7 +252,7 @@ class TestAuthServiceRefreshTokens:
                         datetime.utcnow() + timedelta(days=7),
                         "new_hash",
                     )
-                    token_pair = await service.refresh_tokens("valid_token")
+                    _token_pair = await service.refresh_tokens("valid_token")
 
         # Verify old token was revoked
         assert stored_token.revoked_at is not None
@@ -402,13 +401,12 @@ class TestAuthServiceChangePassword:
 
         service = AuthService(mock_session)
 
-        with patch("app.auth.service.verify_password", return_value=False):
-            with pytest.raises(
-                UnauthorizedError, match="Current password is incorrect"
-            ):
-                await service.change_password(
-                    mock_user.id, "wrong_password", "new_password"
-                )
+        with patch("app.auth.service.verify_password", return_value=False), pytest.raises(
+            UnauthorizedError, match="Current password is incorrect"
+        ):
+            await service.change_password(
+                mock_user.id, "wrong_password", "new_password"
+            )
 
     @pytest.mark.asyncio
     async def test_change_password_user_not_found(self) -> None:

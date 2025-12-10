@@ -13,8 +13,6 @@ from app.coach_ai.orchestrator import OrchestratorResult
 from app.coach_ai.policies.base import PolicyAction, PolicyResult
 from app.coach_ai.schemas import (
     ChatResponse,
-    DataGap,
-    InsightItem,
     InsightsResponse,
 )
 from app.coach_ai.service import CoachService

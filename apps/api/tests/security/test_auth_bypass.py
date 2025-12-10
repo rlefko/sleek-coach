@@ -4,9 +4,9 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
-from jose import jwt
 import pytest
 from httpx import AsyncClient
+from jose import jwt
 
 
 class TestExpiredTokenRejection:
@@ -144,7 +144,7 @@ class TestPayloadTampering:
 
     @pytest.mark.asyncio
     async def test_modified_user_id_rejected(
-        self, client: AsyncClient, settings: Any
+        self, client: AsyncClient
     ) -> None:
         """Test that modifying user ID in payload invalidates token."""
         import secrets
