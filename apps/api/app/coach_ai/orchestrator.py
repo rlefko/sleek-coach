@@ -5,13 +5,11 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from app.coach_ai.context_builder import CoachContext
 from app.coach_ai.models import AISession, AIToolCallLog, ToolCallStatus
 from app.coach_ai.prompts.system_prompts import get_system_prompt
 from app.coach_ai.providers.base import Message
@@ -19,7 +17,6 @@ from app.coach_ai.providers.model_config import get_model_config
 from app.coach_ai.providers.openai_provider import OpenAIProvider, parse_tool_arguments
 from app.coach_ai.schemas import ChatMessage, DailyTarget, StreamEvent, WeeklyPlanResponse
 from app.coach_ai.tools.adherence_tools import GetAdherenceMetricsTool
-from app.coach_ai.tools.base import BaseTool
 from app.coach_ai.tools.checkin_tools import GetRecentCheckinsTool, GetWeightTrendTool
 from app.coach_ai.tools.nutrition_tools import CalculateTDEETool, GetNutritionSummaryTool
 from app.coach_ai.tools.registry import ToolRegistry
@@ -27,7 +24,12 @@ from app.coach_ai.tools.user_tools import GetUserProfileTool
 from app.config import get_settings
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
     from sqlalchemy.ext.asyncio import AsyncSession
+
+    from app.coach_ai.context_builder import CoachContext
+    from app.coach_ai.tools.base import BaseTool
 
 logger = structlog.get_logger()
 

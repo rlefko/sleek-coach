@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from openai import AsyncOpenAI
 
 from app.coach_ai.providers.base import LLMProvider, LLMResponse, Message, ToolDefinition
-from app.coach_ai.providers.model_config import ModelConfig
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
+    from app.coach_ai.providers.model_config import ModelConfig
 
 
 class OpenAIProvider(LLMProvider):

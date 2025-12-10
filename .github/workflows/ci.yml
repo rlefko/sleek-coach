@@ -251,8 +251,12 @@ jobs:
       - name: Set up Python
         run: uv python install ${{ env.PYTHON_VERSION }}
 
-      - name: Install pip-audit
-        run: uv pip install pip-audit --system
+      - name: Install pip-audit in venv
+        working-directory: apps/api
+        run: |
+          uv venv .audit-venv
+          source .audit-venv/bin/activate
+          uv pip install pip-audit
 
       - name: Export requirements
         working-directory: apps/api
@@ -260,7 +264,9 @@ jobs:
 
       - name: Run pip-audit
         working-directory: apps/api
-        run: pip-audit -r requirements.txt --desc on || true
+        run: |
+          source .audit-venv/bin/activate
+          pip-audit -r requirements.txt --desc on || true
         continue-on-error: true
 
       # Node.js dependency audit

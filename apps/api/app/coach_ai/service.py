@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
-from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -26,6 +24,9 @@ from app.coach_ai.schemas import (
 )
 
 if TYPE_CHECKING:
+    import uuid
+    from collections.abc import AsyncIterator
+
     from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = structlog.get_logger()
