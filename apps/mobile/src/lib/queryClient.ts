@@ -92,8 +92,6 @@ export const isOnline = async (): Promise<boolean> => {
 };
 
 // Get configured stale time for a query type
-export const getStaleTime = (
-  type: keyof typeof staleTimes
-): number => {
+export const getStaleTime = (type: keyof typeof staleTimes): number => {
   return staleTimes[type];
 };

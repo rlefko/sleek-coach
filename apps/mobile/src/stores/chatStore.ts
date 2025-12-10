@@ -8,10 +8,12 @@ const MAX_MESSAGES_PER_SESSION = 200; // 100 rounds of conversation
 const MAX_SESSIONS_TO_KEEP = 50;
 
 /**
- * Generate a simple unique ID
+ * Generate a cryptographically secure unique ID
  */
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  const randomBytes = new Uint32Array(2);
+  crypto.getRandomValues(randomBytes);
+  return `${Date.now()}-${randomBytes[0].toString(36)}${randomBytes[1].toString(36)}`;
 }
 
 /**
