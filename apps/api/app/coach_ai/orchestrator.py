@@ -25,6 +25,7 @@ from app.config import get_settings
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+    from typing import Any
 
     from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,13 +48,19 @@ class OrchestratorResult:
 class CoachOrchestrator:
     """Coordinates LLM interactions with tools and policies."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        redis_client: Any | None = None,
+    ) -> None:
         """Initialize the orchestrator.
 
         Args:
             session: Database session.
+            redis_client: Optional Redis client for caching.
         """
         self.session = session
+        self._redis_client = redis_client
         self._provider: OpenAIProvider | None = None
         self._tool_registry: ToolRegistry | None = None
 
@@ -66,7 +73,7 @@ class CoachOrchestrator:
     def _get_tool_registry(self) -> ToolRegistry:
         """Get or create tool registry with registered tools."""
         if self._tool_registry is None:
-            self._tool_registry = ToolRegistry()
+            self._tool_registry = ToolRegistry(redis_client=self._redis_client)
 
             # Register internal tools
             tools: list[BaseTool] = [
@@ -391,20 +398,26 @@ Format your response as JSON with keys: daily_targets, focus_areas, recommendati
         context: CoachContext,
         history: list[ChatMessage] | None,
     ) -> list[Message]:
-        """Build the message list for the LLM."""
+        """Build the message list for the LLM.
+
+        Uses compact context summary for token efficiency and limits
+        conversation history to last 6 messages (3 rounds).
+        """
         messages: list[Message] = []
 
-        # System prompt with context
+        # System prompt with compact context (saves ~40% tokens)
         system_content = get_system_prompt("coach")
-        context_summary = context.get_context_summary()
+        context_summary = context.get_compact_summary()
         if context_summary:
-            system_content += f"\n\n## Current User Context\n{context_summary}"
+            system_content += f"\n\n## User Context\n{context_summary}"
 
         messages.append(Message(role="system", content=system_content))
 
-        # Add conversation history if provided
+        # Add conversation history - limit to last 6 messages (3 rounds)
+        # This saves significant tokens while maintaining conversation coherence
         if history:
-            for msg in history[-10:]:  # Last 10 messages for context window
+            recent_history = history[-6:]
+            for msg in recent_history:
                 messages.append(Message(role=msg.role, content=msg.content))
 
         # Add current user message

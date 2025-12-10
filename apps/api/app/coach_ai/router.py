@@ -21,6 +21,7 @@ from app.coach_ai.schemas import (
 )
 from app.coach_ai.service import CoachService
 from app.database import get_session
+from app.dependencies import RedisClient
 
 router = APIRouter(prefix="/coach", tags=["Coach"])
 logger = structlog.get_logger()
@@ -31,6 +32,7 @@ async def chat(
     request: ChatRequest,
     current_user: CurrentUser,
     session: Annotated[AsyncSession, Depends(get_session)],
+    redis_client: RedisClient,
 ) -> ChatResponse:
     """Send a message to the AI coach and receive a response.
 
@@ -41,6 +43,7 @@ async def chat(
         request: Chat request with message and optional session ID.
         current_user: The authenticated user.
         session: Database session.
+        redis_client: Redis client for caching.
 
     Returns:
         ChatResponse with the coach's response and metadata.
@@ -48,7 +51,7 @@ async def chat(
     Raises:
         HTTPException: If chat processing fails.
     """
-    service = CoachService(session)
+    service = CoachService(session, redis_client=redis_client)
 
     try:
         response = await service.chat(
@@ -70,6 +73,7 @@ async def chat_stream(
     request: ChatRequest,
     current_user: CurrentUser,
     session: Annotated[AsyncSession, Depends(get_session)],
+    redis_client: RedisClient,
 ) -> StreamingResponse:
     """Stream a chat response from the AI coach using Server-Sent Events.
 
@@ -84,11 +88,12 @@ async def chat_stream(
         request: Chat request with message and optional session ID.
         current_user: The authenticated user.
         session: Database session.
+        redis_client: Redis client for caching.
 
     Returns:
         StreamingResponse with SSE events.
     """
-    service = CoachService(session)
+    service = CoachService(session, redis_client=redis_client)
 
     async def event_generator() -> AsyncIterator[str]:
         try:
@@ -124,6 +129,7 @@ async def generate_plan(
     request: WeeklyPlanRequest,
     current_user: CurrentUser,
     session: Annotated[AsyncSession, Depends(get_session)],
+    redis_client: RedisClient,
 ) -> WeeklyPlanResponse:
     """Generate a personalized weekly plan based on your goals and progress.
 
@@ -134,6 +140,7 @@ async def generate_plan(
         request: Plan request with optional start date and preferences.
         current_user: The authenticated user.
         session: Database session.
+        redis_client: Redis client for caching.
 
     Returns:
         WeeklyPlanResponse with the generated plan.
@@ -141,7 +148,7 @@ async def generate_plan(
     Raises:
         HTTPException: If plan generation fails.
     """
-    service = CoachService(session)
+    service = CoachService(session, redis_client=redis_client)
 
     try:
         plan = await service.generate_weekly_plan(
@@ -162,6 +169,7 @@ async def generate_plan(
 async def get_insights(
     current_user: CurrentUser,
     session: Annotated[AsyncSession, Depends(get_session)],
+    redis_client: RedisClient,
 ) -> InsightsResponse:
     """Get pre-computed weekly insights about your progress.
 
@@ -171,6 +179,7 @@ async def get_insights(
     Args:
         current_user: The authenticated user.
         session: Database session.
+        redis_client: Redis client for caching.
 
     Returns:
         InsightsResponse with generated insights.
@@ -178,7 +187,7 @@ async def get_insights(
     Raises:
         HTTPException: If insight retrieval fails.
     """
-    service = CoachService(session)
+    service = CoachService(session, redis_client=redis_client)
 
     try:
         insights = await service.get_insights(user_id=current_user.id)

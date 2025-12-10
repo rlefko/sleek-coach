@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from sqlmodel import select
@@ -35,16 +35,21 @@ logger = structlog.get_logger()
 class CoachService:
     """Business logic service for AI coach operations."""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        redis_client: Any | None = None,
+    ) -> None:
         """Initialize the coach service.
 
         Args:
             session: Database session.
+            redis_client: Optional Redis client for caching.
         """
         self.session = session
         self.context_builder = ContextBuilder(session)
         self.policy_engine = SafetyPolicyEngine(session)
-        self.orchestrator = CoachOrchestrator(session)
+        self.orchestrator = CoachOrchestrator(session, redis_client=redis_client)
 
     async def chat(
         self,
@@ -114,9 +119,10 @@ class CoachService:
         ai_session.conversation_history.append({"role": "user", "content": message})
         ai_session.conversation_history.append({"role": "assistant", "content": final_response})
 
-        # Keep only last 20 messages to manage context size
-        if len(ai_session.conversation_history) > 20:
-            ai_session.conversation_history = ai_session.conversation_history[-20:]
+        # Keep only last 12 messages (6 rounds) to optimize token usage
+        # The orchestrator uses last 6, but we keep 12 for potential context
+        if len(ai_session.conversation_history) > 12:
+            ai_session.conversation_history = ai_session.conversation_history[-12:]
 
         await self.session.commit()
 
@@ -211,8 +217,9 @@ class CoachService:
             {"role": "assistant", "content": accumulated_response}
         )
 
-        if len(ai_session.conversation_history) > 20:
-            ai_session.conversation_history = ai_session.conversation_history[-20:]
+        # Keep only last 12 messages (6 rounds) to optimize token usage
+        if len(ai_session.conversation_history) > 12:
+            ai_session.conversation_history = ai_session.conversation_history[-12:]
 
         await self.session.commit()
 

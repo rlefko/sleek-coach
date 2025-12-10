@@ -3,11 +3,26 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { zustandStorage } from '@/lib/storage';
 import type { ChatMessage, ChatSession, ToolTrace, DataGap } from '@/services/api/types';
 
+// Performance constants
+const MAX_MESSAGES_PER_SESSION = 200; // 100 rounds of conversation
+const MAX_SESSIONS_TO_KEEP = 50;
+
 /**
  * Generate a simple unique ID
  */
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+}
+
+/**
+ * Trim messages array to max limit using FIFO
+ */
+function trimMessages(messages: ChatMessage[]): ChatMessage[] {
+  if (messages.length <= MAX_MESSAGES_PER_SESSION) {
+    return messages;
+  }
+  // Keep the most recent messages
+  return messages.slice(-MAX_MESSAGES_PER_SESSION);
 }
 
 interface ChatState {
@@ -153,10 +168,13 @@ export const useChatStore = create<ChatState & ChatActions>()(
           const sessionMessages = state.messages[message.sessionId] || [];
           const session = state.sessions.find((s) => s.id === message.sessionId);
 
+          // Add new message and trim to max limit
+          const updatedMessages = trimMessages([...sessionMessages, message]);
+
           return {
             messages: {
               ...state.messages,
-              [message.sessionId]: [...sessionMessages, message],
+              [message.sessionId]: updatedMessages,
             },
             sessions: state.sessions.map((s) =>
               s.id === message.sessionId
@@ -349,11 +367,25 @@ export const useChatStore = create<ChatState & ChatActions>()(
     {
       name: 'chat-storage',
       storage: createJSONStorage(() => zustandStorage),
-      partialize: (state) => ({
-        sessions: state.sessions.slice(0, 50), // Keep last 50 sessions
-        messages: state.messages,
-        currentSessionId: state.currentSessionId,
-      }),
+      partialize: (state) => {
+        // Trim sessions to limit
+        const trimmedSessions = state.sessions.slice(0, MAX_SESSIONS_TO_KEEP);
+        const sessionIds = new Set(trimmedSessions.map((s) => s.id));
+
+        // Only keep messages for retained sessions, and trim each to limit
+        const trimmedMessages: Record<string, ChatMessage[]> = {};
+        for (const [sessionId, msgs] of Object.entries(state.messages)) {
+          if (sessionIds.has(sessionId)) {
+            trimmedMessages[sessionId] = trimMessages(msgs);
+          }
+        }
+
+        return {
+          sessions: trimmedSessions,
+          messages: trimmedMessages,
+          currentSessionId: state.currentSessionId,
+        };
+      },
     }
   )
 );
