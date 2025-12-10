@@ -18,9 +18,9 @@ interface AuthState {
 }
 
 interface AuthActions {
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   setUser: (user: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   hydrate: () => Promise<void>;
 }
@@ -36,9 +36,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       isLoading: true,
 
       // Actions
-      setTokens: (accessToken, refreshToken) => {
-        secureStorage.setToken('accessToken', accessToken);
-        secureStorage.setToken('refreshToken', refreshToken);
+      setTokens: async (accessToken, refreshToken) => {
+        await secureStorage.setToken('accessToken', accessToken);
+        await secureStorage.setToken('refreshToken', refreshToken);
         set({
           accessToken,
           refreshToken,
@@ -50,9 +50,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ user });
       },
 
-      logout: () => {
-        secureStorage.deleteToken('accessToken');
-        secureStorage.deleteToken('refreshToken');
+      logout: async () => {
+        await secureStorage.deleteToken('accessToken');
+        await secureStorage.deleteToken('refreshToken');
         set({
           user: null,
           accessToken: null,
@@ -66,8 +66,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       hydrate: async () => {
-        const accessToken = secureStorage.getToken('accessToken');
-        const refreshToken = secureStorage.getToken('refreshToken');
+        const accessToken = await secureStorage.getToken('accessToken');
+        const refreshToken = await secureStorage.getToken('refreshToken');
 
         if (accessToken && refreshToken) {
           set({

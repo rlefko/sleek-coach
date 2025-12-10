@@ -1,14 +1,18 @@
 """S3/MinIO client wrapper service."""
 
 import hashlib
+import logging
 import uuid
 from datetime import datetime
 from typing import Any
 
 import aioboto3  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
+from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 
 from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 class S3Service:
@@ -125,7 +129,19 @@ class S3Service:
                     Key=s3_key,
                 )
                 return True
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code", "")
+                if error_code == "404":
+                    return False
+                logger.error(
+                    "S3 head_object failed",
+                    extra={"s3_key": s3_key, "error_code": error_code, "error": str(e)},
+                )
+                return False
             except Exception:
+                logger.exception(
+                    "Unexpected S3 error in check_object_exists", extra={"s3_key": s3_key}
+                )
                 return False
 
     async def get_object_metadata(self, s3_key: str) -> dict[str, Any] | None:
@@ -148,7 +164,19 @@ class S3Service:
                     "content_length": response.get("ContentLength"),
                     "etag": response.get("ETag", "").strip('"'),
                 }
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code", "")
+                if error_code == "404":
+                    return None
+                logger.error(
+                    "S3 head_object failed",
+                    extra={"s3_key": s3_key, "error_code": error_code, "error": str(e)},
+                )
+                return None
             except Exception:
+                logger.exception(
+                    "Unexpected S3 error in get_object_metadata", extra={"s3_key": s3_key}
+                )
                 return None
 
     async def delete_object(self, s3_key: str) -> bool:
@@ -167,7 +195,15 @@ class S3Service:
                     Key=s3_key,
                 )
                 return True
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code", "")
+                logger.error(
+                    "S3 delete_object failed",
+                    extra={"s3_key": s3_key, "error_code": error_code, "error": str(e)},
+                )
+                return False
             except Exception:
+                logger.exception("Unexpected S3 error in delete_object", extra={"s3_key": s3_key})
                 return False
 
     @staticmethod

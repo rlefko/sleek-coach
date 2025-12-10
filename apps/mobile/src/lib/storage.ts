@@ -1,11 +1,12 @@
 import { MMKV } from 'react-native-mmkv';
+import * as SecureStore from 'expo-secure-store';
 import type { StateStorage } from 'zustand/middleware';
 
 export const storage = new MMKV({
   id: 'sleek-coach-storage',
 });
 
-// Zustand persistence adapter
+// Zustand persistence adapter (for non-sensitive data)
 export const zustandStorage: StateStorage = {
   getItem: (name) => {
     const value = storage.getString(name);
@@ -19,19 +20,20 @@ export const zustandStorage: StateStorage = {
   },
 };
 
-// Secure storage for tokens (in production, use expo-secure-store)
+// Secure storage for tokens using expo-secure-store (encrypted on device)
 export const secureStorage = {
-  setToken: (key: string, value: string) => {
-    storage.set(key, value);
+  setToken: async (key: string, value: string): Promise<void> => {
+    await SecureStore.setItemAsync(key, value);
   },
-  getToken: (key: string) => {
-    return storage.getString(key);
+  getToken: async (key: string): Promise<string | null> => {
+    return await SecureStore.getItemAsync(key);
   },
-  deleteToken: (key: string) => {
-    storage.delete(key);
+  deleteToken: async (key: string): Promise<void> => {
+    await SecureStore.deleteItemAsync(key);
   },
-  hasToken: (key: string) => {
-    return storage.contains(key);
+  hasToken: async (key: string): Promise<boolean> => {
+    const value = await SecureStore.getItemAsync(key);
+    return value !== null;
   },
 };
 

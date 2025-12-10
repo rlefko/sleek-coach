@@ -4,7 +4,7 @@ This module handles parsing of MyFitnessPal data exports, which come as ZIP file
 containing CSV files with nutrition data.
 
 Supports:
-- ZIP file extraction
+- ZIP file extraction with ZIP bomb protection
 - Multiple date formats (US, EU, ISO)
 - Auto-detection of date format
 - Calculating calories from macros when missing
@@ -18,6 +18,11 @@ import io
 import zipfile
 from dataclasses import dataclass, field
 from datetime import date, datetime
+
+# Security: Maximum decompressed size to prevent ZIP bomb attacks (100MB)
+MAX_DECOMPRESSED_SIZE = 100 * 1024 * 1024
+# Security: Maximum size per file within the archive (50MB)
+MAX_FILE_SIZE = 50 * 1024 * 1024
 
 # Supported date formats in order of preference
 SUPPORTED_DATE_FORMATS = [
@@ -84,10 +89,28 @@ def parse_mfp_zip(
 
     try:
         with zipfile.ZipFile(io.BytesIO(zip_content)) as zf:
+            # Security: Check for ZIP bomb attacks
+            total_size = sum(info.file_size for info in zf.infolist())
+            if total_size > MAX_DECOMPRESSED_SIZE:
+                result.errors.append(
+                    f"ZIP file decompresses to {total_size:,} bytes, "
+                    f"exceeds maximum allowed size of {MAX_DECOMPRESSED_SIZE:,} bytes"
+                )
+                return result
+
             # Find Nutrition.csv in the archive
             nutrition_file = _find_nutrition_csv(zf)
             if not nutrition_file:
                 result.errors.append("Nutrition.csv not found in archive")
+                return result
+
+            # Security: Check individual file size
+            file_info = zf.getinfo(nutrition_file)
+            if file_info.file_size > MAX_FILE_SIZE:
+                result.errors.append(
+                    f"Nutrition.csv size ({file_info.file_size:,} bytes) "
+                    f"exceeds maximum allowed size of {MAX_FILE_SIZE:,} bytes"
+                )
                 return result
 
             with zf.open(nutrition_file) as f:

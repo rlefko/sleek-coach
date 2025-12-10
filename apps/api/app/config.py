@@ -3,8 +3,12 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import AnyHttpUrl, Field, PostgresDsn, RedisDsn
+from pydantic import AnyHttpUrl, Field, PostgresDsn, RedisDsn, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Default development secrets - NEVER use in production
+_DEV_SECRET_KEY = "dev-secret-key-minimum-32-characters-long"
+_DEV_JWT_SECRET_KEY = "dev-jwt-secret-key-32-chars-minimum"
 
 
 class Settings(BaseSettings):
@@ -21,7 +25,7 @@ class Settings(BaseSettings):
     app_name: str = "sleek-coach-api"
     app_env: Literal["development", "staging", "production", "testing"] = "development"
     debug: bool = False
-    secret_key: str = Field(default="dev-secret-key-minimum-32-characters-long")
+    secret_key: str = Field(default=_DEV_SECRET_KEY)
     api_v1_prefix: str = "/api/v1"
 
     # Database
@@ -33,7 +37,7 @@ class Settings(BaseSettings):
     redis_url: RedisDsn
 
     # JWT
-    jwt_secret_key: str = Field(default="dev-jwt-secret-key-32-chars-minimum")
+    jwt_secret_key: str = Field(default=_DEV_JWT_SECRET_KEY)
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
@@ -44,6 +48,30 @@ class Settings(BaseSettings):
     aws_region: str = "us-east-1"
     s3_bucket_name: str = "sleek-coach-photos"
     s3_endpoint_url: AnyHttpUrl | None = None  # For MinIO in development
+
+    @model_validator(mode="after")
+    def validate_production_secrets(self) -> "Settings":
+        """Ensure production environments have secure secrets configured."""
+        if self.app_env in ("production", "staging"):
+            if self.secret_key == _DEV_SECRET_KEY:
+                raise ValueError(
+                    "SECRET_KEY must be set to a secure value in production/staging. "
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(64))"'
+                )
+            if self.jwt_secret_key == _DEV_JWT_SECRET_KEY:
+                raise ValueError(
+                    "JWT_SECRET_KEY must be set to a secure value in production/staging. "
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(64))"'
+                )
+            if self.aws_access_key_id == "minioadmin":
+                raise ValueError(
+                    "AWS_ACCESS_KEY_ID must be set to real AWS credentials in production/staging."
+                )
+            if self.aws_secret_access_key == "minioadmin":
+                raise ValueError(
+                    "AWS_SECRET_ACCESS_KEY must be set to real AWS credentials in production/staging."
+                )
+        return self
 
     # CORS
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8081"]
