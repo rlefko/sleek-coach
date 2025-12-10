@@ -6,9 +6,9 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-import aioboto3
-from botocore.config import Config
-from botocore.exceptions import ClientError
+import aioboto3  # type: ignore[import-untyped]
+from botocore.config import Config  # type: ignore[import-untyped]
+from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 
 from app.config import get_settings
 
