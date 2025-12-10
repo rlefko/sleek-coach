@@ -38,8 +38,8 @@ htmlcov/
 .env.local
 *.local
 
-# Documentation
-*.md
+# Documentation (keep README.md for pyproject.toml)
+!README.md
 docs/
 
 # Docker

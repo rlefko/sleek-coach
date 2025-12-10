@@ -1,0 +1,87 @@
+# Release Drafter configuration
+# See: https://github.com/release-drafter/release-drafter
+
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: 'Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: 'Bug Fixes'
+    labels:
+      - 'bug'
+      - 'fix'
+  - title: 'Backend'
+    labels:
+      - 'backend'
+  - title: 'Mobile'
+    labels:
+      - 'mobile'
+  - title: 'AI Coach'
+    labels:
+      - 'ai'
+  - title: 'Infrastructure'
+    labels:
+      - 'infrastructure'
+      - 'ci'
+  - title: 'Documentation'
+    labels:
+      - 'documentation'
+  - title: 'Dependencies'
+    labels:
+      - 'dependencies'
+  - title: 'Other Changes'
+    labels:
+      - '*'
+
+exclude-labels:
+  - 'skip-changelog'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'documentation'
+      - 'dependencies'
+  default: patch
+
+autolabeler:
+  - label: 'documentation'
+    files:
+      - '*.md'
+      - 'docs/**/*'
+  - label: 'ci'
+    files:
+      - '.github/**/*'
+  - label: 'backend'
+    files:
+      - 'apps/api/**/*'
+  - label: 'mobile'
+    files:
+      - 'apps/mobile/**/*'
+  - label: 'infrastructure'
+    files:
+      - 'infra/**/*'
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  ## Contributors
+
+  $CONTRIBUTORS

@@ -7,9 +7,12 @@ import uuid
 from enum import Enum
 from typing import Any
 
-from sqlalchemy import Column, ForeignKey, Index, Integer, Text, text
+from sqlalchemy import JSON, Column, ForeignKey, Index, Integer, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlmodel import Field, SQLModel
+
+# Create a portable JSON type that works with both PostgreSQL and SQLite
+PortableJSON = JSONB().with_variant(JSON(), "sqlite")
 
 
 class SessionStatus(str, Enum):
@@ -75,9 +78,11 @@ class AISession(SQLModel, table=True):
     )
     model_tier: str = Field(default="standard", max_length=20)
     context_summary: str | None = Field(default=None, sa_column=Column(Text))
-    conversation_history: list[dict[str, str]] | None = Field(default=None, sa_column=Column(JSONB))
+    conversation_history: list[dict[str, str]] | None = Field(
+        default=None, sa_column=Column(PortableJSON)
+    )
     session_metadata: dict[str, str] | None = Field(
-        default=None, sa_column=Column(JSONB, name="metadata")
+        default=None, sa_column=Column(PortableJSON, name="metadata")
     )
     created_at: datetime.datetime = Field(
         default_factory=datetime.datetime.utcnow,
@@ -156,7 +161,7 @@ class AIPolicyViolationLog(SQLModel, table=True):
     severity: str = Field(max_length=20)
     trigger_content: str | None = Field(default=None, sa_column=Column(Text))
     action_taken: str = Field(max_length=100)
-    details: dict[str, Any] | None = Field(default=None, sa_column=Column(JSONB))
+    details: dict[str, Any] | None = Field(default=None, sa_column=Column(PortableJSON))
     created_at: datetime.datetime = Field(
         default_factory=datetime.datetime.utcnow,
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},
