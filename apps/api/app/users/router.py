@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import CurrentUser
@@ -11,7 +11,7 @@ from app.auth.schemas import MessageResponse
 from app.database import get_session
 
 from .consent_service import UserConsentService
-from .models import ConsentType
+from .models import ConsentType, UserConsent
 from .schemas import (
     ConsentRequest,
     ConsentResponse,
@@ -297,6 +297,7 @@ async def grant_consent(
     version = version_map.get(data.consent_type, "1.0")
 
     service = UserConsentService(session)
+    consent: UserConsent | None = None
 
     if data.granted:
         consent = await service.grant_consent(
@@ -320,6 +321,10 @@ async def grant_consent(
                 user_id=current_user.id,
                 consent_type=data.consent_type,
             )
+
+    # This should never happen, but satisfy type checker
+    if consent is None:
+        raise HTTPException(status_code=500, detail="Failed to create consent record")
 
     return ConsentResponse(
         consent_type=consent.consent_type,

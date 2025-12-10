@@ -91,9 +91,7 @@ class TestHasConsent:
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute = AsyncMock(return_value=mock_result)
 
-        has_consent = await consent_service.has_consent(
-            sample_user_id, ConsentType.WEB_SEARCH
-        )
+        has_consent = await consent_service.has_consent(sample_user_id, ConsentType.WEB_SEARCH)
 
         assert has_consent is False
 
@@ -116,9 +114,7 @@ class TestHasConsent:
         mock_result.scalar_one_or_none.return_value = mock_consent
         mock_session.execute = AsyncMock(return_value=mock_result)
 
-        has_consent = await consent_service.has_consent(
-            sample_user_id, ConsentType.WEB_SEARCH
-        )
+        has_consent = await consent_service.has_consent(sample_user_id, ConsentType.WEB_SEARCH)
 
         assert has_consent is True
 
@@ -142,9 +138,7 @@ class TestHasConsent:
         mock_result.scalar_one_or_none.return_value = mock_consent
         mock_session.execute = AsyncMock(return_value=mock_result)
 
-        has_consent = await consent_service.has_consent(
-            sample_user_id, ConsentType.WEB_SEARCH
-        )
+        has_consent = await consent_service.has_consent(sample_user_id, ConsentType.WEB_SEARCH)
 
         assert has_consent is False
 
@@ -199,9 +193,7 @@ class TestRevokeConsent:
         mock_result.scalar_one_or_none.return_value = mock_consent
         mock_session.execute = AsyncMock(return_value=mock_result)
 
-        consent = await consent_service.revoke_consent(
-            sample_user_id, ConsentType.WEB_SEARCH
-        )
+        consent = await consent_service.revoke_consent(sample_user_id, ConsentType.WEB_SEARCH)
 
         assert consent is not None
         assert consent.revoked_at is not None
@@ -218,8 +210,6 @@ class TestRevokeConsent:
         mock_result.scalar_one_or_none.return_value = None
         mock_session.execute = AsyncMock(return_value=mock_result)
 
-        consent = await consent_service.revoke_consent(
-            sample_user_id, ConsentType.WEB_SEARCH
-        )
+        consent = await consent_service.revoke_consent(sample_user_id, ConsentType.WEB_SEARCH)
 
         assert consent is None

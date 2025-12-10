@@ -56,9 +56,7 @@ class UserConsentService:
         )
         return result.scalar_one_or_none()
 
-    async def has_consent(
-        self, user_id: uuid.UUID, consent_type: ConsentType
-    ) -> bool:
+    async def has_consent(self, user_id: uuid.UUID, consent_type: ConsentType) -> bool:
         """Check if a user has granted a specific consent.
 
         Args:
