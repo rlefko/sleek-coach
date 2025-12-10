@@ -5,4 +5,5 @@ export { checkinService } from './checkinService';
 export { nutritionService } from './nutritionService';
 export { photoService } from './photoService';
 export { coachService } from './coachService';
+export { legalService } from './legalService';
 export * from './types';

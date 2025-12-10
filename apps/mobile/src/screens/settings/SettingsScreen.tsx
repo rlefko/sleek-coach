@@ -171,6 +171,43 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 
         <Card variant="elevated">
           <List.Section>
+            <List.Subheader>Legal</List.Subheader>
+            <List.Item
+              title="Privacy Settings"
+              description="Manage your data sharing preferences"
+              left={(props) => <List.Icon {...props} icon="shield-account-outline" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => navigation.navigate('PrivacySettings')}
+            />
+            <Divider />
+            <List.Item
+              title="Privacy Policy"
+              description="How we handle your data"
+              left={(props) => <List.Icon {...props} icon="file-document-outline" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => navigation.navigate('PrivacyPolicy')}
+            />
+            <Divider />
+            <List.Item
+              title="Terms of Service"
+              description="Terms and conditions"
+              left={(props) => <List.Icon {...props} icon="file-sign" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => navigation.navigate('TermsOfService')}
+            />
+            <Divider />
+            <List.Item
+              title="Data Retention"
+              description="How long we keep your data"
+              left={(props) => <List.Icon {...props} icon="database-clock-outline" />}
+              right={(props) => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => navigation.navigate('DataRetention')}
+            />
+          </List.Section>
+        </Card>
+
+        <Card variant="elevated">
+          <List.Section>
             <List.Subheader>Account</List.Subheader>
             <List.Item
               title="Export Data"

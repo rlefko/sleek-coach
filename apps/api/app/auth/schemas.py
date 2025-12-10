@@ -40,6 +40,8 @@ class RegisterRequest(BaseModel):
 
     email: EmailStr
     password: Annotated[str, Field(min_length=8, max_length=128)]
+    accepted_terms_version: str = Field(default="1.0", max_length=20)
+    accepted_privacy_version: str = Field(default="1.0", max_length=20)
 
     @field_validator("password")
     @classmethod

@@ -7,6 +7,8 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
 };
 
 // Home Stack
@@ -35,6 +37,10 @@ export type SettingsStackParamList = {
   EditGoals: undefined;
   EditPreferences: undefined;
   MFPImport: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  DataRetention: undefined;
+  PrivacySettings: undefined;
 };
 
 // Onboarding Stack

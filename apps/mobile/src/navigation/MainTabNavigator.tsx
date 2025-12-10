@@ -12,7 +12,9 @@ import {
   EditGoalsScreen,
   EditPreferencesScreen,
   MFPImportScreen,
+  PrivacySettingsScreen,
 } from '@/screens/settings';
+import { PrivacyPolicyScreen, TermsOfServiceScreen, DataRetentionScreen } from '@/screens/legal';
 import type {
   MainTabParamList,
   HomeStackParamList,
@@ -95,6 +97,26 @@ const SettingsNavigator = () => (
       name="MFPImport"
       component={MFPImportScreen}
       options={{ title: 'Import from MFP', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="PrivacyPolicy"
+      component={PrivacyPolicyScreen}
+      options={{ title: 'Privacy Policy', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="TermsOfService"
+      component={TermsOfServiceScreen}
+      options={{ title: 'Terms of Service', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="DataRetention"
+      component={DataRetentionScreen}
+      options={{ title: 'Data Retention', headerBackTitle: 'Settings' }}
+    />
+    <SettingsStack.Screen
+      name="PrivacySettings"
+      component={PrivacySettingsScreen}
+      options={{ title: 'Privacy Settings', headerBackTitle: 'Settings' }}
     />
   </SettingsStack.Navigator>
 );

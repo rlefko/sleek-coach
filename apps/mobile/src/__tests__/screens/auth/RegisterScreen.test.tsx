@@ -15,6 +15,30 @@ jest.mock('@/services/hooks/useAuth', () => ({
   }),
 }));
 
+// Mock the useLegal hooks to prevent expo-constants import chain
+jest.mock('@/services/hooks/useLegal', () => ({
+  usePrivacyPolicy: () => ({
+    data: { version: '1.0', content: 'Privacy Policy content' },
+    isLoading: false,
+    error: null,
+  }),
+  useTermsOfService: () => ({
+    data: { version: '1.0', content: 'Terms of Service content' },
+    isLoading: false,
+    error: null,
+  }),
+  useDataRetention: () => ({
+    data: { version: '1.0', content: 'Data Retention content' },
+    isLoading: false,
+    error: null,
+  }),
+  useLegalVersions: () => ({
+    data: { termsOfService: '1.0', privacyPolicy: '1.0' },
+    isLoading: false,
+    error: null,
+  }),
+}));
+
 // Mock useAppTheme
 jest.mock('@/theme', () => ({
   useAppTheme: () => ({

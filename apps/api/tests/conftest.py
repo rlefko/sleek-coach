@@ -29,7 +29,7 @@ from app.database import get_session
 from app.main import app
 from app.nutrition.models import NutritionDay  # noqa: F401
 from app.photos.models import ProgressPhoto  # noqa: F401
-from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401
+from app.users.models import DietPreferences, User, UserConsent, UserGoal, UserProfile  # noqa: F401
 from tests.fixtures.coach_fixtures import *  # noqa: F403
 from tests.fixtures.llm_mocks import *  # noqa: F403
 

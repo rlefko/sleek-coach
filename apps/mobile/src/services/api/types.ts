@@ -9,6 +9,8 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
+  accepted_terms_version?: string;
+  accepted_privacy_version?: string;
 }
 
 export interface TokenResponse {
@@ -356,4 +358,43 @@ export interface PaginatedResponse<T> {
   total: number;
   limit: number;
   offset: number;
+}
+
+// Legal Documents
+export interface LegalDocument {
+  version: string;
+  effective_date: string;
+  content: string;
+  document_type: string;
+}
+
+export interface LegalVersions {
+  terms_of_service_version: string;
+  privacy_policy_version: string;
+  data_retention_version: string;
+}
+
+// Consent
+export type ConsentType =
+  | 'terms_of_service'
+  | 'privacy_policy'
+  | 'web_search'
+  | 'analytics'
+  | 'photo_ai_access';
+
+export interface Consent {
+  consent_type: ConsentType;
+  granted: boolean;
+  version: string;
+  granted_at: string;
+  revoked_at: string | null;
+}
+
+export interface ConsentRequest {
+  consent_type: ConsentType;
+  granted?: boolean;
+}
+
+export interface ConsentsList {
+  consents: Consent[];
 }

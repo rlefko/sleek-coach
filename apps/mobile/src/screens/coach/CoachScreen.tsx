@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, IconButton, Menu } from 'react-native-paper';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import { Text, IconButton, Menu, Icon } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,7 +21,8 @@ export const CoachScreen: React.FC = () => {
     useChatSessions();
 
   const messages = getCurrentMessages();
-  const [menuVisible, setMenuVisible] = React.useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [disclaimerVisible, setDisclaimerVisible] = useState(true);
 
   // Create a session if none exists
   useEffect(() => {
@@ -113,6 +114,23 @@ export const CoachScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* Medical Disclaimer */}
+      {disclaimerVisible && (
+        <View style={[styles.disclaimer, { backgroundColor: theme.colors.tertiaryContainer }]}>
+          <Icon source="information" size={16} color={theme.colors.onTertiaryContainer} />
+          <Text
+            variant="bodySmall"
+            style={[styles.disclaimerText, { color: theme.colors.onTertiaryContainer }]}
+          >
+            General fitness information only, not medical advice. Consult a healthcare provider for
+            personalized guidance.
+          </Text>
+          <Pressable onPress={() => setDisclaimerVisible(false)} hitSlop={8}>
+            <Icon source="close" size={16} color={theme.colors.onTertiaryContainer} />
+          </Pressable>
+        </View>
+      )}
+
       {/* Chat Content */}
       <KeyboardAvoidingView
         style={styles.chatContainer}
@@ -169,6 +187,16 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  disclaimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+  },
+  disclaimerText: {
+    flex: 1,
   },
   chatContainer: {
     flex: 1,

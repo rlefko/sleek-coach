@@ -978,14 +978,14 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - [x] Escalation paths
 
 ### 13.2 Legal & Compliance
-- [ ] Create privacy policy
-- [ ] Create terms of service
-- [ ] Create data retention policy
-- [ ] Add in-app disclaimers:
-  - [ ] "Not medical advice"
-  - [ ] Professional consultation recommendation
-- [ ] Review GDPR/CCPA requirements
-- [ ] Implement consent tracking
+- [x] Create privacy policy
+- [x] Create terms of service
+- [x] Create data retention policy
+- [x] Add in-app disclaimers:
+  - [x] "Not medical advice"
+  - [x] Professional consultation recommendation
+- [x] Review GDPR/CCPA requirements
+- [x] Implement consent tracking
 
 ### 13.3 App Store Preparation
 - [ ] Create app icons (all sizes)
@@ -1081,4 +1081,4 @@ Phase 13 (Documentation & Launch)
 - [x] App works offline and syncs when online
 - [x] Performance meets NFRs (<300ms check-in, smooth charts)
 - [x] Security audit passed
-- [ ] Privacy policy and disclaimers in place
+- [x] Privacy policy and disclaimers in place
