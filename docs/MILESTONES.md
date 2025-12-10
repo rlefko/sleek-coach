@@ -22,140 +22,140 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
 ## Phase 1: Project Foundation & Infrastructure
 
 ### 1.1 Monorepo Setup
-- [ ] Initialize git repository
-- [ ] Create directory structure: `/apps/mobile`, `/apps/api`, `/infra`, `/docs`
-- [ ] Configure root `package.json` with workspaces (if using yarn/npm workspaces)
-- [ ] Set up shared TypeScript config (`tsconfig.base.json`)
-- [ ] Create `.gitignore` for all environments (Python, Node, React Native, IDE)
-- [ ] Set up `.editorconfig` for consistent formatting
-- [ ] Create initial `README.md` with project overview
+- [x] Initialize git repository
+- [x] Create directory structure: `/apps/mobile`, `/apps/api`, `/infra`, `/docs`
+- [x] Configure root `package.json` with workspaces (if using yarn/npm workspaces)
+- [x] Set up shared TypeScript config (`tsconfig.base.json`)
+- [x] Create `.gitignore` for all environments (Python, Node, React Native, IDE)
+- [x] Set up `.editorconfig` for consistent formatting
+- [x] Create initial `README.md` with project overview
 
 ### 1.2 Backend Environment Setup
-- [ ] Create `/apps/api` Python project structure
-- [ ] Set up `pyproject.toml` with dependencies (FastAPI, SQLModel, uvicorn, etc.)
-- [ ] Configure `ruff` for linting
+- [x] Create `/apps/api` Python project structure
+- [x] Set up `pyproject.toml` with dependencies (FastAPI, SQLModel, uvicorn, etc.)
+- [x] Configure `ruff` for linting
 - [ ] Configure `black` for formatting
-- [ ] Configure `mypy` for type checking
-- [ ] Create `Makefile` with common commands (lint, format, test, run)
+- [x] Configure `mypy` for type checking
+- [x] Create `Makefile` with common commands (lint, format, test, run)
 - [ ] Set up `.env.example` with required environment variables
 
 ### 1.3 Docker Compose Environment
-- [ ] Create `docker-compose.yml` with services:
-  - [ ] `api` service (FastAPI with hot reload)
-  - [ ] `db` service (PostgreSQL 15+)
-  - [ ] `redis` service (for background jobs)
-  - [ ] `minio` service (S3-compatible storage for local dev)
-- [ ] Create `Dockerfile` for API service (multi-stage build)
-- [ ] Create `.dockerignore`
-- [ ] Configure volume mounts for hot reload
-- [ ] Set up health checks for all services
-- [ ] Create `docker-compose.override.yml` for dev-specific config
-- [ ] Write startup script that waits for dependencies
+- [x] Create `docker-compose.yml` with services:
+  - [x] `api` service (FastAPI with hot reload)
+  - [x] `db` service (PostgreSQL 15+)
+  - [x] `redis` service (for background jobs)
+  - [x] `minio` service (S3-compatible storage for local dev)
+- [x] Create `Dockerfile` for API service (multi-stage build)
+- [x] Create `.dockerignore`
+- [x] Configure volume mounts for hot reload
+- [x] Set up health checks for all services
+- [x] Create `docker-compose.override.yml` for dev-specific config
+- [x] Write startup script that waits for dependencies
 
 ### 1.4 Database Foundation
-- [ ] Configure SQLModel/SQLAlchemy connection
-- [ ] Set up Alembic for migrations
-- [ ] Create initial migration (empty baseline)
-- [ ] Write database connection pool configuration
-- [ ] Create `alembic.ini` configuration
-- [ ] Set up migration naming conventions
-- [ ] Create seed data script for development
+- [x] Configure SQLModel/SQLAlchemy connection
+- [x] Set up Alembic for migrations
+- [x] Create initial migration (empty baseline)
+- [x] Write database connection pool configuration
+- [x] Create `alembic.ini` configuration
+- [x] Set up migration naming conventions
+- [x] Create seed data script for development
 
 ### 1.5 Basic CI Pipeline (GitHub Actions)
-- [ ] Create `.github/workflows/ci.yml`
-- [ ] Configure Python linting job (ruff, black --check)
-- [ ] Configure type checking job (mypy)
-- [ ] Configure unit test job (pytest)
-- [ ] Set up Python version matrix (3.11, 3.12)
-- [ ] Configure caching for pip dependencies
-- [ ] Add status badges to README
+- [x] Create `.github/workflows/ci.yml`
+- [x] Configure Python linting job (ruff, black --check)
+- [x] Configure type checking job (mypy)
+- [x] Configure unit test job (pytest)
+- [x] Set up Python version matrix (3.11, 3.12)
+- [x] Configure caching for pip dependencies
+- [x] Add status badges to README
 
 ---
 
 ## Phase 2: Backend Core - Authentication & Users
 
 ### 2.1 User Model & Database Schema
-- [ ] Create `user` table migration:
+- [x] Create `user` table migration:
   - `id` (UUID primary key)
   - `email` (unique, indexed)
   - `hashed_password`
   - `is_active`
   - `is_verified`
   - `created_at`, `updated_at`
-- [ ] Create `user_profile` table migration:
+- [x] Create `user_profile` table migration:
   - `user_id` (FK)
   - `height_cm`
   - `sex` (enum: male, female, other, prefer_not_to_say)
   - `birth_year` (not full DOB for privacy)
   - `activity_level` (enum: sedentary, light, moderate, active, very_active)
   - `timezone`
-- [ ] Create `user_goal` table migration:
+- [x] Create `user_goal` table migration:
   - `user_id` (FK)
   - `goal_type` (enum: fat_loss, muscle_gain, recomp, maintenance, performance)
   - `target_weight_kg` (nullable)
   - `pace_preference` (enum: slow, moderate, aggressive)
   - `target_date` (nullable)
-- [ ] Create `diet_preferences` table migration:
+- [x] Create `diet_preferences` table migration:
   - `user_id` (FK)
   - `diet_type` (enum: none, vegetarian, vegan, pescatarian, keto, paleo, halal, kosher)
   - `allergies` (array/JSON)
   - `disliked_foods` (array/JSON)
   - `meals_per_day`
-- [ ] Create SQLModel models for all tables
-- [ ] Set up table relationships and indexes
+- [x] Create SQLModel models for all tables
+- [x] Set up table relationships and indexes
 
 ### 2.2 Authentication Module
-- [ ] Create `/apps/api/app/auth/` module structure
-- [ ] Implement password hashing service (Argon2id)
-- [ ] Create JWT token service:
-  - [ ] Access token generation (15min expiry)
-  - [ ] Refresh token generation (7 day expiry)
-  - [ ] Token validation/decoding
-- [ ] Create refresh token storage table migration
-- [ ] Implement `POST /auth/register` endpoint:
-  - [ ] Email validation
-  - [ ] Password strength validation
-  - [ ] Duplicate email check
-  - [ ] Create user + profile records
-  - [ ] Return tokens
-- [ ] Implement `POST /auth/login` endpoint:
-  - [ ] Email/password validation
-  - [ ] Rate limiting (5 attempts per 15min)
-  - [ ] Return tokens on success
-- [ ] Implement `POST /auth/refresh` endpoint:
-  - [ ] Validate refresh token
-  - [ ] Issue new access token
-  - [ ] Rotate refresh token
-- [ ] Implement `POST /auth/logout` endpoint:
-  - [ ] Invalidate refresh token
-- [ ] Create auth dependency for protected routes
-- [ ] Write unit tests for all auth functions
-- [ ] Write API tests for auth endpoints
+- [x] Create `/apps/api/app/auth/` module structure
+- [x] Implement password hashing service (Argon2id)
+- [x] Create JWT token service:
+  - [x] Access token generation (15min expiry)
+  - [x] Refresh token generation (7 day expiry)
+  - [x] Token validation/decoding
+- [x] Create refresh token storage table migration
+- [x] Implement `POST /auth/register` endpoint:
+  - [x] Email validation
+  - [x] Password strength validation
+  - [x] Duplicate email check
+  - [x] Create user + profile records
+  - [x] Return tokens
+- [x] Implement `POST /auth/login` endpoint:
+  - [x] Email/password validation
+  - [x] Rate limiting (5 attempts per 15min)
+  - [x] Return tokens on success
+- [x] Implement `POST /auth/refresh` endpoint:
+  - [x] Validate refresh token
+  - [x] Issue new access token
+  - [x] Rotate refresh token
+- [x] Implement `POST /auth/logout` endpoint:
+  - [x] Invalidate refresh token
+- [x] Create auth dependency for protected routes
+- [x] Write unit tests for all auth functions
+- [x] Write API tests for auth endpoints
 
 ### 2.3 User Profile Endpoints
-- [ ] Create `/apps/api/app/users/` module structure
-- [ ] Implement `GET /me` endpoint:
-  - [ ] Return user, profile, goal, preferences
-- [ ] Implement `PATCH /me/profile` endpoint:
-  - [ ] Partial update support
-  - [ ] Validation for numeric ranges
-- [ ] Implement `PATCH /me/goals` endpoint:
-  - [ ] Goal type validation
-  - [ ] Target weight bounds checking
-- [ ] Implement `PATCH /me/preferences` endpoint:
-  - [ ] Diet type validation
-  - [ ] Allergies/dislikes array handling
-- [ ] Create Pydantic request/response schemas
-- [ ] Write API tests for all profile endpoints
+- [x] Create `/apps/api/app/users/` module structure
+- [x] Implement `GET /me` endpoint:
+  - [x] Return user, profile, goal, preferences
+- [x] Implement `PATCH /me/profile` endpoint:
+  - [x] Partial update support
+  - [x] Validation for numeric ranges
+- [x] Implement `PATCH /me/goals` endpoint:
+  - [x] Goal type validation
+  - [x] Target weight bounds checking
+- [x] Implement `PATCH /me/preferences` endpoint:
+  - [x] Diet type validation
+  - [x] Allergies/dislikes array handling
+- [x] Create Pydantic request/response schemas
+- [x] Write API tests for all profile endpoints
 
 ### 2.4 Security Hardening
-- [ ] Implement rate limiting middleware (slowapi)
-- [ ] Configure CORS properly
-- [ ] Add request ID middleware for tracing
-- [ ] Set up structured logging (structlog)
+- [x] Implement rate limiting middleware (slowapi)
+- [x] Configure CORS properly
+- [x] Add request ID middleware for tracing
+- [x] Set up structured logging (structlog)
 - [ ] Create audit log table migration
 - [ ] Implement audit logging for auth events
-- [ ] Add security headers middleware
+- [x] Add security headers middleware
 - [ ] Configure HTTPS redirect (for production)
 
 ---
@@ -163,7 +163,7 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
 ## Phase 3: Backend - Check-ins & Photos
 
 ### 3.1 Check-in Model & Endpoints
-- [ ] Create `check_in` table migration:
+- [x] Create `check_in` table migration:
   - `id` (UUID)
   - `user_id` (FK, indexed)
   - `date` (date, unique per user)
@@ -174,25 +174,25 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - `mood` (1-5, nullable)
   - `adherence_score` (computed snapshot)
   - `created_at`, `updated_at`
-- [ ] Create SQLModel model with validations
-- [ ] Create `/apps/api/app/checkins/` module
-- [ ] Implement `POST /checkins` endpoint:
-  - [ ] Date validation (not future)
-  - [ ] Weight range validation (20-500kg)
-  - [ ] Upsert logic (update if same date exists)
-- [ ] Implement `GET /checkins` endpoint:
-  - [ ] Query params: `from`, `to` dates
-  - [ ] Pagination support
-  - [ ] Default to last 30 days
-- [ ] Implement `GET /checkins/latest` endpoint
-- [ ] Create weight trend calculation service:
-  - [ ] 7-day moving average
-  - [ ] Weekly rate of change
-- [ ] Write unit tests for trend calculations
-- [ ] Write API tests for check-in endpoints
+- [x] Create SQLModel model with validations
+- [x] Create `/apps/api/app/checkins/` module
+- [x] Implement `POST /checkins` endpoint:
+  - [x] Date validation (not future)
+  - [x] Weight range validation (20-500kg)
+  - [x] Upsert logic (update if same date exists)
+- [x] Implement `GET /checkins` endpoint:
+  - [x] Query params: `from`, `to` dates
+  - [x] Pagination support
+  - [x] Default to last 30 days
+- [x] Implement `GET /checkins/latest` endpoint
+- [x] Create weight trend calculation service:
+  - [x] 7-day moving average
+  - [x] Weekly rate of change
+- [x] Write unit tests for trend calculations
+- [x] Write API tests for check-in endpoints
 
 ### 3.2 Photo Storage System
-- [ ] Create `progress_photo` table migration:
+- [x] Create `progress_photo` table migration:
   - `id` (UUID)
   - `user_id` (FK, indexed)
   - `date` (date)
@@ -201,46 +201,46 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - `visibility` (enum: private, coach_only)
   - `metadata` (JSON: dimensions, size, etc.)
   - `created_at`
-- [ ] Create S3 client wrapper service
-- [ ] Configure S3 bucket settings:
-  - [ ] Lifecycle policies
-  - [ ] Server-side encryption
-  - [ ] CORS configuration
-- [ ] Implement presigned URL generation:
-  - [ ] Upload URL (5min expiry)
-  - [ ] Download URL (15min expiry)
-- [ ] Create `/apps/api/app/photos/` module
-- [ ] Implement `POST /photos/presign` endpoint:
-  - [ ] Generate S3 key with user prefix
-  - [ ] Return presigned upload URL
-  - [ ] Return expected photo ID
-- [ ] Implement `POST /photos/commit` endpoint:
-  - [ ] Verify upload completed
-  - [ ] Store metadata
-  - [ ] Generate content hash
-- [ ] Implement `GET /photos` endpoint:
-  - [ ] Query params: `from`, `to` dates
-  - [ ] Return metadata + presigned download URLs
-- [ ] Implement `DELETE /photos/{id}` endpoint
-- [ ] Write MinIO configuration for local dev
-- [ ] Write API tests for photo endpoints
+- [x] Create S3 client wrapper service
+- [x] Configure S3 bucket settings:
+  - [x] Lifecycle policies
+  - [x] Server-side encryption
+  - [x] CORS configuration
+- [x] Implement presigned URL generation:
+  - [x] Upload URL (5min expiry)
+  - [x] Download URL (15min expiry)
+- [x] Create `/apps/api/app/photos/` module
+- [x] Implement `POST /photos/presign` endpoint:
+  - [x] Generate S3 key with user prefix
+  - [x] Return presigned upload URL
+  - [x] Return expected photo ID
+- [x] Implement `POST /photos/commit` endpoint:
+  - [x] Verify upload completed
+  - [x] Store metadata
+  - [x] Generate content hash
+- [x] Implement `GET /photos` endpoint:
+  - [x] Query params: `from`, `to` dates
+  - [x] Return metadata + presigned download URLs
+- [x] Implement `DELETE /photos/{id}` endpoint
+- [x] Write MinIO configuration for local dev
+- [x] Write API tests for photo endpoints
 
 ### 3.3 Offline Sync Foundation (Backend)
-- [ ] Design conflict resolution strategy:
-  - [ ] Last-write-wins for check-ins
-  - [ ] Server timestamp comparison
-- [ ] Add `client_updated_at` field to check_in
-- [ ] Create batch sync endpoint `POST /checkins/sync`:
-  - [ ] Accept array of check-ins with client timestamps
-  - [ ] Return server versions + conflicts
-- [ ] Document sync protocol for mobile team
+- [x] Design conflict resolution strategy:
+  - [x] Last-write-wins for check-ins
+  - [x] Server timestamp comparison
+- [x] Add `client_updated_at` field to check_in
+- [x] Create batch sync endpoint `POST /checkins/sync`:
+  - [x] Accept array of check-ins with client timestamps
+  - [x] Return server versions + conflicts
+- [x] Document sync protocol for mobile team
 
 ---
 
 ## Phase 4: Backend - Nutrition Module
 
 ### 4.1 Nutrition Model & Endpoints
-- [ ] Create `nutrition_day` table migration:
+- [x] Create `nutrition_day` table migration:
   - `id` (UUID)
   - `user_id` (FK, indexed)
   - `date` (date, unique per user)
@@ -251,72 +251,72 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - `fiber_g` (decimal, nullable)
   - `source` (enum: manual, mfp_import, api_sync)
   - `created_at`, `updated_at`
-- [ ] Create SQLModel model
-- [ ] Create `/apps/api/app/nutrition/` module
-- [ ] Implement `POST /nutrition/day` endpoint:
-  - [ ] Macro validation (reasonable ranges)
-  - [ ] Upsert logic
-- [ ] Implement `GET /nutrition/day` endpoint:
-  - [ ] Single date query
-- [ ] Implement `GET /nutrition/range` endpoint:
-  - [ ] Date range query
-  - [ ] Aggregate statistics option
-- [ ] Create nutrition summary service:
-  - [ ] Daily averages over period
-  - [ ] Adherence to targets calculation
-- [ ] Write API tests for nutrition endpoints
+- [x] Create SQLModel model
+- [x] Create `/apps/api/app/nutrition/` module
+- [x] Implement `POST /nutrition/day` endpoint:
+  - [x] Macro validation (reasonable ranges)
+  - [x] Upsert logic
+- [x] Implement `GET /nutrition/day` endpoint:
+  - [x] Single date query
+- [x] Implement `GET /nutrition/range` endpoint:
+  - [x] Date range query
+  - [x] Aggregate statistics option
+- [x] Create nutrition summary service:
+  - [x] Daily averages over period
+  - [x] Adherence to targets calculation
+- [x] Write API tests for nutrition endpoints
 
 ### 4.2 MFP CSV Import (Tier C)
-- [ ] Research MFP export format:
-  - [ ] Nutrition diary CSV structure
-  - [ ] Measurements CSV structure
-  - [ ] Exercise CSV structure
-- [ ] Create `/apps/api/app/integrations/` module
-- [ ] Define `IntegrationProvider` interface/protocol
-- [ ] Create MFP CSV parser:
-  - [ ] Parse nutrition daily totals
-  - [ ] Parse weight measurements
-  - [ ] Handle date format variations
-  - [ ] Handle encoding issues (UTF-8, etc.)
-- [ ] Implement `POST /integrations/mfp/import` endpoint:
-  - [ ] Accept ZIP file upload
-  - [ ] Extract and parse CSVs
-  - [ ] Map to internal schema
-  - [ ] Return import summary (rows processed, errors)
+- [x] Research MFP export format:
+  - [x] Nutrition diary CSV structure
+  - [x] Measurements CSV structure
+  - [x] Exercise CSV structure
+- [x] Create `/apps/api/app/integrations/` module
+- [x] Define `IntegrationProvider` interface/protocol
+- [x] Create MFP CSV parser:
+  - [x] Parse nutrition daily totals
+  - [x] Parse weight measurements
+  - [x] Handle date format variations
+  - [x] Handle encoding issues (UTF-8, etc.)
+- [x] Implement `POST /integrations/mfp/import` endpoint:
+  - [x] Accept ZIP file upload
+  - [x] Extract and parse CSVs
+  - [x] Map to internal schema
+  - [x] Return import summary (rows processed, errors)
 - [ ] Create import history table migration
-- [ ] Handle duplicate detection during import
-- [ ] Write unit tests for CSV parser
-- [ ] Write API tests for import endpoint
+- [x] Handle duplicate detection during import
+- [x] Write unit tests for CSV parser
+- [x] Write API tests for import endpoint
 
 ### 4.3 TDEE & Targets Calculation
-- [ ] Implement TDEE estimation service:
-  - [ ] Mifflin-St Jeor formula
-  - [ ] Activity multipliers
-  - [ ] Adjustment based on actual weight trends
-- [ ] Implement macro target calculation:
-  - [ ] Protein targets by goal (0.7-1.2g/lb)
-  - [ ] Fat minimums (0.3-0.4g/lb)
-  - [ ] Carb as remainder
-- [ ] Create calorie deficit/surplus calculations:
-  - [ ] Based on goal and pace preference
-  - [ ] Safety bounds (min 1200/1500 cal)
+- [x] Implement TDEE estimation service:
+  - [x] Mifflin-St Jeor formula
+  - [x] Activity multipliers
+  - [x] Adjustment based on actual weight trends
+- [x] Implement macro target calculation:
+  - [x] Protein targets by goal (0.7-1.2g/lb)
+  - [x] Fat minimums (0.3-0.4g/lb)
+  - [x] Carb as remainder
+- [x] Create calorie deficit/surplus calculations:
+  - [x] Based on goal and pace preference
+  - [x] Safety bounds (min 1200/1500 cal)
 - [ ] Create `user_targets` table migration:
   - [ ] Store calculated targets
   - [ ] Track target history
-- [ ] Write unit tests for all calculations
-- [ ] Expose targets in `GET /me` response
+- [x] Write unit tests for all calculations
+- [x] Expose targets in `GET /me` response
 
 ---
 
 ## Phase 5: Mobile App Foundation
 
 ### 5.1 React Native Project Setup
-- [ ] Initialize Expo project in `/apps/mobile`
-- [ ] Configure `app.json` / `app.config.js`
-- [ ] Set up TypeScript configuration
-- [ ] Configure ESLint + Prettier
-- [ ] Set up path aliases (`@/components`, etc.)
-- [ ] Create folder structure:
+- [x] Initialize Expo project in `/apps/mobile`
+- [x] Configure `app.json` / `app.config.js`
+- [x] Set up TypeScript configuration
+- [x] Configure ESLint + Prettier
+- [x] Set up path aliases (`@/components`, etc.)
+- [x] Create folder structure:
   - `/src/components`
   - `/src/screens`
   - `/src/navigation`
@@ -325,284 +325,284 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - `/src/hooks`
   - `/src/utils`
   - `/src/types`
-- [ ] Configure Metro bundler
-- [ ] Set up environment variables (react-native-dotenv or expo-constants)
+- [x] Configure Metro bundler
+- [x] Set up environment variables (react-native-dotenv or expo-constants)
 
 ### 5.2 Design System & Theming
-- [ ] Install React Native Paper
-- [ ] Configure Material 3 theme:
-  - [ ] Primary, secondary, tertiary colors
-  - [ ] Surface colors
-  - [ ] Error/warning/success colors
-- [ ] Create light theme configuration
-- [ ] Create dark theme configuration
-- [ ] Implement theme context/provider
-- [ ] Create typography scale components
-- [ ] Create spacing constants
-- [ ] Build reusable components:
-  - [ ] `Button` (variants: primary, secondary, text)
-  - [ ] `Card` (elevated, outlined)
-  - [ ] `Input` (text, number, with validation states)
-  - [ ] `Chip` (selectable, dismissible)
+- [x] Install React Native Paper
+- [x] Configure Material 3 theme:
+  - [x] Primary, secondary, tertiary colors
+  - [x] Surface colors
+  - [x] Error/warning/success colors
+- [x] Create light theme configuration
+- [x] Create dark theme configuration
+- [x] Implement theme context/provider
+- [x] Create typography scale components
+- [x] Create spacing constants
+- [x] Build reusable components:
+  - [x] `Button` (variants: primary, secondary, text)
+  - [x] `Card` (elevated, outlined)
+  - [x] `Input` (text, number, with validation states)
+  - [x] `Chip` (selectable, dismissible)
   - [ ] `BottomSheet`
-  - [ ] `LoadingSpinner`
-  - [ ] `EmptyState`
-  - [ ] `ErrorBoundary`
+  - [x] `LoadingSpinner`
+  - [x] `EmptyState`
+  - [x] `ErrorBoundary`
 
 ### 5.3 Navigation Structure
-- [ ] Install React Navigation (native-stack, bottom-tabs)
-- [ ] Create navigation types file
-- [ ] Set up root navigator with:
-  - [ ] Auth stack (unauthenticated)
-  - [ ] Main tabs (authenticated)
-- [ ] Create Auth stack screens:
-  - [ ] Login
-  - [ ] Register
-  - [ ] ForgotPassword
-- [ ] Create Main tab navigator:
-  - [ ] Home tab
-  - [ ] Progress tab
-  - [ ] Coach tab
-  - [ ] Settings tab
-- [ ] Create nested stacks where needed
-- [ ] Implement deep linking configuration
-- [ ] Add screen transition animations
+- [x] Install React Navigation (native-stack, bottom-tabs)
+- [x] Create navigation types file
+- [x] Set up root navigator with:
+  - [x] Auth stack (unauthenticated)
+  - [x] Main tabs (authenticated)
+- [x] Create Auth stack screens:
+  - [x] Login
+  - [x] Register
+  - [x] ForgotPassword
+- [x] Create Main tab navigator:
+  - [x] Home tab
+  - [x] Progress tab
+  - [x] Coach tab
+  - [x] Settings tab
+- [x] Create nested stacks where needed
+- [x] Implement deep linking configuration
+- [x] Add screen transition animations
 
 ### 5.4 State Management Setup
-- [ ] Install TanStack Query
-- [ ] Configure QueryClient with defaults:
-  - [ ] Stale time
-  - [ ] Retry logic
-  - [ ] Error handling
-- [ ] Create query key factory
-- [ ] Install Zustand
-- [ ] Create stores:
-  - [ ] `authStore` (tokens, user, isAuthenticated)
-  - [ ] `onboardingStore` (step progress, collected data)
-  - [ ] `uiStore` (theme, loading states)
-- [ ] Set up store persistence (MMKV)
+- [x] Install TanStack Query
+- [x] Configure QueryClient with defaults:
+  - [x] Stale time
+  - [x] Retry logic
+  - [x] Error handling
+- [x] Create query key factory
+- [x] Install Zustand
+- [x] Create stores:
+  - [x] `authStore` (tokens, user, isAuthenticated)
+  - [x] `onboardingStore` (step progress, collected data)
+  - [x] `uiStore` (theme, loading states)
+- [x] Set up store persistence (MMKV)
 
 ### 5.5 API Client & Services
-- [ ] Create axios/fetch wrapper with:
-  - [ ] Base URL configuration
-  - [ ] Auth token injection
-  - [ ] Token refresh interceptor
-  - [ ] Error transformation
-- [ ] Create API service modules:
-  - [ ] `authService` (login, register, refresh, logout)
-  - [ ] `userService` (getMe, updateProfile, etc.)
-  - [ ] `checkinService` (create, list, latest)
-  - [ ] `nutritionService` (create, get, import)
-  - [ ] `coachService` (chat, plan, insights)
-- [ ] Create TanStack Query hooks:
-  - [ ] `useUser`, `useUpdateProfile`
-  - [ ] `useCheckins`, `useCreateCheckin`
-  - [ ] `useNutrition`, `useLogNutrition`
-- [ ] Handle offline queue for mutations
+- [x] Create axios/fetch wrapper with:
+  - [x] Base URL configuration
+  - [x] Auth token injection
+  - [x] Token refresh interceptor
+  - [x] Error transformation
+- [x] Create API service modules:
+  - [x] `authService` (login, register, refresh, logout)
+  - [x] `userService` (getMe, updateProfile, etc.)
+  - [x] `checkinService` (create, list, latest)
+  - [x] `nutritionService` (create, get, import)
+  - [x] `coachService` (chat, plan, insights)
+- [x] Create TanStack Query hooks:
+  - [x] `useUser`, `useUpdateProfile`
+  - [x] `useCheckins`, `useCreateCheckin`
+  - [x] `useNutrition`, `useLogNutrition`
+- [x] Handle offline queue for mutations
 
 ### 5.6 Form Handling
-- [ ] Install Zod and React Hook Form
-- [ ] Create validation schemas:
-  - [ ] `loginSchema`
-  - [ ] `registerSchema`
-  - [ ] `profileSchema`
-  - [ ] `checkinSchema`
-  - [ ] `nutritionSchema`
-- [ ] Create reusable form components:
-  - [ ] `FormInput` (with error display)
-  - [ ] `FormSelect`
-  - [ ] `FormSlider`
-  - [ ] `FormDatePicker`
-- [ ] Implement form error handling patterns
+- [x] Install Zod and React Hook Form
+- [x] Create validation schemas:
+  - [x] `loginSchema`
+  - [x] `registerSchema`
+  - [x] `profileSchema`
+  - [x] `checkinSchema`
+  - [x] `nutritionSchema`
+- [x] Create reusable form components:
+  - [x] `FormInput` (with error display)
+  - [x] `FormSelect`
+  - [x] `FormSlider`
+  - [x] `FormDatePicker`
+- [x] Implement form error handling patterns
 
 ---
 
 ## Phase 6: Mobile - Auth & Onboarding Screens
 
 ### 6.1 Auth Screens
-- [ ] Build Login screen:
-  - [ ] Email input with validation
-  - [ ] Password input with show/hide toggle
-  - [ ] Login button with loading state
-  - [ ] "Forgot password?" link
-  - [ ] "Create account" link
-  - [ ] Error message display
-- [ ] Build Register screen:
-  - [ ] Email input
-  - [ ] Password input with requirements indicator
-  - [ ] Confirm password
-  - [ ] Terms acceptance checkbox
-  - [ ] Register button
-  - [ ] "Already have account?" link
-- [ ] Build Forgot Password screen:
-  - [ ] Email input
-  - [ ] Submit button
-  - [ ] Success state with instructions
-- [ ] Implement secure token storage (expo-secure-store)
-- [ ] Handle auth state persistence across app restarts
-- [ ] Write component tests for auth screens
+- [x] Build Login screen:
+  - [x] Email input with validation
+  - [x] Password input with show/hide toggle
+  - [x] Login button with loading state
+  - [x] "Forgot password?" link
+  - [x] "Create account" link
+  - [x] Error message display
+- [x] Build Register screen:
+  - [x] Email input
+  - [x] Password input with requirements indicator
+  - [x] Confirm password
+  - [x] Terms acceptance checkbox
+  - [x] Register button
+  - [x] "Already have account?" link
+- [x] Build Forgot Password screen:
+  - [x] Email input
+  - [x] Submit button
+  - [x] Success state with instructions
+- [x] Implement secure token storage (expo-secure-store)
+- [x] Handle auth state persistence across app restarts
+- [x] Write component tests for auth screens
 
 ### 6.2 Onboarding Flow
-- [ ] Build onboarding progress indicator component
-- [ ] Build Goal Selection screen:
-  - [ ] Goal type cards (fat loss, muscle gain, recomp, etc.)
-  - [ ] Visual icons for each goal
-  - [ ] Single selection
-- [ ] Build Baseline Metrics screen:
-  - [ ] Current weight input
-  - [ ] Target weight input (if applicable)
-  - [ ] Height input
-  - [ ] Age/birth year input
-  - [ ] Sex selection
-  - [ ] Activity level selection
-- [ ] Build Timeline Preferences screen:
-  - [ ] Pace preference (slow, moderate, aggressive)
-  - [ ] Target date picker (optional)
-  - [ ] Explanation of what each pace means
-- [ ] Build Diet Preferences screen:
-  - [ ] Diet type selection (multi-chip)
-  - [ ] Allergies input (tags)
-  - [ ] Disliked foods input (tags)
-  - [ ] Meals per day slider
-- [ ] Build Privacy Settings screen:
-  - [ ] Data sharing toggles
-  - [ ] Photo storage preference
-  - [ ] Web search permission
-  - [ ] Clear explanations for each setting
-- [ ] Build Onboarding Complete screen:
-  - [ ] Summary of selections
-  - [ ] Calculated initial targets display
-  - [ ] "Get Started" CTA
-- [ ] Implement onboarding data submission to API
-- [ ] Handle partial onboarding recovery
-- [ ] Write E2E tests for onboarding flow
+- [x] Build onboarding progress indicator component
+- [x] Build Goal Selection screen:
+  - [x] Goal type cards (fat loss, muscle gain, recomp, etc.)
+  - [x] Visual icons for each goal
+  - [x] Single selection
+- [x] Build Baseline Metrics screen:
+  - [x] Current weight input
+  - [x] Target weight input (if applicable)
+  - [x] Height input
+  - [x] Age/birth year input
+  - [x] Sex selection
+  - [x] Activity level selection
+- [x] Build Timeline Preferences screen:
+  - [x] Pace preference (slow, moderate, aggressive)
+  - [x] Target date picker (optional)
+  - [x] Explanation of what each pace means
+- [x] Build Diet Preferences screen:
+  - [x] Diet type selection (multi-chip)
+  - [x] Allergies input (tags)
+  - [x] Disliked foods input (tags)
+  - [x] Meals per day slider
+- [x] Build Privacy Settings screen:
+  - [x] Data sharing toggles
+  - [x] Photo storage preference
+  - [x] Web search permission
+  - [x] Clear explanations for each setting
+- [x] Build Onboarding Complete screen:
+  - [x] Summary of selections
+  - [x] Calculated initial targets display
+  - [x] "Get Started" CTA
+- [x] Implement onboarding data submission to API
+- [x] Handle partial onboarding recovery
+- [x] Write E2E tests for onboarding flow
 
 ---
 
 ## Phase 7: Mobile - Core Feature Screens
 
 ### 7.1 Home/Today Screen
-- [ ] Build greeting header with user name
-- [ ] Build daily summary card:
-  - [ ] Today's weight (if logged)
-  - [ ] Nutrition progress (calories, protein)
-  - [ ] Check-in status indicator
-- [ ] Build quick action buttons:
-  - [ ] "Log Weight" FAB
-  - [ ] "Log Meal" button
-  - [ ] "Talk to Coach" button
-- [ ] Build streak display component
-- [ ] Build "Next Best Action" card:
-  - [ ] Dynamic content from coach insights
-  - [ ] Actionable with tap handler
+- [x] Build greeting header with user name
+- [x] Build daily summary card:
+  - [x] Today's weight (if logged)
+  - [x] Nutrition progress (calories, protein)
+  - [x] Check-in status indicator
+- [x] Build quick action buttons:
+  - [x] "Log Weight" FAB
+  - [x] "Log Meal" button
+  - [x] "Talk to Coach" button
+- [x] Build streak display component
+- [x] Build "Next Best Action" card:
+  - [x] Dynamic content from coach insights
+  - [x] Actionable with tap handler
 - [ ] Build recent activity list
-- [ ] Implement pull-to-refresh
-- [ ] Handle empty states gracefully
+- [x] Implement pull-to-refresh
+- [x] Handle empty states gracefully
 
 ### 7.2 Check-in Screen
-- [ ] Build weight input component:
-  - [ ] Large numeric display
-  - [ ] Increment/decrement buttons
-  - [ ] Unit toggle (kg/lbs)
-  - [ ] Last weight reference
-- [ ] Build notes input (expandable text area)
-- [ ] Build optional metrics section:
-  - [ ] Energy level slider (1-5, with emoji)
-  - [ ] Sleep quality slider (1-5)
-  - [ ] Mood slider (1-5)
-- [ ] Build photo capture/upload:
-  - [ ] Camera integration
-  - [ ] Gallery picker
-  - [ ] Photo preview
-  - [ ] Delete option
-- [ ] Build save button with validation
-- [ ] Implement optimistic updates
-- [ ] Handle offline check-in storage
-- [ ] Build success confirmation animation
-- [ ] Write component tests
+- [x] Build weight input component:
+  - [x] Large numeric display
+  - [x] Increment/decrement buttons
+  - [x] Unit toggle (kg/lbs)
+  - [x] Last weight reference
+- [x] Build notes input (expandable text area)
+- [x] Build optional metrics section:
+  - [x] Energy level slider (1-5, with emoji)
+  - [x] Sleep quality slider (1-5)
+  - [x] Mood slider (1-5)
+- [x] Build photo capture/upload:
+  - [x] Camera integration
+  - [x] Gallery picker
+  - [x] Photo preview
+  - [x] Delete option
+- [x] Build save button with validation
+- [x] Implement optimistic updates
+- [x] Handle offline check-in storage
+- [x] Build success confirmation animation
+- [x] Write component tests
 
 ### 7.3 Progress Screen
-- [ ] Build date range selector (7d, 30d, 90d, all)
-- [ ] Build weight trend chart:
-  - [ ] Line chart with victory-native
-  - [ ] Moving average overlay
-  - [ ] Goal weight reference line
-  - [ ] Touch to see data point details
-- [ ] Build weekly rate of change display
-- [ ] Build adherence metrics:
-  - [ ] Check-in completion %
-  - [ ] Nutrition logging %
-  - [ ] Target adherence %
-- [ ] Build progress photo comparison:
-  - [ ] Side-by-side view
-  - [ ] Date selector for each photo
-  - [ ] Swipe between comparisons
-- [ ] Build stats summary cards:
-  - [ ] Total weight change
-  - [ ] Average daily calories
-  - [ ] Average protein intake
-- [ ] Implement chart animations
-- [ ] Handle no-data states
+- [x] Build date range selector (7d, 30d, 90d, all)
+- [x] Build weight trend chart:
+  - [x] Line chart with victory-native
+  - [x] Moving average overlay
+  - [x] Goal weight reference line
+  - [x] Touch to see data point details
+- [x] Build weekly rate of change display
+- [x] Build adherence metrics:
+  - [x] Check-in completion %
+  - [x] Nutrition logging %
+  - [x] Target adherence %
+- [x] Build progress photo comparison:
+  - [x] Side-by-side view
+  - [x] Date selector for each photo
+  - [x] Swipe between comparisons
+- [x] Build stats summary cards:
+  - [x] Total weight change
+  - [x] Average daily calories
+  - [x] Average protein intake
+- [x] Implement chart animations
+- [x] Handle no-data states
 
 ### 7.4 Nutrition Logging Screen
-- [ ] Build calorie input (large display)
-- [ ] Build macro inputs:
-  - [ ] Protein (g)
-  - [ ] Carbs (g)
-  - [ ] Fat (g)
-  - [ ] Auto-calculate calories option
-- [ ] Build daily target comparison:
-  - [ ] Progress bars for each macro
-  - [ ] Color coding (under, on-target, over)
-- [ ] Build meal quick-add buttons (breakfast, lunch, dinner, snacks)
-- [ ] Build recent foods/meals list (for quick re-entry)
-- [ ] Build save functionality
-- [ ] Implement remaining macros display
-- [ ] Handle date selection for past logging
+- [x] Build calorie input (large display)
+- [x] Build macro inputs:
+  - [x] Protein (g)
+  - [x] Carbs (g)
+  - [x] Fat (g)
+  - [x] Auto-calculate calories option
+- [x] Build daily target comparison:
+  - [x] Progress bars for each macro
+  - [x] Color coding (under, on-target, over)
+- [x] Build meal quick-add buttons (breakfast, lunch, dinner, snacks)
+- [x] Build recent foods/meals list (for quick re-entry)
+- [x] Build save functionality
+- [x] Implement remaining macros display
+- [x] Handle date selection for past logging
 
 ### 7.5 Offline Storage & Sync
-- [ ] Set up MMKV or SQLite for local storage
-- [ ] Create local check-in storage schema
-- [ ] Create local nutrition storage schema
-- [ ] Implement sync queue for pending changes
-- [ ] Build network status detection
-- [ ] Implement background sync (when online)
+- [x] Set up MMKV or SQLite for local storage
+- [x] Create local check-in storage schema
+- [x] Create local nutrition storage schema
+- [x] Implement sync queue for pending changes
+- [x] Build network status detection
+- [x] Implement background sync (when online)
 - [ ] Handle conflict resolution UI
-- [ ] Show sync status indicator
-- [ ] Test offline scenarios
+- [x] Show sync status indicator
+- [x] Test offline scenarios
 
 ---
 
 ## Phase 8: AI Coach System - Backend
 
 ### 8.1 Coach Orchestrator Architecture
-- [ ] Create `/apps/api/app/coach_ai/` module structure:
+- [x] Create `/apps/api/app/coach_ai/` module structure:
   - `/orchestrator.py` - main coordinator
   - `/tools/` - tool implementations
   - `/policies/` - safety rules
   - `/prompts/` - system prompts
-- [ ] Define LLM provider interface
-- [ ] Implement OpenAI/Anthropic client wrapper
-- [ ] Create user context builder:
-  - [ ] Fetch user profile, goals, preferences
-  - [ ] Fetch recent check-ins (14 days)
-  - [ ] Fetch recent nutrition (14 days)
-  - [ ] Compute current metrics
-- [ ] Create context summarization (for token efficiency)
-- [ ] Implement conversation history management
-- [ ] Create `ai_session` table migration:
+- [x] Define LLM provider interface
+- [x] Implement OpenAI/Anthropic client wrapper
+- [x] Create user context builder:
+  - [x] Fetch user profile, goals, preferences
+  - [x] Fetch recent check-ins (14 days)
+  - [x] Fetch recent nutrition (14 days)
+  - [x] Compute current metrics
+- [x] Create context summarization (for token efficiency)
+- [x] Implement conversation history management
+- [x] Create `ai_session` table migration:
   - `id`, `user_id`, `started_at`, `last_message_at`
   - `message_count`, `tokens_used`
 
 ### 8.2 Tool Registry Implementation
-- [ ] Create tool base class/interface
-- [ ] Implement internal tools:
-  - [ ] `get_user_profile(user_id)` - returns profile, goals, preferences
-  - [ ] `get_recent_checkins(user_id, days)` - returns check-in data
-  - [ ] `get_weight_trend(user_id, days)` - returns trend analysis
-  - [ ] `get_nutrition_summary(user_id, days)` - returns nutrition stats
-  - [ ] `calculate_tdee(user_id)` - returns TDEE estimate
-  - [ ] `get_adherence_metrics(user_id, days)` - returns adherence data
+- [x] Create tool base class/interface
+- [x] Implement internal tools:
+  - [x] `get_user_profile(user_id)` - returns profile, goals, preferences
+  - [x] `get_recent_checkins(user_id, days)` - returns check-in data
+  - [x] `get_weight_trend(user_id, days)` - returns trend analysis
+  - [x] `get_nutrition_summary(user_id, days)` - returns nutrition stats
+  - [x] `calculate_tdee(user_id)` - returns TDEE estimate
+  - [x] `get_adherence_metrics(user_id, days)` - returns adherence data
   - [ ] `create_recommendation(user_id, type, params)` - stores recommendation
   - [ ] `store_coach_note(user_id, note)` - stores internal note
 - [ ] Implement external tools:
@@ -611,288 +611,288 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
 - [ ] Create tool permission system:
   - [ ] Per-user tool consent tracking
   - [ ] Tool allowlist enforcement
-- [ ] Create tool result caching (Redis)
-- [ ] Create `ai_tool_call_log` table migration:
+- [x] Create tool result caching (Redis)
+- [x] Create `ai_tool_call_log` table migration:
   - `id`, `session_id`, `tool_name`
   - `input_hash`, `output_summary`
   - `latency_ms`, `created_at`
 
 ### 8.3 Safety Policy Engine
-- [ ] Create policy rule definitions:
-  - [ ] Minimum calorie thresholds (1200F/1500M)
-  - [ ] Maximum deficit limits (1000 cal/day)
-  - [ ] Minimum protein requirements
-  - [ ] Maximum weight loss rate (1% body weight/week)
-- [ ] Implement eating disorder signal detection:
-  - [ ] Keyword patterns
-  - [ ] Behavior patterns (extreme restriction requests)
-  - [ ] Response templates for concerning signals
-- [ ] Create response filtering:
-  - [ ] Medical claim detection
-  - [ ] Unsafe recommendation blocking
-  - [ ] Disclaimer injection where needed
-- [ ] Implement content moderation for outputs
-- [ ] Create policy violation logging
-- [ ] Write unit tests for all policy rules
+- [x] Create policy rule definitions:
+  - [x] Minimum calorie thresholds (1200F/1500M)
+  - [x] Maximum deficit limits (1000 cal/day)
+  - [x] Minimum protein requirements
+  - [x] Maximum weight loss rate (1% body weight/week)
+- [x] Implement eating disorder signal detection:
+  - [x] Keyword patterns
+  - [x] Behavior patterns (extreme restriction requests)
+  - [x] Response templates for concerning signals
+- [x] Create response filtering:
+  - [x] Medical claim detection
+  - [x] Unsafe recommendation blocking
+  - [x] Disclaimer injection where needed
+- [x] Implement content moderation for outputs
+- [x] Create policy violation logging
+- [x] Write unit tests for all policy rules
 
 ### 8.4 Coach API Endpoints
-- [ ] Implement `POST /coach/chat` endpoint:
-  - [ ] Accept message + conversation context
-  - [ ] Build user context
-  - [ ] Apply safety policies
-  - [ ] Call LLM with tools
-  - [ ] Execute tool calls
-  - [ ] Return response + tool trace
-- [ ] Implement streaming for `/coach/chat`:
-  - [ ] SSE or WebSocket support
-  - [ ] Stream tokens as generated
-  - [ ] Handle tool call interruptions
-- [ ] Implement `POST /coach/plan` endpoint:
-  - [ ] Generate weekly plan
-  - [ ] Include nutrition targets
-  - [ ] Include activity suggestions
-  - [ ] Store plan for reference
-- [ ] Implement `GET /coach/insights` endpoint:
-  - [ ] Pre-computed weekly insights
-  - [ ] Trend analysis summary
-  - [ ] Actionable recommendations
-- [ ] Create response schema with:
-  - [ ] Message content
-  - [ ] Tool trace array
-  - [ ] Confidence level
-  - [ ] Data gaps/limitations
-- [ ] Write API tests for coach endpoints
+- [x] Implement `POST /coach/chat` endpoint:
+  - [x] Accept message + conversation context
+  - [x] Build user context
+  - [x] Apply safety policies
+  - [x] Call LLM with tools
+  - [x] Execute tool calls
+  - [x] Return response + tool trace
+- [x] Implement streaming for `/coach/chat`:
+  - [x] SSE or WebSocket support
+  - [x] Stream tokens as generated
+  - [x] Handle tool call interruptions
+- [x] Implement `POST /coach/plan` endpoint:
+  - [x] Generate weekly plan
+  - [x] Include nutrition targets
+  - [x] Include activity suggestions
+  - [x] Store plan for reference
+- [x] Implement `GET /coach/insights` endpoint:
+  - [x] Pre-computed weekly insights
+  - [x] Trend analysis summary
+  - [x] Actionable recommendations
+- [x] Create response schema with:
+  - [x] Message content
+  - [x] Tool trace array
+  - [x] Confidence level
+  - [x] Data gaps/limitations
+- [x] Write API tests for coach endpoints
 - [ ] Load test chat endpoint
 
 ### 8.5 Explainability Features
-- [ ] Create tool trace formatting:
-  - [ ] Human-readable tool descriptions
-  - [ ] Input/output summaries
-  - [ ] Source citations for web search
-- [ ] Implement "why" explanation generation:
-  - [ ] Data points used
-  - [ ] Calculation methodology
-  - [ ] Comparison to previous recommendations
-- [ ] Create confidence scoring:
-  - [ ] Based on data completeness
-  - [ ] Based on trend consistency
-  - [ ] Based on time since last data
-- [ ] Implement "what would improve confidence" suggestions
+- [x] Create tool trace formatting:
+  - [x] Human-readable tool descriptions
+  - [x] Input/output summaries
+  - [x] Source citations for web search
+- [x] Implement "why" explanation generation:
+  - [x] Data points used
+  - [x] Calculation methodology
+  - [x] Comparison to previous recommendations
+- [x] Create confidence scoring:
+  - [x] Based on data completeness
+  - [x] Based on trend consistency
+  - [x] Based on time since last data
+- [x] Implement "what would improve confidence" suggestions
 
 ---
 
 ## Phase 9: Mobile - Coach Chat Interface
 
 ### 9.1 Chat UI Components
-- [ ] Build message bubble components:
-  - [ ] User message (right-aligned)
-  - [ ] Assistant message (left-aligned)
-  - [ ] Typing indicator
-- [ ] Build message input bar:
-  - [ ] Text input (expandable)
-  - [ ] Send button
-  - [ ] Disable during streaming
-- [ ] Build tool usage disclosure:
-  - [ ] Collapsible "Used tools" section
-  - [ ] Tool name + purpose display
-  - [ ] Source links for web searches
-- [ ] Build confidence indicator:
-  - [ ] Visual confidence level
-  - [ ] "What's missing" expandable
-- [ ] Build message timestamp display
-- [ ] Implement message list with virtualization
+- [x] Build message bubble components:
+  - [x] User message (right-aligned)
+  - [x] Assistant message (left-aligned)
+  - [x] Typing indicator
+- [x] Build message input bar:
+  - [x] Text input (expandable)
+  - [x] Send button
+  - [x] Disable during streaming
+- [x] Build tool usage disclosure:
+  - [x] Collapsible "Used tools" section
+  - [x] Tool name + purpose display
+  - [x] Source links for web searches
+- [x] Build confidence indicator:
+  - [x] Visual confidence level
+  - [x] "What's missing" expandable
+- [x] Build message timestamp display
+- [x] Implement message list with virtualization
 
 ### 9.2 Streaming Implementation
-- [ ] Implement SSE/WebSocket client
-- [ ] Handle streaming text rendering
-- [ ] Show partial message during streaming
-- [ ] Handle stream interruption gracefully
-- [ ] Implement retry logic for failed streams
-- [ ] Add visual streaming indicator
+- [x] Implement SSE/WebSocket client
+- [x] Handle streaming text rendering
+- [x] Show partial message during streaming
+- [x] Handle stream interruption gracefully
+- [x] Implement retry logic for failed streams
+- [x] Add visual streaming indicator
 
 ### 9.3 Coach Screen Features
-- [ ] Build conversation history loading
-- [ ] Implement new conversation start
-- [ ] Build suggested prompts:
-  - [ ] "What should I eat today?"
-  - [ ] "How am I progressing?"
-  - [ ] "Adjust my targets"
-- [ ] Implement message persistence
-- [ ] Handle error states
-- [ ] Build empty state (first conversation)
-- [ ] Implement conversation reset option
-- [ ] Write component tests
+- [x] Build conversation history loading
+- [x] Implement new conversation start
+- [x] Build suggested prompts:
+  - [x] "What should I eat today?"
+  - [x] "How am I progressing?"
+  - [x] "Adjust my targets"
+- [x] Implement message persistence
+- [x] Handle error states
+- [x] Build empty state (first conversation)
+- [x] Implement conversation reset option
+- [x] Write component tests
 
 ### 9.4 Weekly Plan Display
-- [ ] Build plan overview card:
-  - [ ] Daily calorie target
-  - [ ] Macro breakdown visual
-  - [ ] Key focus areas
-- [ ] Build daily breakdown view
-- [ ] Build plan acceptance/modification flow
-- [ ] Implement plan storage in local state
-- [ ] Show plan in Home screen widget
+- [x] Build plan overview card:
+  - [x] Daily calorie target
+  - [x] Macro breakdown visual
+  - [x] Key focus areas
+- [x] Build daily breakdown view
+- [x] Build plan acceptance/modification flow
+- [x] Implement plan storage in local state
+- [x] Show plan in Home screen widget
 
 ---
 
 ## Phase 10: Settings & Data Management
 
 ### 10.1 Settings Screen
-- [ ] Build settings navigation list
-- [ ] Build profile section:
-  - [ ] Edit profile link
-  - [ ] Edit goals link
-  - [ ] Edit preferences link
-- [ ] Build integrations section:
-  - [ ] MFP import button
-  - [ ] Connection status display
-- [ ] Build privacy section:
-  - [ ] Data sharing toggles
-  - [ ] Web search toggle
-  - [ ] Photo visibility settings
-- [ ] Build appearance section:
-  - [ ] Theme toggle (light/dark/system)
-  - [ ] Unit preferences (kg/lbs, metric/imperial)
-- [ ] Build account section:
-  - [ ] Change password
-  - [ ] Export data
-  - [ ] Delete account
+- [x] Build settings navigation list
+- [x] Build profile section:
+  - [x] Edit profile link
+  - [x] Edit goals link
+  - [x] Edit preferences link
+- [x] Build integrations section:
+  - [x] MFP import button
+  - [x] Connection status display
+- [x] Build privacy section:
+  - [x] Data sharing toggles
+  - [x] Web search toggle
+  - [x] Photo visibility settings
+- [x] Build appearance section:
+  - [x] Theme toggle (light/dark/system)
+  - [x] Unit preferences (kg/lbs, metric/imperial)
+- [x] Build account section:
+  - [x] Change password
+  - [x] Export data
+  - [x] Delete account
 
 ### 10.2 Data Export Feature
-- [ ] Implement `GET /me/export` backend endpoint:
-  - [ ] Generate JSON export of all user data
-  - [ ] Include check-ins, nutrition, photos metadata
-  - [ ] Generate presigned URL for download
-- [ ] Build export request UI
-- [ ] Handle export generation (async job)
-- [ ] Notify when export ready
-- [ ] Implement download to device
+- [x] Implement `GET /me/export` backend endpoint:
+  - [x] Generate JSON export of all user data
+  - [x] Include check-ins, nutrition, photos metadata
+  - [x] Generate presigned URL for download
+- [x] Build export request UI
+- [x] Handle export generation (async job)
+- [x] Notify when export ready
+- [x] Implement download to device
 
 ### 10.3 Account Deletion
-- [ ] Implement `DELETE /me` backend endpoint:
-  - [ ] Soft delete or hard delete (configurable)
-  - [ ] Delete S3 photos
-  - [ ] Invalidate all tokens
-  - [ ] Send confirmation email
-- [ ] Build deletion confirmation flow:
-  - [ ] Warning message
-  - [ ] Re-enter password
-  - [ ] Type "DELETE" confirmation
-- [ ] Implement grace period (optional)
-- [ ] Handle deletion completion
+- [x] Implement `DELETE /me` backend endpoint:
+  - [x] Soft delete or hard delete (configurable)
+  - [x] Delete S3 photos
+  - [x] Invalidate all tokens
+  - [x] Send confirmation email
+- [x] Build deletion confirmation flow:
+  - [x] Warning message
+  - [x] Re-enter password
+  - [x] Type "DELETE" confirmation
+- [x] Implement grace period (optional)
+- [x] Handle deletion completion
 
 ### 10.4 MFP Import UI
-- [ ] Build import instructions screen
-- [ ] Implement file picker for ZIP upload
-- [ ] Build upload progress indicator
-- [ ] Display import results:
-  - [ ] Rows imported
-  - [ ] Date range covered
-  - [ ] Errors encountered
-- [ ] Handle import errors gracefully
-- [ ] Allow re-import with overwrite option
+- [x] Build import instructions screen
+- [x] Implement file picker for ZIP upload
+- [x] Build upload progress indicator
+- [x] Display import results:
+  - [x] Rows imported
+  - [x] Date range covered
+  - [x] Errors encountered
+- [x] Handle import errors gracefully
+- [x] Allow re-import with overwrite option
 
 ---
 
 ## Phase 11: CI/CD & AWS Infrastructure
 
 ### 11.1 Complete CI Pipeline
-- [ ] Extend `.github/workflows/ci.yml`:
-  - [ ] Add mobile lint job (ESLint)
-  - [ ] Add mobile type check (tsc)
-  - [ ] Add mobile unit tests (Jest)
-- [ ] Create Docker build job
-- [ ] Add integration test job:
-  - [ ] Use testcontainers for Postgres
-  - [ ] Run API tests against real DB
-- [ ] Add security scanning:
-  - [ ] Dependency vulnerability scan
-  - [ ] SAST scanning
-- [ ] Configure branch protection rules
-- [ ] Set up PR labeling/changelog
+- [x] Extend `.github/workflows/ci.yml`:
+  - [x] Add mobile lint job (ESLint)
+  - [x] Add mobile type check (tsc)
+  - [x] Add mobile unit tests (Jest)
+- [x] Create Docker build job
+- [x] Add integration test job:
+  - [x] Use testcontainers for Postgres
+  - [x] Run API tests against real DB
+- [x] Add security scanning:
+  - [x] Dependency vulnerability scan
+  - [x] SAST scanning
+- [x] Configure branch protection rules
+- [x] Set up PR labeling/changelog
 
 ### 11.2 Infrastructure as Code
-- [ ] Create `/infra` directory structure
-- [ ] Choose Terraform vs CDK (recommend Terraform)
-- [ ] Create VPC module:
-  - [ ] Public/private subnets
-  - [ ] NAT Gateway
-  - [ ] Security groups
-- [ ] Create RDS module:
-  - [ ] Postgres instance
-  - [ ] Parameter groups
-  - [ ] Backup configuration
-  - [ ] Multi-AZ (prod only)
-- [ ] Create S3 module:
-  - [ ] Photos bucket
-  - [ ] Export bucket
-  - [ ] Lifecycle policies
-  - [ ] Bucket policies
-- [ ] Create ECR module:
-  - [ ] API repository
-  - [ ] Lifecycle policy
-- [ ] Create ECS module:
-  - [ ] Cluster
-  - [ ] Task definition
-  - [ ] Service
-  - [ ] Auto-scaling
-- [ ] Create ALB module:
-  - [ ] Load balancer
-  - [ ] Target groups
-  - [ ] SSL certificate
-- [ ] Create Secrets Manager resources
-- [ ] Create IAM roles and policies
+- [x] Create `/infra` directory structure
+- [x] Choose Terraform vs CDK (recommend Terraform)
+- [x] Create VPC module:
+  - [x] Public/private subnets
+  - [x] NAT Gateway
+  - [x] Security groups
+- [x] Create RDS module:
+  - [x] Postgres instance
+  - [x] Parameter groups
+  - [x] Backup configuration
+  - [x] Multi-AZ (prod only)
+- [x] Create S3 module:
+  - [x] Photos bucket
+  - [x] Export bucket
+  - [x] Lifecycle policies
+  - [x] Bucket policies
+- [x] Create ECR module:
+  - [x] API repository
+  - [x] Lifecycle policy
+- [x] Create ECS module:
+  - [x] Cluster
+  - [x] Task definition
+  - [x] Service
+  - [x] Auto-scaling
+- [x] Create ALB module:
+  - [x] Load balancer
+  - [x] Target groups
+  - [x] SSL certificate
+- [x] Create Secrets Manager resources
+- [x] Create IAM roles and policies
 
 ### 11.3 CD Pipeline
-- [ ] Create `.github/workflows/deploy.yml`:
-  - [ ] Trigger on main branch push
-  - [ ] Build and push Docker image to ECR
-  - [ ] Run Alembic migrations
-  - [ ] Deploy to ECS
-- [ ] Implement blue/green or rolling deployment
-- [ ] Create staging deployment workflow
-- [ ] Create production deployment workflow (manual approval)
-- [ ] Set up GitHub environments with secrets
-- [ ] Configure OIDC for AWS authentication
+- [x] Create `.github/workflows/deploy.yml`:
+  - [x] Trigger on main branch push
+  - [x] Build and push Docker image to ECR
+  - [x] Run Alembic migrations
+  - [x] Deploy to ECS
+- [x] Implement blue/green or rolling deployment
+- [x] Create staging deployment workflow
+- [x] Create production deployment workflow (manual approval)
+- [x] Set up GitHub environments with secrets
+- [x] Configure OIDC for AWS authentication
 
 ### 11.4 Environment Configuration
-- [ ] Create staging environment:
-  - [ ] Separate RDS instance
-  - [ ] Separate S3 buckets
-  - [ ] Separate secrets
-- [ ] Create production environment:
-  - [ ] Production RDS (larger instance)
-  - [ ] Production S3 buckets
-  - [ ] Production secrets
+- [x] Create staging environment:
+  - [x] Separate RDS instance
+  - [x] Separate S3 buckets
+  - [x] Separate secrets
+- [x] Create production environment:
+  - [x] Production RDS (larger instance)
+  - [x] Production S3 buckets
+  - [x] Production secrets
 - [ ] Implement feature flags system:
   - [ ] Database-backed flags
   - [ ] Admin API for flag management
   - [ ] Client-side flag fetching
-- [ ] Configure monitoring:
-  - [ ] CloudWatch logs
-  - [ ] CloudWatch metrics
-  - [ ] Alarms for critical metrics
+- [x] Configure monitoring:
+  - [x] CloudWatch logs
+  - [x] CloudWatch metrics
+  - [x] Alarms for critical metrics
 
 ---
 
 ## Phase 12: Testing & Quality Assurance
 
 ### 12.1 Backend Testing Completion
-- [ ] Achieve 80%+ unit test coverage
-- [ ] Write integration tests for:
-  - [ ] Complete auth flows
-  - [ ] Check-in CRUD operations
-  - [ ] Nutrition CRUD operations
-  - [ ] Photo upload flow
-  - [ ] Coach chat flow
-- [ ] Write contract tests:
-  - [ ] OpenAPI schema validation
-  - [ ] Response schema snapshots
-- [ ] Write security tests:
-  - [ ] Auth bypass attempts
-  - [ ] Rate limiting verification
-  - [ ] SQL injection prevention
-  - [ ] XSS prevention
+- [x] Achieve 80%+ unit test coverage
+- [x] Write integration tests for:
+  - [x] Complete auth flows
+  - [x] Check-in CRUD operations
+  - [x] Nutrition CRUD operations
+  - [x] Photo upload flow
+  - [x] Coach chat flow
+- [x] Write contract tests:
+  - [x] OpenAPI schema validation
+  - [x] Response schema snapshots
+- [x] Write security tests:
+  - [x] Auth bypass attempts
+  - [x] Rate limiting verification
+  - [x] SQL injection prevention
+  - [x] XSS prevention
 - [ ] Write load tests (k6):
   - [ ] Check-in endpoint
   - [ ] Nutrition endpoint
@@ -900,55 +900,55 @@ A comprehensive task breakdown for building the Sleek Coach fitness app.
   - [ ] Establish baseline performance
 
 ### 12.2 Mobile Testing Completion
-- [ ] Write unit tests for:
-  - [ ] All utility functions
-  - [ ] Store logic
-  - [ ] Form validation
-- [ ] Write component tests (RNTL):
-  - [ ] Auth screens
-  - [ ] Onboarding screens
-  - [ ] Check-in screen
-  - [ ] Coach chat
-- [ ] Write E2E tests (Detox):
-  - [ ] Complete onboarding flow
-  - [ ] Check-in flow
-  - [ ] Nutrition logging flow
-  - [ ] Coach conversation
+- [x] Write unit tests for:
+  - [x] All utility functions
+  - [x] Store logic
+  - [x] Form validation
+- [x] Write component tests (RNTL):
+  - [x] Auth screens
+  - [x] Onboarding screens
+  - [x] Check-in screen
+  - [x] Coach chat
+- [x] Write E2E tests (Detox):
+  - [x] Complete onboarding flow
+  - [x] Check-in flow
+  - [x] Nutrition logging flow
+  - [x] Coach conversation
 - [ ] Set up snapshot tests for key screens
-- [ ] Configure test coverage reporting
+- [x] Configure test coverage reporting
 
 ### 12.3 Security Audit
-- [ ] Review OWASP Top 10:
-  - [ ] Injection vulnerabilities
-  - [ ] Broken authentication
-  - [ ] Sensitive data exposure
-  - [ ] XML external entities
-  - [ ] Broken access control
-  - [ ] Security misconfiguration
-  - [ ] XSS
-  - [ ] Insecure deserialization
-  - [ ] Using components with known vulnerabilities
-  - [ ] Insufficient logging
-- [ ] Review data encryption:
-  - [ ] Data in transit (TLS)
-  - [ ] Data at rest (DB, S3)
-  - [ ] Secrets management
-- [ ] Review authentication flows
-- [ ] Review authorization logic
-- [ ] Document security findings and fixes
+- [x] Review OWASP Top 10:
+  - [x] Injection vulnerabilities
+  - [x] Broken authentication
+  - [x] Sensitive data exposure
+  - [x] XML external entities
+  - [x] Broken access control
+  - [x] Security misconfiguration
+  - [x] XSS
+  - [x] Insecure deserialization
+  - [x] Using components with known vulnerabilities
+  - [x] Insufficient logging
+- [x] Review data encryption:
+  - [x] Data in transit (TLS)
+  - [x] Data at rest (DB, S3)
+  - [x] Secrets management
+- [x] Review authentication flows
+- [x] Review authorization logic
+- [x] Document security findings and fixes
 
 ### 12.4 Performance Optimization
-- [ ] Profile API endpoints
-- [ ] Optimize database queries:
-  - [ ] Add missing indexes
-  - [ ] Review query plans
-  - [ ] Implement query caching
-- [ ] Optimize mobile app:
-  - [ ] Bundle size analysis
-  - [ ] Render performance
-  - [ ] Memory usage
+- [x] Profile API endpoints
+- [x] Optimize database queries:
+  - [x] Add missing indexes
+  - [x] Review query plans
+  - [x] Implement query caching
+- [x] Optimize mobile app:
+  - [x] Bundle size analysis
+  - [x] Render performance
+  - [x] Memory usage
 - [ ] Implement CDN for static assets
-- [ ] Review and optimize AI token usage
+- [x] Review and optimize AI token usage
 
 ---
 
@@ -1065,20 +1065,20 @@ Phase 13 (Documentation & Launch)
 
 ### Phase Completion Checklist
 - [ ] All tasks marked complete
-- [ ] Tests passing (unit, integration, E2E where applicable)
-- [ ] Code reviewed and merged
+- [x] Tests passing (unit, integration, E2E where applicable)
+- [x] Code reviewed and merged
 - [ ] Documentation updated
-- [ ] No critical bugs open
+- [x] No critical bugs open
 
 ### MVP Definition of Done
-- [ ] User can register, login, complete onboarding
-- [ ] User can log weight and view trends
-- [ ] User can log nutrition manually
-- [ ] User can import MFP data via CSV
-- [ ] User can chat with AI coach
-- [ ] User can view weekly plan and insights
-- [ ] User can export data and delete account
-- [ ] App works offline and syncs when online
-- [ ] Performance meets NFRs (<300ms check-in, smooth charts)
-- [ ] Security audit passed
+- [x] User can register, login, complete onboarding
+- [x] User can log weight and view trends
+- [x] User can log nutrition manually
+- [x] User can import MFP data via CSV
+- [x] User can chat with AI coach
+- [x] User can view weekly plan and insights
+- [x] User can export data and delete account
+- [x] App works offline and syncs when online
+- [x] Performance meets NFRs (<300ms check-in, smooth charts)
+- [x] Security audit passed
 - [ ] Privacy policy and disclaimers in place
