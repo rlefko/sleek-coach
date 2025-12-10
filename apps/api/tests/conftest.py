@@ -16,11 +16,39 @@ os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 
 from app.auth.models import RefreshToken  # noqa: F401
 from app.checkins.models import CheckIn  # noqa: F401
+from app.coach_ai.models import AISession, AIToolCallLog, AIPolicyViolationLog  # noqa: F401
 from app.database import get_session
 from app.main import app
 from app.nutrition.models import NutritionDay  # noqa: F401
 from app.photos.models import ProgressPhoto  # noqa: F401
 from app.users.models import DietPreferences, User, UserGoal, UserProfile  # noqa: F401
+
+# Import shared fixtures
+from tests.fixtures.coach_fixtures import *  # noqa: F401, F403
+from tests.fixtures.llm_mocks import *  # noqa: F401, F403
+
+# Import and rebuild Coach AI schemas that use TYPE_CHECKING imports
+# This is necessary because they use `from __future__ import annotations`
+# with TYPE_CHECKING guards for uuid and datetime
+import uuid
+from datetime import datetime
+
+from app.coach_ai.schemas import (
+    ChatMessage,
+    ChatRequest,
+    ChatResponse,
+    InsightsResponse,
+    WeeklyPlanRequest,
+    WeeklyPlanResponse,
+)
+
+# Rebuild models with actual types
+ChatMessage.model_rebuild()
+ChatRequest.model_rebuild()
+ChatResponse.model_rebuild()
+InsightsResponse.model_rebuild()
+WeeklyPlanRequest.model_rebuild()
+WeeklyPlanResponse.model_rebuild()
 
 # Test database URL (use SQLite for fast unit tests)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
