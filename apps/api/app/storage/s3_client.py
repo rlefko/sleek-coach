@@ -139,7 +139,9 @@ class S3Service:
                 )
                 return False
             except Exception:
-                logger.exception("Unexpected S3 error in check_object_exists", extra={"s3_key": s3_key})
+                logger.exception(
+                    "Unexpected S3 error in check_object_exists", extra={"s3_key": s3_key}
+                )
                 return False
 
     async def get_object_metadata(self, s3_key: str) -> dict[str, Any] | None:
@@ -172,7 +174,9 @@ class S3Service:
                 )
                 return None
             except Exception:
-                logger.exception("Unexpected S3 error in get_object_metadata", extra={"s3_key": s3_key})
+                logger.exception(
+                    "Unexpected S3 error in get_object_metadata", extra={"s3_key": s3_key}
+                )
                 return None
 
     async def delete_object(self, s3_key: str) -> bool:

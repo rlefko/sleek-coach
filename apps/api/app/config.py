@@ -56,12 +56,12 @@ class Settings(BaseSettings):
             if self.secret_key == _DEV_SECRET_KEY:
                 raise ValueError(
                     "SECRET_KEY must be set to a secure value in production/staging. "
-                    "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(64))"'
                 )
             if self.jwt_secret_key == _DEV_JWT_SECRET_KEY:
                 raise ValueError(
                     "JWT_SECRET_KEY must be set to a secure value in production/staging. "
-                    "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
+                    'Generate one with: python -c "import secrets; print(secrets.token_urlsafe(64))"'
                 )
             if self.aws_access_key_id == "minioadmin":
                 raise ValueError(
