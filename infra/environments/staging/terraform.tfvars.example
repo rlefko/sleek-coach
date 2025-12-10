@@ -1,0 +1,35 @@
+# Staging Environment Configuration
+# Copy this to terraform.tfvars and customize as needed
+
+aws_region = "us-east-1"
+
+# VPC
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+single_nat_gateway = true
+
+# RDS - Cost optimized for staging
+db_instance_class        = "db.t3.micro"
+db_allocated_storage     = 20
+db_max_allocated_storage = 50
+db_multi_az              = false
+db_backup_retention      = 7
+db_deletion_protection   = false
+db_performance_insights  = false
+
+# ElastiCache - Single node for staging
+redis_node_type       = "cache.t3.micro"
+redis_num_cache_nodes = 1
+
+# ECS - Minimal resources for staging
+ecs_cpu           = 256
+ecs_memory        = 512
+ecs_desired_count = 1
+ecs_min_capacity  = 1
+ecs_max_capacity  = 2
+
+# Docker image tag
+image_tag = "staging"
+
+# Debugging
+enable_ecs_exec = true
