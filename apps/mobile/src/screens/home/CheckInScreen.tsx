@@ -37,6 +37,8 @@ export const CheckInScreen: React.FC = () => {
   const {
     control,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<CheckinFormData>({
     resolver: zodResolver(checkinSchema),
@@ -49,6 +51,13 @@ export const CheckInScreen: React.FC = () => {
       mood: undefined,
     },
   });
+
+  // Initialize weight from latest check-in when data loads
+  React.useEffect(() => {
+    if (latestCheckin?.weight_kg != null && getValues('weight_kg') === undefined) {
+      setValue('weight_kg', latestCheckin.weight_kg);
+    }
+  }, [latestCheckin?.weight_kg, setValue, getValues]);
 
   const handleAddPhoto = useCallback((photo: PhotoItem) => {
     setPhotos((prev) => [...prev, photo]);
@@ -133,7 +142,6 @@ export const CheckInScreen: React.FC = () => {
                     value={value}
                     onChange={onChange}
                     unit={unit}
-                    onUnitChange={() => {}}
                     lastWeight={latestCheckin?.weight_kg ?? undefined}
                   />
                 )}

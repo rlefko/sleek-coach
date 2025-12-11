@@ -8,6 +8,7 @@ import { Card } from '@/components/ui';
 import { ChangePasswordDialog, DeleteAccountDialog } from '@/components/settings';
 import { useAppTheme, spacing } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useUser, useExportData } from '@/services/hooks/useUser';
 import { authService } from '@/services/api';
 import type { SettingsScreenProps } from '@/navigation/types';
@@ -16,6 +17,8 @@ type Props = SettingsScreenProps<'Settings'>;
 
 export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { theme, themeMode, setThemeMode, isDark } = useAppTheme();
+  const unitSystem = useUIStore((s) => s.unitSystem);
+  const setUnitSystem = useUIStore((s) => s.setUnitSystem);
   const { data: user } = useUser();
   const exportData = useExportData();
   const { refreshToken, logout } = useAuthStore();
@@ -137,6 +140,20 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 <Switch
                   value={isDark}
                   onValueChange={() => setThemeMode(isDark ? 'light' : 'dark')}
+                />
+              )}
+            />
+            <Divider />
+            <List.Item
+              title="Measurement System"
+              description={unitSystem === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lbs, in)'}
+              left={(props) => <List.Icon {...props} icon="ruler" />}
+              right={() => (
+                <Switch
+                  value={unitSystem === 'imperial'}
+                  onValueChange={() =>
+                    setUnitSystem(unitSystem === 'metric' ? 'imperial' : 'metric')
+                  }
                 />
               )}
             />

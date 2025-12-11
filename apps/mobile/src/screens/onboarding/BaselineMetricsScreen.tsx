@@ -8,6 +8,7 @@ import { Button, Input } from '@/components/ui';
 import { OnboardingProgressBar } from '@/components/onboarding';
 import { useAppTheme, spacing } from '@/theme';
 import { useOnboardingStore } from '@/stores/onboardingStore';
+import { useUIStore } from '@/stores/uiStore';
 import {
   baselineMetricsSchema,
   BaselineMetricsData,
@@ -19,11 +20,44 @@ import type { OnboardingScreenProps } from '@/navigation/types';
 
 type Props = OnboardingScreenProps<'BaselineMetrics'>;
 
+// Conversion constants
+const KG_TO_LBS = 2.20462;
+const CM_TO_INCHES = 0.393701;
+
+// Display helpers - convert internal metric to display unit
+function displayWeight(kg: number | undefined, isImperial: boolean): string {
+  if (kg === undefined) return '';
+  return isImperial ? (kg * KG_TO_LBS).toFixed(1) : kg.toString();
+}
+
+function parseWeight(value: string, isImperial: boolean): number | undefined {
+  if (!value) return undefined;
+  const num = parseFloat(value);
+  if (isNaN(num)) return undefined;
+  return isImperial ? num / KG_TO_LBS : num;
+}
+
+function displayHeight(cm: number | undefined, isImperial: boolean): string {
+  if (cm === undefined) return '';
+  return isImperial ? (cm * CM_TO_INCHES).toFixed(1) : cm.toString();
+}
+
+function parseHeight(value: string, isImperial: boolean): number | undefined {
+  if (!value) return undefined;
+  const num = parseFloat(value);
+  if (isNaN(num)) return undefined;
+  return isImperial ? num / CM_TO_INCHES : num;
+}
+
 export const BaselineMetricsScreen: React.FC<Props> = ({ navigation }) => {
   const { theme } = useAppTheme();
-  const { currentStep, totalSteps, data, updateData } = useOnboardingStore();
+  const { currentStep, totalSteps, data, updateData, nextStep } = useOnboardingStore();
+  const unitSystem = useUIStore((s) => s.unitSystem);
   const [activityMenuVisible, setActivityMenuVisible] = React.useState(false);
 
+  const isImperial = unitSystem === 'imperial';
+  const weightLabel = isImperial ? 'lbs' : 'kg';
+  const heightLabel = isImperial ? 'in' : 'cm';
   const showTargetWeight = data.goalType === 'fat_loss' || data.goalType === 'muscle_gain';
 
   const {
@@ -52,6 +86,7 @@ export const BaselineMetricsScreen: React.FC<Props> = ({ navigation }) => {
       activityLevel: formData.activityLevel,
       targetWeightKg: formData.targetWeightKg ?? undefined,
     });
+    nextStep();
     navigation.navigate('TimelinePreferences');
   };
 
@@ -91,9 +126,9 @@ export const BaselineMetricsScreen: React.FC<Props> = ({ navigation }) => {
               name="currentWeightKg"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  label="Current Weight (kg)"
-                  value={value?.toString() || ''}
-                  onChangeText={(text) => onChange(text ? parseFloat(text) : undefined)}
+                  label={`Current Weight (${weightLabel})`}
+                  value={displayWeight(value, isImperial)}
+                  onChangeText={(text) => onChange(parseWeight(text, isImperial))}
                   onBlur={onBlur}
                   keyboardType="decimal-pad"
                   error={errors.currentWeightKg?.message}
@@ -108,9 +143,9 @@ export const BaselineMetricsScreen: React.FC<Props> = ({ navigation }) => {
                 name="targetWeightKg"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    label="Target Weight (kg)"
-                    value={value?.toString() || ''}
-                    onChangeText={(text) => onChange(text ? parseFloat(text) : undefined)}
+                    label={`Target Weight (${weightLabel})`}
+                    value={displayWeight(value ?? undefined, isImperial)}
+                    onChangeText={(text) => onChange(parseWeight(text, isImperial))}
                     onBlur={onBlur}
                     keyboardType="decimal-pad"
                     error={errors.targetWeightKg?.message}
@@ -125,9 +160,9 @@ export const BaselineMetricsScreen: React.FC<Props> = ({ navigation }) => {
               name="heightCm"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  label="Height (cm)"
-                  value={value?.toString() || ''}
-                  onChangeText={(text) => onChange(text ? parseFloat(text) : undefined)}
+                  label={`Height (${heightLabel})`}
+                  value={displayHeight(value, isImperial)}
+                  onChangeText={(text) => onChange(parseHeight(text, isImperial))}
                   onBlur={onBlur}
                   keyboardType="decimal-pad"
                   error={errors.heightCm?.message}

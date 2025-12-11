@@ -14,9 +14,10 @@ type Props = OnboardingScreenProps<'PrivacySettings'>;
 
 export const PrivacySettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { theme } = useAppTheme();
-  const { currentStep, totalSteps, data, updateData } = useOnboardingStore();
+  const { currentStep, totalSteps, data, updateData, nextStep } = useOnboardingStore();
 
   const handleContinue = () => {
+    nextStep();
     navigation.navigate('OnboardingComplete');
   };
 

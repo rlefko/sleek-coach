@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   GoalSelectionScreen,
+  MeasurementSystemScreen,
   BaselineMetricsScreen,
   TimelinePreferencesScreen,
   DietPreferencesScreen,
@@ -22,6 +23,7 @@ export const OnboardingNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen name="GoalSelection" component={GoalSelectionScreen} />
+      <Stack.Screen name="MeasurementSystem" component={MeasurementSystemScreen} />
       <Stack.Screen name="BaselineMetrics" component={BaselineMetricsScreen} />
       <Stack.Screen name="TimelinePreferences" component={TimelinePreferencesScreen} />
       <Stack.Screen name="DietPreferences" component={DietPreferencesScreen} />

@@ -6,32 +6,48 @@ import { Button } from '@/components/ui';
 import { OnboardingProgressBar } from '@/components/onboarding';
 import { useAppTheme, spacing } from '@/theme';
 import { useOnboardingStore } from '@/stores/onboardingStore';
-import { pacePreferenceLabels, PacePreference } from '@/schemas/onboardingSchemas';
+import { useUIStore } from '@/stores/uiStore';
 import type { OnboardingScreenProps } from '@/navigation/types';
 
-type Props = OnboardingScreenProps<'TimelinePreferences'>;
+type Props = OnboardingScreenProps<'MeasurementSystem'>;
 
-export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
+type MeasurementSystemType = 'metric' | 'imperial';
+
+const measurementOptions: {
+  value: MeasurementSystemType;
+  title: string;
+  description: string;
+}[] = [
+  {
+    value: 'metric',
+    title: 'Metric',
+    description: 'Kilograms (kg) and centimeters (cm)',
+  },
+  {
+    value: 'imperial',
+    title: 'Imperial',
+    description: 'Pounds (lbs) and inches (in)',
+  },
+];
+
+export const MeasurementSystemScreen: React.FC<Props> = ({ navigation }) => {
   const { theme } = useAppTheme();
   const { currentStep, totalSteps, data, updateData, nextStep } = useOnboardingStore();
+  const setUnitSystem = useUIStore((s) => s.setUnitSystem);
 
-  const handlePaceSelect = (pace: PacePreference) => {
-    updateData({ pacePreference: pace });
+  const handleSelect = (system: MeasurementSystemType) => {
+    updateData({ measurementSystem: system });
+    setUnitSystem(system);
   };
 
   const handleContinue = () => {
     nextStep();
-    navigation.navigate('DietPreferences');
+    navigation.navigate('BaselineMetrics');
   };
 
   const handleBack = () => {
     navigation.goBack();
   };
-
-  const paces = Object.entries(pacePreferenceLabels) as [
-    PacePreference,
-    { title: string; description: string },
-  ][];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -39,13 +55,13 @@ export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
         <OnboardingProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
         <Text variant="headlineMedium" style={styles.title}>
-          Choose your pace
+          Choose your units
         </Text>
         <Text
           variant="bodyLarge"
           style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
         >
-          How quickly do you want to see results? A slower pace is easier to maintain.
+          Select your preferred measurement system. You can change this later in settings.
         </Text>
 
         <ScrollView
@@ -53,29 +69,29 @@ export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {paces.map(([pace, { title, description }]) => (
+          {measurementOptions.map(({ value, title, description }) => (
             <Surface
-              key={pace}
+              key={value}
               style={[
-                styles.paceCard,
+                styles.optionCard,
                 {
                   backgroundColor:
-                    data.pacePreference === pace
+                    data.measurementSystem === value
                       ? theme.colors.primaryContainer
                       : theme.colors.surface,
                   borderColor:
-                    data.pacePreference === pace ? theme.colors.primary : theme.colors.outline,
+                    data.measurementSystem === value ? theme.colors.primary : theme.colors.outline,
                 },
               ]}
-              elevation={data.pacePreference === pace ? 2 : 1}
-              onTouchEnd={() => handlePaceSelect(pace)}
+              elevation={data.measurementSystem === value ? 2 : 1}
+              onTouchEnd={() => handleSelect(value)}
             >
-              <View style={styles.paceContent}>
+              <View style={styles.optionContent}>
                 <Text
                   variant="titleMedium"
                   style={{
                     color:
-                      data.pacePreference === pace
+                      data.measurementSystem === value
                         ? theme.colors.onPrimaryContainer
                         : theme.colors.onSurface,
                   }}
@@ -86,7 +102,7 @@ export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
                   variant="bodyMedium"
                   style={{
                     color:
-                      data.pacePreference === pace
+                      data.measurementSystem === value
                         ? theme.colors.onPrimaryContainer
                         : theme.colors.onSurfaceVariant,
                   }}
@@ -94,23 +110,13 @@ export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
                   {description}
                 </Text>
               </View>
-              {data.pacePreference === pace && (
+              {data.measurementSystem === value && (
                 <View style={[styles.checkmark, { backgroundColor: theme.colors.primary }]}>
                   <Text style={{ color: theme.colors.onPrimary }}>✓</Text>
                 </View>
               )}
             </Surface>
           ))}
-
-          <View style={styles.infoBox}>
-            <Text
-              variant="bodySmall"
-              style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}
-            >
-              Your recommended calorie and macro targets will be adjusted based on your pace
-              preference. You can always change this later in settings.
-            </Text>
-          </View>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -121,7 +127,7 @@ export const TimelinePreferencesScreen: React.FC<Props> = ({ navigation }) => {
             <Button
               variant="primary"
               onPress={handleContinue}
-              disabled={!data.pacePreference}
+              disabled={!data.measurementSystem}
               style={styles.continueButton}
             >
               Continue
@@ -153,7 +159,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: spacing.md,
   },
-  paceCard: {
+  optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
@@ -161,7 +167,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     marginBottom: spacing.sm,
   },
-  paceContent: {
+  optionContent: {
     flex: 1,
   },
   checkmark: {
@@ -171,14 +177,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: spacing.sm,
-  },
-  infoBox: {
-    marginTop: spacing.md,
-    padding: spacing.md,
-    borderRadius: 8,
-  },
-  infoText: {
-    textAlign: 'center',
   },
   footer: {
     paddingTop: spacing.md,
