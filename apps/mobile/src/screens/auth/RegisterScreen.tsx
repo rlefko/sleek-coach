@@ -132,7 +132,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               name="confirmPassword"
               label="Confirm Password"
               secureTextEntry={!showConfirmPassword}
-              textContentType="none"
+              textContentType="newPassword"
               autoComplete="new-password"
               right={
                 <IconButton
