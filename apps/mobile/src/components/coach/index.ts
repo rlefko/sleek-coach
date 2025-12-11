@@ -1,5 +1,6 @@
 export { ChatInput } from './ChatInput';
 export { ConfidenceIndicator } from './ConfidenceIndicator';
+export { MarkdownContent } from './MarkdownContent';
 export { DailyTargetRow } from './DailyTargetRow';
 export { DisclaimerBanner } from './DisclaimerBanner';
 export { FocusAreaList } from './FocusAreaList';
