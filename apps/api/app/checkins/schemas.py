@@ -3,7 +3,9 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.datetime_utils import normalize_to_naive_utc
 
 
 class CheckInCreate(BaseModel):
@@ -17,6 +19,12 @@ class CheckInCreate(BaseModel):
     mood: int | None = Field(None, ge=1, le=5)
     client_updated_at: datetime | None = None
 
+    @field_validator("client_updated_at", mode="after")
+    @classmethod
+    def normalize_datetime(cls, v: datetime | None) -> datetime | None:
+        """Normalize timezone-aware datetime to naive UTC."""
+        return normalize_to_naive_utc(v)
+
 
 class CheckInSyncItem(BaseModel):
     """Single check-in for sync request."""
@@ -28,6 +36,12 @@ class CheckInSyncItem(BaseModel):
     sleep_quality: int | None = Field(None, ge=1, le=5)
     mood: int | None = Field(None, ge=1, le=5)
     client_updated_at: datetime
+
+    @field_validator("client_updated_at", mode="after")
+    @classmethod
+    def normalize_datetime(cls, v: datetime | None) -> datetime | None:
+        """Normalize timezone-aware datetime to naive UTC."""
+        return normalize_to_naive_utc(v)
 
 
 class CheckInSyncRequest(BaseModel):

@@ -1,7 +1,7 @@
 """Unit tests for CheckInService."""
 
 import uuid
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -337,3 +337,101 @@ async def test_sync_checkins_update(
     assert server_version is not None
     assert isinstance(server_version, CheckIn)
     assert float(server_version.weight_kg) == 74.0  # type: ignore[arg-type]
+
+
+@pytest.mark.asyncio
+async def test_create_checkin_with_timezone_aware_datetime(
+    service: CheckInService,
+    user_id: uuid.UUID,
+) -> None:
+    """Test creating a check-in with timezone-aware client_updated_at."""
+    # This simulates what the mobile client sends (ISO 8601 with timezone)
+    aware_dt = datetime(2025, 12, 11, 17, 9, 13, tzinfo=UTC)
+
+    data = CheckInCreate(
+        date=date.today(),
+        weight_kg=75.5,
+        client_updated_at=aware_dt,
+    )
+
+    # Should not raise an error
+    checkin = await service.create_or_update(user_id, data)
+
+    assert checkin.id is not None
+    assert checkin.client_updated_at is not None
+    # The datetime should be stored as naive UTC
+    assert checkin.client_updated_at.tzinfo is None
+
+
+@pytest.mark.asyncio
+async def test_sync_checkins_with_timezone_aware_datetime(
+    service: CheckInService,
+    user_id: uuid.UUID,
+    db_session: AsyncSession,
+) -> None:
+    """Test sync handles timezone-aware client_updated_at without errors."""
+    # Create existing check-in
+    existing = CheckIn(
+        user_id=user_id,
+        date=date.today(),
+        weight_kg=75.0,
+    )
+    db_session.add(existing)
+    await db_session.commit()
+    await db_session.refresh(existing)
+
+    # Sync with timezone-aware timestamp (simulating mobile client)
+    aware_dt = existing.updated_at + timedelta(minutes=5)
+    # Convert to timezone-aware to simulate what client sends
+    aware_dt = aware_dt.replace(tzinfo=UTC)
+
+    items = [
+        CheckInSyncItem(
+            date=date.today(),
+            weight_kg=74.0,
+            client_updated_at=aware_dt,
+        ),
+    ]
+
+    # Should not raise an error about naive/aware datetime comparison
+    results = await service.sync_checkins(user_id, items)
+
+    assert len(results) == 1
+    assert results[0]["status"] == "updated"
+
+
+@pytest.mark.asyncio
+async def test_sync_checkins_conflict_with_timezone_aware_datetime(
+    service: CheckInService,
+    user_id: uuid.UUID,
+    db_session: AsyncSession,
+) -> None:
+    """Test sync detects conflicts correctly with timezone-aware datetime."""
+    # Create existing check-in
+    existing = CheckIn(
+        user_id=user_id,
+        date=date.today(),
+        weight_kg=75.0,
+    )
+    db_session.add(existing)
+    await db_session.commit()
+    await db_session.refresh(existing)
+
+    # Try to sync with older timezone-aware timestamp
+    older_dt = existing.updated_at - timedelta(minutes=5)
+    # Convert to timezone-aware to simulate what client sends
+    older_dt_aware = older_dt.replace(tzinfo=UTC)
+
+    items = [
+        CheckInSyncItem(
+            date=date.today(),
+            weight_kg=74.0,
+            client_updated_at=older_dt_aware,
+        ),
+    ]
+
+    # Should detect conflict without error
+    results = await service.sync_checkins(user_id, items)
+
+    assert len(results) == 1
+    assert results[0]["status"] == "conflict"
