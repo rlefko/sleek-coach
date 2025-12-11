@@ -40,7 +40,7 @@ export const ScrollToBottomButton: React.FC<ScrollToBottomButtonProps> = ({ visi
           transform: [{ translateY }],
         },
       ]}
-      pointerEvents={visible ? 'auto' : 'none'}
+      pointerEvents="auto"
       testID="scroll-to-bottom-button"
     >
       <Pressable
