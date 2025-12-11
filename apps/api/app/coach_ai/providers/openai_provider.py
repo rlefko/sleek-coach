@@ -110,6 +110,7 @@ class OpenAIProvider(LLMProvider):
                     if idx not in current_tool_calls:
                         current_tool_calls[idx] = {
                             "id": tc.id or "",
+                            "type": "function",
                             "function": {"name": "", "arguments": ""},
                         }
 
@@ -164,6 +165,7 @@ class OpenAIProvider(LLMProvider):
         return [
             {
                 "id": tc.id,
+                "type": "function",
                 "function": {
                     "name": tc.function.name,
                     "arguments": tc.function.arguments,

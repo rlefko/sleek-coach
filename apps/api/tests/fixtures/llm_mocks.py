@@ -50,6 +50,7 @@ def mock_llm_response_with_tools() -> MockLLMResponse:
         tool_calls=[
             {
                 "id": "call_123",
+                "type": "function",
                 "function": {
                     "name": "get_user_profile",
                     "arguments": "{}",
@@ -81,6 +82,7 @@ def mock_openai_provider_with_tool_calls() -> AsyncMock:
         tool_calls=[
             {
                 "id": "call_123",
+                "type": "function",
                 "function": {
                     "name": "get_user_profile",
                     "arguments": "{}",
