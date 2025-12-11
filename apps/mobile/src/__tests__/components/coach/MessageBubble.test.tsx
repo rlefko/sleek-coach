@@ -163,6 +163,74 @@ describe('MessageBubble', () => {
     });
   });
 
+  describe('markdown rendering', () => {
+    it('renders markdown in assistant messages', () => {
+      const assistantMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'assistant',
+        content: 'This is **bold** and *italic*',
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={assistantMessage} />);
+
+      // Verify content is rendered (markdown library handles formatting)
+      expect(getByText(/bold/)).toBeTruthy();
+      expect(getByText(/italic/)).toBeTruthy();
+    });
+
+    it('renders lists in assistant messages', () => {
+      const assistantMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'assistant',
+        content: '- Item 1\n- Item 2\n- Item 3',
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={assistantMessage} />);
+
+      expect(getByText(/Item 1/)).toBeTruthy();
+      expect(getByText(/Item 2/)).toBeTruthy();
+    });
+
+    it('renders code in assistant messages', () => {
+      const assistantMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'assistant',
+        content: 'Use `console.log` for debugging',
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={assistantMessage} />);
+
+      expect(getByText(/console.log/)).toBeTruthy();
+    });
+
+    it('keeps user messages as plain text (no markdown)', () => {
+      const userMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'user',
+        content: 'I want **bold** but it stays plain',
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={userMessage} />);
+
+      // User messages should show raw text with asterisks
+      expect(getByText('I want **bold** but it stays plain')).toBeTruthy();
+    });
+
+    it('handles streaming with partial markdown content', () => {
+      const streamingMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'assistant',
+        content: 'Here is **partial',
+        status: 'streaming',
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={streamingMessage} />);
+
+      // Should render without crashing
+      expect(getByText(/partial/)).toBeTruthy();
+    });
+  });
+
   describe('timestamp', () => {
     it('shows timestamp when showTimestamp is true', () => {
       const recentMessage: ChatMessage = {

@@ -7,6 +7,7 @@ import type { ChatMessage } from '@/services/api/types';
 import { ToolDisclosure } from './ToolDisclosure';
 import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { DisclaimerBanner } from './DisclaimerBanner';
+import { MarkdownContent } from './MarkdownContent';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -73,14 +74,22 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             isError && { borderColor: theme.colors.error, borderWidth: 1 },
           ]}
         >
-          <Text
-            variant="bodyMedium"
-            style={{
-              color: isUser ? theme.colors.onPrimary : theme.colors.onSurface,
-            }}
-          >
-            {message.content || (isStreaming ? '...' : '')}
-          </Text>
+          {isUser ? (
+            <Text
+              variant="bodyMedium"
+              style={{
+                color: theme.colors.onPrimary,
+              }}
+            >
+              {message.content || ''}
+            </Text>
+          ) : (
+            <MarkdownContent
+              content={message.content}
+              textColor={theme.colors.onSurface}
+              isStreaming={isStreaming}
+            />
+          )}
 
           {isStreaming && (
             <View style={styles.streamingIndicator}>
