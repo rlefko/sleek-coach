@@ -7,6 +7,7 @@ export { FocusAreaList } from './FocusAreaList';
 export { MacroBreakdownChart } from './MacroBreakdownChart';
 export { MessageBubble } from './MessageBubble';
 export { MessageList } from './MessageList';
+export { ScrollToBottomButton } from './ScrollToBottomButton';
 export { SuggestedPrompts } from './SuggestedPrompts';
 export { ToolDisclosure } from './ToolDisclosure';
 export { TypingIndicator } from './TypingIndicator';

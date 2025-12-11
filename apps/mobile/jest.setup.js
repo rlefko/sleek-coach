@@ -210,6 +210,9 @@ jest.mock('react-native-paper', () => {
   const MockActivityIndicator = ({ animating, color, size }) =>
     animating ? React.createElement(Text, null, 'Loading...') : null;
 
+  const MockIcon = ({ source, color, size }) =>
+    React.createElement(Text, { testID: `icon-${source}` }, source);
+
   return {
     MD3DarkTheme: theme,
     MD3LightTheme: theme,
@@ -226,6 +229,7 @@ jest.mock('react-native-paper', () => {
     Snackbar: MockSnackbar,
     Card: MockCard,
     ActivityIndicator: MockActivityIndicator,
+    Icon: MockIcon,
   };
 });
 
