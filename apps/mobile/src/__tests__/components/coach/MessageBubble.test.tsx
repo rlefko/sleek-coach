@@ -117,6 +117,20 @@ describe('MessageBubble', () => {
 
       expect(getByText('Tap to retry')).toBeTruthy();
     });
+
+    it('handles object-type errorMessage gracefully', () => {
+      // This can happen if a Pydantic validation error object leaks through
+      const errorMessage: ChatMessage = {
+        ...baseMessage,
+        role: 'assistant',
+        content: '',
+        status: 'error',
+        errorMessage: { type: 'validation', msg: 'Invalid input' } as unknown as string,
+      };
+
+      const { getByText } = renderWithProvider(<MessageBubble message={errorMessage} />);
+      expect(getByText('An error occurred')).toBeTruthy();
+    });
   });
 
   describe('metadata', () => {

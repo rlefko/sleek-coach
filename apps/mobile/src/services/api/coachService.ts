@@ -11,6 +11,31 @@ import type {
 } from './types';
 
 /**
+ * Extract human-readable error message from API error response.
+ * Handles FastAPI/Pydantic validation errors which return detail as an array of objects.
+ */
+function extractErrorMessage(detail: unknown): string {
+  if (typeof detail === 'string') {
+    return detail;
+  }
+  if (Array.isArray(detail)) {
+    // Pydantic validation errors are arrays of {type, loc, msg, input, ctx}
+    const messages = detail
+      .map((err) =>
+        typeof err === 'object' && err !== null && 'msg' in err ? err.msg : String(err)
+      )
+      .filter(Boolean);
+    return messages.length > 0 ? messages.join(', ') : 'Validation error';
+  }
+  if (typeof detail === 'object' && detail !== null) {
+    // Handle object with 'msg' or 'message' property
+    if ('msg' in detail) return String((detail as { msg: unknown }).msg);
+    if ('message' in detail) return String((detail as { message: unknown }).message);
+  }
+  return 'An error occurred';
+}
+
+/**
  * Parse SSE events from a ReadableStream
  */
 async function* parseSSE(
@@ -81,7 +106,7 @@ export const coachService = {
       const errorData = await response.json().catch(() => ({ detail: 'Stream request failed' }));
       yield {
         type: 'error',
-        data: errorData.detail || 'Stream request failed',
+        data: extractErrorMessage(errorData.detail),
       };
       return;
     }

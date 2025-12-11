@@ -92,7 +92,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             <View style={styles.errorContainer}>
               <Icon name="alert-circle" size={14} color={theme.colors.error} />
               <Text variant="bodySmall" style={{ color: theme.colors.error }}>
-                {message.errorMessage}
+                {typeof message.errorMessage === 'string'
+                  ? message.errorMessage
+                  : 'An error occurred'}
               </Text>
               {onRetry && (
                 <Text
