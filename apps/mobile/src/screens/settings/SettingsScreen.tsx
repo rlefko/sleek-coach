@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, ScrollView, Alert, Share, Platform } from 'react-native';
-import { Text, List, Divider, Switch, Snackbar } from 'react-native-paper';
+import { StyleSheet, ScrollView, Alert, Share, Platform, View } from 'react-native';
+import { Text, List, Divider, Switch, Snackbar, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Paths, File as ExpoFile } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -146,17 +146,18 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
             <Divider />
             <List.Item
               title="Measurement System"
-              description={unitSystem === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lbs, in)'}
               left={(props) => <List.Icon {...props} icon="ruler" />}
-              right={() => (
-                <Switch
-                  value={unitSystem === 'imperial'}
-                  onValueChange={() =>
-                    setUnitSystem(unitSystem === 'metric' ? 'imperial' : 'metric')
-                  }
-                />
-              )}
             />
+            <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.sm }}>
+              <SegmentedButtons
+                value={unitSystem}
+                onValueChange={(value) => setUnitSystem(value as 'metric' | 'imperial')}
+                buttons={[
+                  { value: 'metric', label: 'Metric' },
+                  { value: 'imperial', label: 'Imperial' },
+                ]}
+              />
+            </View>
           </List.Section>
         </Card>
 
