@@ -1,5 +1,12 @@
-import React, { useCallback, useRef } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import React, {
+  useCallback,
+  useRef,
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
+import { FlatList, StyleSheet, View, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { spacing } from '@/theme';
 import type { ChatMessage } from '@/services/api/types';
@@ -12,16 +19,68 @@ interface MessageListProps {
   isStreaming: boolean;
   onRetryMessage?: (message: ChatMessage) => void;
   ListHeaderComponent?: React.ReactElement;
+  onScrollPositionChange?: (isAtBottom: boolean) => void;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({
-  messages,
-  isStreaming,
-  onRetryMessage,
-  ListHeaderComponent,
-}) => {
+export interface MessageListRef {
+  scrollToEnd: (animated?: boolean) => void;
+}
+
+const SCROLL_THRESHOLD = 100; // pixels from bottom to consider "at bottom"
+
+export const MessageList = forwardRef<MessageListRef, MessageListProps>(function MessageList(
+  { messages, isStreaming, onRetryMessage, ListHeaderComponent, onScrollPositionChange },
+  ref
+) {
   const theme = useTheme();
   const flatListRef = useRef<FlatList>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const contentHeightRef = useRef(0);
+  const layoutHeightRef = useRef(0);
+  const isInitialRenderRef = useRef(true);
+
+  // Expose scrollToEnd method via ref
+  useImperativeHandle(ref, () => ({
+    scrollToEnd: (animated = true) => {
+      flatListRef.current?.scrollToEnd({ animated });
+      setIsAtBottom(true);
+    },
+  }));
+
+  // Notify parent when scroll position changes
+  useEffect(() => {
+    onScrollPositionChange?.(isAtBottom);
+  }, [isAtBottom, onScrollPositionChange]);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    contentHeightRef.current = contentSize.height;
+    layoutHeightRef.current = layoutMeasurement.height;
+
+    const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
+    const atBottom = distanceFromBottom <= SCROLL_THRESHOLD;
+    setIsAtBottom(atBottom);
+  }, []);
+
+  const handleContentSizeChange = useCallback(
+    (_width: number, height: number) => {
+      contentHeightRef.current = height;
+
+      // Always scroll on initial render, otherwise only if at bottom
+      if (isInitialRenderRef.current || isAtBottom) {
+        flatListRef.current?.scrollToEnd({ animated: !isInitialRenderRef.current });
+        isInitialRenderRef.current = false;
+      }
+    },
+    [isAtBottom]
+  );
+
+  const handleLayout = useCallback(() => {
+    // Only auto-scroll on layout if at bottom (prevents jump during keyboard changes when scrolled up)
+    if (isAtBottom) {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }
+  }, [isAtBottom]);
 
   const renderMessage = useCallback(
     ({ item }: { item: ChatMessage }) => (
@@ -70,12 +129,10 @@ export const MessageList: React.FC<MessageListProps> = ({
           </View>
         ) : null
       }
-      onContentSizeChange={() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }}
-      onLayout={() => {
-        flatListRef.current?.scrollToEnd({ animated: false });
-      }}
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+      onContentSizeChange={handleContentSizeChange}
+      onLayout={handleLayout}
       // Performance optimizations
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
@@ -84,7 +141,9 @@ export const MessageList: React.FC<MessageListProps> = ({
       getItemLayout={undefined} // Variable height messages
     />
   );
-};
+});
+
+MessageList.displayName = 'MessageList';
 
 const styles = StyleSheet.create({
   list: {

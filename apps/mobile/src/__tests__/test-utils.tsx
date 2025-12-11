@@ -3,6 +3,7 @@ import { render, RenderOptions } from '@testing-library/react-native';
 import { PaperProvider, MD3DarkTheme } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NavigationContainer } from '@react-navigation/native';
+import { ThemeProvider } from '@/theme/ThemeContext';
 
 // Create a fresh QueryClient for each test
 const createTestQueryClient = () =>
@@ -27,9 +28,11 @@ const AllProviders: React.FC<AllProvidersProps> = ({ children }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PaperProvider theme={MD3DarkTheme}>
-        <NavigationContainer>{children}</NavigationContainer>
-      </PaperProvider>
+      <ThemeProvider initialThemeMode="dark">
+        <PaperProvider theme={MD3DarkTheme}>
+          <NavigationContainer>{children}</NavigationContainer>
+        </PaperProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

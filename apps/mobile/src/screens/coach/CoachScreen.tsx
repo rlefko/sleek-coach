@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { Text, IconButton, Menu, Icon } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,7 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppTheme, spacing } from '@/theme';
 import { useChatStream, useChatSessions } from '@/services/hooks';
-import { ChatInput, MessageList, SuggestedPrompts } from '@/components/coach';
+import { ChatInput, MessageList, SuggestedPrompts, ScrollToBottomButton } from '@/components/coach';
+import type { MessageListRef } from '@/components/coach/MessageList';
 import type { CoachStackParamList } from '@/navigation/types';
 
 type CoachScreenNavigationProp = NativeStackNavigationProp<CoachStackParamList, 'Coach'>;
@@ -23,6 +24,8 @@ export const CoachScreen: React.FC = () => {
   const messages = getCurrentMessages();
   const [menuVisible, setMenuVisible] = useState(false);
   const [disclaimerVisible, setDisclaimerVisible] = useState(true);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const messageListRef = useRef<MessageListRef>(null);
 
   // Create a session if none exists
   useEffect(() => {
@@ -62,6 +65,14 @@ export const CoachScreen: React.FC = () => {
     setMenuVisible(false);
     navigation.navigate('CoachPlan');
   }, [navigation]);
+
+  const handleScrollPositionChange = useCallback((isAtBottom: boolean) => {
+    setShowScrollButton(!isAtBottom);
+  }, []);
+
+  const handleScrollToBottom = useCallback(() => {
+    messageListRef.current?.scrollToEnd(true);
+  }, []);
 
   return (
     <SafeAreaView
@@ -139,14 +150,17 @@ export const CoachScreen: React.FC = () => {
       >
         <View style={styles.messagesContainer}>
           <MessageList
+            ref={messageListRef}
             messages={messages}
             isStreaming={isStreaming}
+            onScrollPositionChange={handleScrollPositionChange}
             ListHeaderComponent={
               messages.length === 0 ? (
                 <SuggestedPrompts onSelect={handleSuggestedPrompt} visible={!isStreaming} />
               ) : undefined
             }
           />
+          <ScrollToBottomButton visible={showScrollButton} onPress={handleScrollToBottom} />
         </View>
 
         {/* Input Area */}

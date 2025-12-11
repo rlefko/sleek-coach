@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, Easing } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { spacing } from '@/theme';
 
@@ -12,41 +12,52 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
   const dot1 = useRef(new Animated.Value(0)).current;
   const dot2 = useRef(new Animated.Value(0)).current;
   const dot3 = useRef(new Animated.Value(0)).current;
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
-    if (!visible) return;
+    // Reset animation values to ensure clean start
+    dot1.setValue(0);
+    dot2.setValue(0);
+    dot3.setValue(0);
 
-    const animateDot = (dot: Animated.Value, delay: number) => {
-      return Animated.sequence([
-        Animated.delay(delay),
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(dot, {
-              toValue: 1,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-            Animated.timing(dot, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-            Animated.delay(600),
-          ])
-        ),
-      ]);
+    if (!visible) {
+      return;
+    }
+
+    const createBounceAnimation = (dot: Animated.Value, delay: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(dot, {
+            toValue: 1,
+            duration: 300,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: true,
+          }),
+          Animated.timing(dot, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: true,
+          }),
+        ])
+      );
     };
 
-    const animation = Animated.parallel([
-      animateDot(dot1, 0),
-      animateDot(dot2, 200),
-      animateDot(dot3, 400),
+    animationRef.current = Animated.parallel([
+      createBounceAnimation(dot1, 0),
+      createBounceAnimation(dot2, 150),
+      createBounceAnimation(dot3, 300),
     ]);
 
-    animation.start();
+    animationRef.current.start();
 
     return () => {
-      animation.stop();
+      animationRef.current?.stop();
+      // Reset values on cleanup
+      dot1.setValue(0);
+      dot2.setValue(0);
+      dot3.setValue(0);
     };
   }, [visible, dot1, dot2, dot3]);
 
@@ -56,22 +67,25 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
     backgroundColor: theme.colors.onSurfaceVariant,
   };
 
+  // Bounce height of -6 pixels (upward)
+  const BOUNCE_HEIGHT = -6;
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]}
+      testID="typing-indicator"
+    >
       <Animated.View
+        testID="typing-dot"
         style={[
           styles.dot,
           dotStyle,
           {
-            opacity: dot1.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.3, 1],
-            }),
             transform: [
               {
-                scale: dot1.interpolate({
+                translateY: dot1.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0.8, 1.2],
+                  outputRange: [0, BOUNCE_HEIGHT],
                 }),
               },
             ],
@@ -79,19 +93,16 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
         ]}
       />
       <Animated.View
+        testID="typing-dot"
         style={[
           styles.dot,
           dotStyle,
           {
-            opacity: dot2.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.3, 1],
-            }),
             transform: [
               {
-                scale: dot2.interpolate({
+                translateY: dot2.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0.8, 1.2],
+                  outputRange: [0, BOUNCE_HEIGHT],
                 }),
               },
             ],
@@ -99,19 +110,16 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
         ]}
       />
       <Animated.View
+        testID="typing-dot"
         style={[
           styles.dot,
           dotStyle,
           {
-            opacity: dot3.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.3, 1],
-            }),
             transform: [
               {
-                scale: dot3.interpolate({
+                translateY: dot3.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [0.8, 1.2],
+                  outputRange: [0, BOUNCE_HEIGHT],
                 }),
               },
             ],
