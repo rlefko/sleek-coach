@@ -24,19 +24,23 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
       return;
     }
 
-    const createBounceAnimation = (dot: Animated.Value, delay: number) => {
+    const BOUNCE_DURATION = 300;
+    const STAGGER_DELAY = 150;
+
+    // Create a continuous bounce animation for a single dot
+    // No delay inside the loop - stagger handles the offset
+    const createBounceLoop = (dot: Animated.Value) => {
       return Animated.loop(
         Animated.sequence([
-          Animated.delay(delay),
           Animated.timing(dot, {
             toValue: 1,
-            duration: 300,
+            duration: BOUNCE_DURATION,
             easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.timing(dot, {
             toValue: 0,
-            duration: 300,
+            duration: BOUNCE_DURATION,
             easing: Easing.in(Easing.quad),
             useNativeDriver: true,
           }),
@@ -44,10 +48,13 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ visible = true
       );
     };
 
-    animationRef.current = Animated.parallel([
-      createBounceAnimation(dot1, 0),
-      createBounceAnimation(dot2, 150),
-      createBounceAnimation(dot3, 300),
+    // Use stagger to start animations at intervals
+    // First dot starts immediately, subsequent dots at STAGGER_DELAY intervals
+    // This eliminates the static period before animation begins
+    animationRef.current = Animated.stagger(STAGGER_DELAY, [
+      createBounceLoop(dot1),
+      createBounceLoop(dot2),
+      createBounceLoop(dot3),
     ]);
 
     animationRef.current.start();

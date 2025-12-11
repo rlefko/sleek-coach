@@ -45,4 +45,38 @@ describe('TypingIndicator', () => {
       expect(flattenedStyle.backgroundColor).toBe(MD3DarkTheme.colors.surfaceVariant);
     });
   });
+
+  describe('animation lifecycle', () => {
+    it('handles visibility toggle without error', () => {
+      const { queryByTestId, rerender } = renderWithProvider(<TypingIndicator visible={true} />);
+
+      // Initially visible with three dots
+      expect(queryByTestId('typing-indicator')).toBeTruthy();
+
+      // Toggle to hidden
+      rerender(
+        <PaperProvider theme={MD3DarkTheme}>
+          <TypingIndicator visible={false} />
+        </PaperProvider>
+      );
+      expect(queryByTestId('typing-indicator')).toBeNull();
+
+      // Toggle back to visible - animation should restart cleanly
+      rerender(
+        <PaperProvider theme={MD3DarkTheme}>
+          <TypingIndicator visible={true} />
+        </PaperProvider>
+      );
+      expect(queryByTestId('typing-indicator')).toBeTruthy();
+    });
+
+    it('cleans up animation on unmount', () => {
+      const { unmount, getByTestId } = renderWithProvider(<TypingIndicator visible={true} />);
+
+      expect(getByTestId('typing-indicator')).toBeTruthy();
+
+      // Should unmount without error (cleanup function runs)
+      expect(() => unmount()).not.toThrow();
+    });
+  });
 });

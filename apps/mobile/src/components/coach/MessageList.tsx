@@ -27,6 +27,7 @@ export interface MessageListRef {
 }
 
 const SCROLL_THRESHOLD = 100; // pixels from bottom to consider "at bottom"
+const SCROLL_THROTTLE_MS = 100; // minimum time between scroll commands during streaming
 
 export const MessageList = forwardRef<MessageListRef, MessageListProps>(function MessageList(
   { messages, isStreaming, onRetryMessage, ListHeaderComponent, onScrollPositionChange },
@@ -38,6 +39,7 @@ export const MessageList = forwardRef<MessageListRef, MessageListProps>(function
   const contentHeightRef = useRef(0);
   const layoutHeightRef = useRef(0);
   const isInitialRenderRef = useRef(true);
+  const lastScrollTimeRef = useRef(0);
 
   // Expose scrollToEnd method via ref
   useImperativeHandle(ref, () => ({
@@ -62,25 +64,54 @@ export const MessageList = forwardRef<MessageListRef, MessageListProps>(function
     setIsAtBottom(atBottom);
   }, []);
 
+  // Throttled scroll to prevent jitter during streaming
+  const throttledScrollToEnd = useCallback((animated: boolean) => {
+    const now = Date.now();
+    if (now - lastScrollTimeRef.current >= SCROLL_THROTTLE_MS) {
+      lastScrollTimeRef.current = now;
+      flatListRef.current?.scrollToEnd({ animated });
+    }
+  }, []);
+
   const handleContentSizeChange = useCallback(
     (_width: number, height: number) => {
       contentHeightRef.current = height;
 
-      // Always scroll on initial render, otherwise only if at bottom
-      if (isInitialRenderRef.current || isAtBottom) {
-        flatListRef.current?.scrollToEnd({ animated: !isInitialRenderRef.current });
+      // Always scroll on initial render (no throttle)
+      if (isInitialRenderRef.current) {
+        flatListRef.current?.scrollToEnd({ animated: false });
         isInitialRenderRef.current = false;
+        lastScrollTimeRef.current = Date.now();
+        return;
+      }
+
+      // Only scroll if at bottom
+      if (isAtBottom) {
+        if (isStreaming) {
+          // During streaming: throttle scroll commands to prevent jitter
+          throttledScrollToEnd(true);
+        } else {
+          // Not streaming: immediate scroll (e.g., new message sent)
+          flatListRef.current?.scrollToEnd({ animated: true });
+          lastScrollTimeRef.current = Date.now();
+        }
       }
     },
-    [isAtBottom]
+    [isAtBottom, isStreaming, throttledScrollToEnd]
   );
 
   const handleLayout = useCallback(() => {
-    // Only auto-scroll on layout if at bottom (prevents jump during keyboard changes when scrolled up)
+    // Skip auto-scroll during streaming - handleContentSizeChange handles it
+    // This prevents competing scroll commands that cause jitter
+    if (isStreaming) {
+      return;
+    }
+
+    // Only auto-scroll on layout if at bottom (for keyboard/rotation changes)
     if (isAtBottom) {
       flatListRef.current?.scrollToEnd({ animated: false });
     }
-  }, [isAtBottom]);
+  }, [isAtBottom, isStreaming]);
 
   const renderMessage = useCallback(
     ({ item }: { item: ChatMessage }) => (
