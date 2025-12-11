@@ -1,3 +1,5 @@
+import EventSource, { type MessageEvent } from 'react-native-sse';
+
 import { getApiBaseUrl } from '@/constants/config';
 import { useAuthStore } from '@/stores/authStore';
 import { apiClient } from './client';
@@ -10,75 +12,6 @@ import type {
   InsightsResponse,
 } from './types';
 
-/**
- * Extract human-readable error message from API error response.
- * Handles FastAPI/Pydantic validation errors which return detail as an array of objects.
- */
-function extractErrorMessage(detail: unknown): string {
-  if (typeof detail === 'string') {
-    return detail;
-  }
-  if (Array.isArray(detail)) {
-    // Pydantic validation errors are arrays of {type, loc, msg, input, ctx}
-    const messages = detail
-      .map((err) =>
-        typeof err === 'object' && err !== null && 'msg' in err ? err.msg : String(err)
-      )
-      .filter(Boolean);
-    return messages.length > 0 ? messages.join(', ') : 'Validation error';
-  }
-  if (typeof detail === 'object' && detail !== null) {
-    // Handle object with 'msg' or 'message' property
-    if ('msg' in detail) return String((detail as { msg: unknown }).msg);
-    if ('message' in detail) return String((detail as { message: unknown }).message);
-  }
-  return 'An error occurred';
-}
-
-/**
- * Parse SSE events from a ReadableStream
- */
-async function* parseSSE(
-  reader: ReadableStreamDefaultReader<Uint8Array>
-): AsyncGenerator<StreamEvent> {
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const jsonStr = line.slice(6).trim();
-        if (jsonStr) {
-          try {
-            yield JSON.parse(jsonStr) as StreamEvent;
-          } catch {
-            // Skip malformed JSON
-          }
-        }
-      }
-    }
-  }
-
-  // Process any remaining data in buffer
-  if (buffer.startsWith('data: ')) {
-    const jsonStr = buffer.slice(6).trim();
-    if (jsonStr) {
-      try {
-        yield JSON.parse(jsonStr) as StreamEvent;
-      } catch {
-        // Skip malformed JSON
-      }
-    }
-  }
-}
-
 export const coachService = {
   /**
    * Send a chat message and get a complete response (non-streaming)
@@ -86,46 +19,95 @@ export const coachService = {
   chat: (request: ChatRequest): Promise<ChatResponse> => apiClient.post('/coach/chat', request),
 
   /**
-   * Send a chat message and receive streaming SSE events
+   * Send a chat message and receive streaming SSE events.
+   * Uses react-native-sse for React Native compatibility.
    */
   chatStream: async function* (request: ChatRequest): AsyncGenerator<StreamEvent> {
     const baseUrl = getApiBaseUrl();
     const accessToken = useAuthStore.getState().accessToken;
 
-    const response = await fetch(`${baseUrl}/coach/chat/stream`, {
-      method: 'POST',
+    // Promise-based queue to bridge EventSource events to async generator
+    const eventQueue: StreamEvent[] = [];
+    let resolveNext: ((value: StreamEvent | null) => void) | null = null;
+    let isDone = false;
+
+    const es = new EventSource<'message' | 'error'>(`${baseUrl}/coach/chat/stream`, {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
+      method: 'POST',
       body: JSON.stringify(request),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Stream request failed' }));
-      yield {
-        type: 'error',
-        data: extractErrorMessage(errorData.detail),
-      };
-      return;
-    }
+    const pushEvent = (event: StreamEvent) => {
+      if (resolveNext) {
+        resolveNext(event);
+        resolveNext = null;
+      } else {
+        eventQueue.push(event);
+      }
+    };
 
-    const reader = response.body?.getReader();
-    if (!reader) {
-      yield {
-        type: 'error',
-        data: 'Failed to get response stream reader',
-      };
-      return;
-    }
+    const signalDone = () => {
+      isDone = true;
+      if (resolveNext) {
+        resolveNext(null);
+        resolveNext = null;
+      }
+    };
 
+    // Handle SSE message events
+    es.addEventListener('message', (e: MessageEvent) => {
+      if (e.data) {
+        try {
+          const parsed = JSON.parse(e.data) as StreamEvent;
+          pushEvent(parsed);
+
+          if (parsed.type === 'done' || parsed.type === 'error') {
+            signalDone();
+            es.close();
+          }
+        } catch {
+          // Skip malformed JSON
+        }
+      }
+    });
+
+    // Handle connection errors
+    es.addEventListener('error', (e) => {
+      const errorMessage = e instanceof Error ? e.message : 'Connection error occurred';
+      pushEvent({ type: 'error', data: errorMessage });
+      signalDone();
+      es.close();
+    });
+
+    // Async generator yielding from the queue
     try {
-      for await (const event of parseSSE(reader)) {
-        yield event;
+      while (!isDone || eventQueue.length > 0) {
+        if (eventQueue.length > 0) {
+          const event = eventQueue.shift()!;
+          yield event;
+          if (event.type === 'done' || event.type === 'error') {
+            break;
+          }
+        } else if (!isDone) {
+          // Wait for next event
+          const event = await new Promise<StreamEvent | null>((resolve) => {
+            resolveNext = resolve;
+          });
+          if (event === null) {
+            break;
+          }
+          yield event;
+          if (event.type === 'done' || event.type === 'error') {
+            break;
+          }
+        }
       }
     } finally {
-      reader.releaseLock();
+      es.close();
     }
   },
 
