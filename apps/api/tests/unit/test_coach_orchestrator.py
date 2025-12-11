@@ -177,6 +177,7 @@ class TestCoachOrchestratorProcessMessage:
                         tool_calls=[
                             {
                                 "id": "call_123",
+                                "type": "function",
                                 "function": {
                                     "name": "get_user_profile",
                                     "arguments": "{}",
@@ -241,6 +242,7 @@ class TestCoachOrchestratorProcessMessage:
                     tool_calls=[
                         {
                             "id": "call_123",
+                            "type": "function",
                             "function": {
                                 "name": "get_user_profile",
                                 "arguments": "{}",
