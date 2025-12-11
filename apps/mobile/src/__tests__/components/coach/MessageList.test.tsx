@@ -140,4 +140,77 @@ describe('MessageList', () => {
       expect(getByText('Test')).toBeTruthy();
     });
   });
+
+  describe('scroll behavior during streaming', () => {
+    it('does not throw when content updates rapidly during streaming', () => {
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+      ];
+
+      const { rerender } = render(<MessageList messages={messages} isStreaming={true} />);
+
+      // Simulate rapid message updates during streaming
+      // The component should handle this without error due to throttling
+      const updatedMessages = [
+        ...messages,
+        createMockMessage({ id: '2', content: 'H', role: 'assistant', status: 'streaming' }),
+      ];
+
+      expect(() => {
+        rerender(<MessageList messages={updatedMessages} isStreaming={true} />);
+      }).not.toThrow();
+
+      // Simulate more content arriving
+      const moreContent = [
+        ...messages,
+        createMockMessage({
+          id: '2',
+          content: 'Hello there!',
+          role: 'assistant',
+          status: 'streaming',
+        }),
+      ];
+
+      expect(() => {
+        rerender(<MessageList messages={moreContent} isStreaming={true} />);
+      }).not.toThrow();
+    });
+
+    it('handles transition from streaming to not streaming', () => {
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+        createMockMessage({ id: '2', content: 'Response', role: 'assistant', status: 'streaming' }),
+      ];
+
+      const { rerender, queryByTestId } = render(
+        <MessageList messages={messages} isStreaming={true} />
+      );
+
+      // During streaming with assistant message, no typing indicator shown
+      expect(queryByTestId('typing-indicator')).toBeNull();
+
+      // Complete streaming
+      const completedMessages = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+        createMockMessage({ id: '2', content: 'Response', role: 'assistant', status: 'complete' }),
+      ];
+
+      expect(() => {
+        rerender(<MessageList messages={completedMessages} isStreaming={false} />);
+      }).not.toThrow();
+    });
+
+    it('scrollToEnd ref method works during streaming', () => {
+      const ref = createRef<MessageListRef>();
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+      ];
+
+      render(<MessageList ref={ref} messages={messages} isStreaming={true} />);
+
+      // Manual scroll should work regardless of streaming state
+      expect(() => ref.current?.scrollToEnd(true)).not.toThrow();
+      expect(() => ref.current?.scrollToEnd(false)).not.toThrow();
+    });
+  });
 });
