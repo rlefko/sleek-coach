@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { spacing } from '@/theme';
@@ -91,9 +91,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             />
           )}
 
-          {isStreaming && (
+          {isStreaming && message.content && (
             <View style={styles.streamingIndicator}>
-              <Icon name="loading" size={14} color={theme.colors.onSurfaceVariant} />
+              <ActivityIndicator size="small" color={theme.colors.onSurfaceVariant} />
             </View>
           )}
 
