@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import uuid
+from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.core.datetime_utils import normalize_to_naive_utc
-
-if TYPE_CHECKING:
-    import uuid
-    from datetime import datetime
 
 
 class ChatMessage(BaseModel):

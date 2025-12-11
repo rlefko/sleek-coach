@@ -88,6 +88,9 @@ known-first-party = ["app"]
 # FastAPI routers need runtime access to types for dependency injection
 "app/*/router.py" = ["TC001", "TC002", "TC003"]
 "app/**/router.py" = ["TC001", "TC002", "TC003"]
+# Pydantic schemas need runtime access to types for model validation
+"app/*/schemas.py" = ["TC001", "TC002", "TC003"]
+"app/**/schemas.py" = ["TC001", "TC002", "TC003"]
 # Test files have common patterns that trigger style rules
 "tests/**/*.py" = [
     "SIM117",  # Nested with statements are common in test mocking
