@@ -2,11 +2,59 @@ import { useChatStore } from '@/stores/chatStore';
 
 // Storage is mocked globally in jest.setup.js
 
+// UUID v4 format regex: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+// where y is one of 8, 9, a, or b
+const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 describe('chatStore', () => {
   beforeEach(() => {
     // Reset the store state before each test
     const { clearAllSessions } = useChatStore.getState();
     clearAllSessions();
+  });
+
+  describe('UUID format validation', () => {
+    it('generates valid UUID v4 format for session IDs', () => {
+      const { createSession } = useChatStore.getState();
+      const sessionId = createSession();
+
+      expect(sessionId).toMatch(UUID_V4_REGEX);
+    });
+
+    it('generates unique UUIDs for multiple sessions', () => {
+      const { createSession } = useChatStore.getState();
+
+      const sessionId1 = createSession();
+      const sessionId2 = createSession();
+      const sessionId3 = createSession();
+
+      expect(sessionId1).toMatch(UUID_V4_REGEX);
+      expect(sessionId2).toMatch(UUID_V4_REGEX);
+      expect(sessionId3).toMatch(UUID_V4_REGEX);
+      expect(new Set([sessionId1, sessionId2, sessionId3]).size).toBe(3);
+    });
+
+    it('generates valid UUID v4 format for message IDs', () => {
+      const { createSession, addMessage } = useChatStore.getState();
+      const sessionId = createSession();
+      const messageId = addMessage({
+        role: 'user',
+        content: 'Test',
+        timestamp: new Date().toISOString(),
+        sessionId,
+        status: 'complete',
+      });
+
+      expect(messageId).toMatch(UUID_V4_REGEX);
+    });
+
+    it('generates valid UUID v4 format for streaming message IDs', () => {
+      const { createSession, startStreaming } = useChatStore.getState();
+      const sessionId = createSession();
+      const streamingMessageId = startStreaming(sessionId);
+
+      expect(streamingMessageId).toMatch(UUID_V4_REGEX);
+    });
   });
 
   describe('initial state', () => {
