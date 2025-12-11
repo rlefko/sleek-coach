@@ -114,7 +114,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               name="password"
               label="Password"
               secureTextEntry={!showPassword}
-              textContentType="newPassword"
+              textContentType="oneTimeCode"
               autoComplete="new-password"
               right={
                 <IconButton
@@ -132,7 +132,7 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               name="confirmPassword"
               label="Confirm Password"
               secureTextEntry={!showConfirmPassword}
-              textContentType="newPassword"
+              textContentType="oneTimeCode"
               autoComplete="new-password"
               right={
                 <IconButton
