@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.datetime_utils import normalize_to_naive_utc
 
 if TYPE_CHECKING:
     import uuid
@@ -17,6 +19,12 @@ class ChatMessage(BaseModel):
     role: str  # "user" or "assistant"
     content: str
     timestamp: datetime | None = None
+
+    @field_validator("timestamp", mode="after")
+    @classmethod
+    def normalize_datetime(cls, v: datetime | None) -> datetime | None:
+        """Normalize timezone-aware datetime to naive UTC."""
+        return normalize_to_naive_utc(v)
 
 
 class ToolTrace(BaseModel):
@@ -70,6 +78,12 @@ class WeeklyPlanRequest(BaseModel):
 
     start_date: datetime | None = None
     preferences: dict[str, str] | None = None
+
+    @field_validator("start_date", mode="after")
+    @classmethod
+    def normalize_datetime(cls, v: datetime | None) -> datetime | None:
+        """Normalize timezone-aware datetime to naive UTC."""
+        return normalize_to_naive_utc(v)
 
 
 class DailyTarget(BaseModel):

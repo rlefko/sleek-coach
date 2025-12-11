@@ -3,7 +3,9 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.datetime_utils import normalize_to_naive_utc
 
 from .models import ActivityLevel, ConsentType, DietType, GoalType, PacePreference, Sex
 
@@ -48,6 +50,12 @@ class UserGoalUpdate(BaseModel):
     target_weight_kg: float | None = Field(None, ge=20, le=500)
     pace_preference: PacePreference | None = None
     target_date: datetime | None = None
+
+    @field_validator("target_date", mode="after")
+    @classmethod
+    def normalize_datetime(cls, v: datetime | None) -> datetime | None:
+        """Normalize timezone-aware datetime to naive UTC."""
+        return normalize_to_naive_utc(v)
 
 
 # Diet Preferences Schemas
