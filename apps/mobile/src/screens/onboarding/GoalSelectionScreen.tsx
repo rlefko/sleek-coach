@@ -24,7 +24,7 @@ const goalIcons: Record<
 
 export const GoalSelectionScreen: React.FC<Props> = ({ navigation }) => {
   const { theme } = useAppTheme();
-  const { currentStep, totalSteps, data, updateData } = useOnboardingStore();
+  const { currentStep, totalSteps, data, updateData, nextStep } = useOnboardingStore();
 
   const handleGoalSelect = (goalType: GoalType) => {
     updateData({ goalType });
@@ -32,7 +32,8 @@ export const GoalSelectionScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleContinue = () => {
     if (data.goalType) {
-      navigation.navigate('BaselineMetrics');
+      nextStep();
+      navigation.navigate('MeasurementSystem');
     }
   };
 

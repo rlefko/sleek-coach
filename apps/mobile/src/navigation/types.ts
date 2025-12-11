@@ -46,6 +46,7 @@ export type SettingsStackParamList = {
 // Onboarding Stack
 export type OnboardingStackParamList = {
   GoalSelection: undefined;
+  MeasurementSystem: undefined;
   BaselineMetrics: undefined;
   TimelinePreferences: undefined;
   DietPreferences: undefined;

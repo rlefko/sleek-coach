@@ -1,64 +1,88 @@
-import React, { useCallback } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
-import { Text, useTheme, IconButton, SegmentedButtons } from 'react-native-paper';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, useTheme, TextInput } from 'react-native-paper';
 import { spacing } from '@/theme';
 
 interface WeightInputProps {
   value: number | undefined;
   onChange: (value: number | undefined) => void;
   unit: 'kg' | 'lbs';
-  onUnitChange: (unit: 'kg' | 'lbs') => void;
   lastWeight?: number;
   disabled?: boolean;
 }
 
-const STEP = 0.1;
 const MIN_WEIGHT_KG = 20;
 const MAX_WEIGHT_KG = 500;
-
-// Conversion constant
 const KG_TO_LBS = 2.20462;
 
 function convertFromKg(value: number, unit: 'kg' | 'lbs'): number {
   return unit === 'lbs' ? value * KG_TO_LBS : value;
 }
 
+function convertToKg(value: number, unit: 'kg' | 'lbs'): number {
+  return unit === 'lbs' ? value / KG_TO_LBS : value;
+}
+
 export const WeightInput: React.FC<WeightInputProps> = ({
   value,
   onChange,
   unit,
-  onUnitChange,
   lastWeight,
   disabled = false,
 }) => {
   const theme = useTheme();
 
-  const displayValue = value !== undefined ? convertFromKg(value, unit) : undefined;
-  const displayLastWeight = lastWeight !== undefined ? convertFromKg(lastWeight, unit) : undefined;
+  // Track the text input value separately for better UX during editing
+  const [textValue, setTextValue] = useState<string>('');
 
-  const handleIncrement = useCallback(() => {
-    if (disabled) return;
-    const currentKg = value ?? lastWeight ?? 70;
-    const newKg = Math.min(currentKg + STEP, MAX_WEIGHT_KG);
-    onChange(Math.round(newKg * 10) / 10);
-  }, [value, lastWeight, onChange, disabled]);
+  // Sync text value with prop value when prop changes externally
+  useEffect(() => {
+    if (value !== undefined) {
+      const displayValue = convertFromKg(value, unit);
+      setTextValue(displayValue.toFixed(1));
+    } else {
+      setTextValue('');
+    }
+  }, [value, unit]);
 
-  const handleDecrement = useCallback(() => {
-    if (disabled) return;
-    const currentKg = value ?? lastWeight ?? 70;
-    const newKg = Math.max(currentKg - STEP, MIN_WEIGHT_KG);
-    onChange(Math.round(newKg * 10) / 10);
-  }, [value, lastWeight, onChange, disabled]);
+  const displayLastWeight =
+    lastWeight !== undefined ? convertFromKg(lastWeight, unit).toFixed(1) : undefined;
 
-  const handleUnitChange = useCallback(
-    (newUnit: string) => {
-      onUnitChange(newUnit as 'kg' | 'lbs');
+  const handleTextChange = useCallback(
+    (text: string) => {
+      if (disabled) return;
+
+      // Update the display text immediately for responsive feel
+      setTextValue(text);
+
+      // Allow empty input
+      if (text === '' || text === '.') {
+        onChange(undefined);
+        return;
+      }
+
+      // Parse and validate
+      const numericValue = parseFloat(text);
+      if (isNaN(numericValue)) return;
+
+      // Convert to kg for storage
+      const valueInKg = convertToKg(numericValue, unit);
+
+      // Validate bounds (in kg)
+      if (valueInKg >= MIN_WEIGHT_KG && valueInKg <= MAX_WEIGHT_KG) {
+        onChange(Math.round(valueInKg * 100) / 100);
+      }
     },
-    [onUnitChange]
+    [onChange, unit, disabled]
   );
 
-  const formattedValue = displayValue !== undefined ? displayValue.toFixed(1) : '--.-';
-  const formattedLastWeight = displayLastWeight?.toFixed(1);
+  const handleBlur = useCallback(() => {
+    // On blur, format the value nicely if it's valid
+    if (value !== undefined) {
+      const displayValue = convertFromKg(value, unit);
+      setTextValue(displayValue.toFixed(1));
+    }
+  }, [value, unit]);
 
   return (
     <View style={styles.container}>
@@ -66,60 +90,29 @@ export const WeightInput: React.FC<WeightInputProps> = ({
         <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>
           Weight
         </Text>
-        <SegmentedButtons
-          value={unit}
-          onValueChange={handleUnitChange}
-          buttons={[
-            { value: 'kg', label: 'kg' },
-            { value: 'lbs', label: 'lbs' },
-          ]}
-          style={styles.unitToggle}
-          density="small"
-        />
       </View>
 
       <View style={styles.inputContainer}>
-        <IconButton
-          icon="minus"
-          mode="contained-tonal"
-          size={28}
-          onPress={handleDecrement}
+        <TextInput
+          mode="outlined"
+          keyboardType="decimal-pad"
+          value={textValue}
+          onChangeText={handleTextChange}
+          onBlur={handleBlur}
           disabled={disabled}
-        />
-
-        <Pressable
-          onPress={() => !disabled && onChange(lastWeight ?? 70)}
-          style={styles.valueContainer}
-        >
-          <Text
-            variant="displayLarge"
-            style={[
-              styles.value,
-              { color: value ? theme.colors.primary : theme.colors.onSurfaceVariant },
-            ]}
-          >
-            {formattedValue}
-          </Text>
-          <Text variant="titleMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-            {unit}
-          </Text>
-        </Pressable>
-
-        <IconButton
-          icon="plus"
-          mode="contained-tonal"
-          size={28}
-          onPress={handleIncrement}
-          disabled={disabled}
+          style={styles.textInput}
+          placeholder={displayLastWeight ?? '--.-'}
+          right={<TextInput.Affix text={unit} />}
+          contentStyle={styles.textInputContent}
         />
       </View>
 
-      {formattedLastWeight && (
+      {displayLastWeight && (
         <Text
           variant="bodySmall"
           style={[styles.lastWeight, { color: theme.colors.onSurfaceVariant }]}
         >
-          Last: {formattedLastWeight} {unit}
+          Last: {displayLastWeight} {unit}
         </Text>
       )}
     </View>
@@ -134,29 +127,20 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     width: '100%',
     marginBottom: spacing.md,
   },
-  unitToggle: {
-    width: 120,
-  },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
+    width: '100%',
+    maxWidth: 200,
   },
-  valueContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'center',
-    minWidth: 140,
-    gap: spacing.xs,
-  },
-  value: {
-    fontWeight: '300',
+  textInput: {
     textAlign: 'center',
+  },
+  textInputContent: {
+    textAlign: 'center',
+    fontSize: 24,
   },
   lastWeight: {
     marginTop: spacing.sm,

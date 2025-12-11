@@ -16,7 +16,7 @@ describe('onboardingStore', () => {
 
       const state = useOnboardingStore.getState();
       expect(state.currentStep).toBe(0);
-      expect(state.totalSteps).toBe(6);
+      expect(state.totalSteps).toBe(7);
       expect(state.isComplete).toBe(false);
       expect(state.isSubmitting).toBe(false);
     });
@@ -26,6 +26,7 @@ describe('onboardingStore', () => {
       reset();
 
       const state = useOnboardingStore.getState();
+      expect(state.data.measurementSystem).toBe('metric');
       expect(state.data.mealsPerDay).toBe(3);
       expect(state.data.allergies).toEqual([]);
       expect(state.data.dislikedFoods).toEqual([]);
@@ -49,7 +50,7 @@ describe('onboardingStore', () => {
     it('can set to any valid step', () => {
       const { setStep } = useOnboardingStore.getState();
 
-      [0, 1, 2, 3, 4, 5].forEach((step) => {
+      [0, 1, 2, 3, 4, 5, 6].forEach((step) => {
         setStep(step);
         expect(useOnboardingStore.getState().currentStep).toBe(step);
       });
@@ -71,13 +72,13 @@ describe('onboardingStore', () => {
     it('does not advance past totalSteps', () => {
       const { setStep, nextStep } = useOnboardingStore.getState();
 
-      // Set to last step (totalSteps - 1 = 5)
-      setStep(5);
-      expect(useOnboardingStore.getState().currentStep).toBe(5);
+      // Set to last step (totalSteps - 1 = 6)
+      setStep(6);
+      expect(useOnboardingStore.getState().currentStep).toBe(6);
 
       // Try to advance past last step
       nextStep();
-      expect(useOnboardingStore.getState().currentStep).toBe(5);
+      expect(useOnboardingStore.getState().currentStep).toBe(6);
     });
 
     it('stops at totalSteps - 1', () => {
@@ -88,7 +89,7 @@ describe('onboardingStore', () => {
         nextStep();
       }
 
-      expect(useOnboardingStore.getState().currentStep).toBe(5); // totalSteps - 1
+      expect(useOnboardingStore.getState().currentStep).toBe(6); // totalSteps - 1
     });
   });
 

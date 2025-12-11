@@ -14,7 +14,10 @@ interface OnboardingData {
   // Step 1: Goal Selection
   goalType?: GoalType;
 
-  // Step 2: Baseline Metrics
+  // Step 2: Measurement System
+  measurementSystem?: 'metric' | 'imperial';
+
+  // Step 3: Baseline Metrics
   currentWeightKg?: number;
   targetWeightKg?: number;
   heightCm?: number;
@@ -22,17 +25,17 @@ interface OnboardingData {
   sex?: Sex;
   activityLevel?: ActivityLevel;
 
-  // Step 3: Timeline Preferences
+  // Step 4: Timeline Preferences
   pacePreference?: PacePreference;
   targetDate?: string | null;
 
-  // Step 4: Diet Preferences
+  // Step 5: Diet Preferences
   dietType?: DietType;
   allergies?: string[];
   dislikedFoods?: string[];
   mealsPerDay?: number;
 
-  // Step 5: Privacy Settings
+  // Step 6: Privacy Settings
   allowWebSearch?: boolean;
   photoVisibility?: PhotoVisibility;
   allowDataSharing?: boolean;
@@ -58,9 +61,10 @@ interface OnboardingActions {
 
 const initialState: OnboardingState = {
   currentStep: 0,
-  totalSteps: 6,
+  totalSteps: 7,
   data: {
     // Default values
+    measurementSystem: 'metric',
     mealsPerDay: 3,
     allergies: [],
     dislikedFoods: [],

@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, ScrollView, Alert, Share, Platform } from 'react-native';
-import { Text, List, Divider, Switch, Snackbar } from 'react-native-paper';
+import { StyleSheet, ScrollView, Alert, Share, Platform, View } from 'react-native';
+import { Text, List, Divider, Switch, Snackbar, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Paths, File as ExpoFile } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -8,6 +8,7 @@ import { Card } from '@/components/ui';
 import { ChangePasswordDialog, DeleteAccountDialog } from '@/components/settings';
 import { useAppTheme, spacing } from '@/theme';
 import { useAuthStore } from '@/stores/authStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useUser, useExportData } from '@/services/hooks/useUser';
 import { authService } from '@/services/api';
 import type { SettingsScreenProps } from '@/navigation/types';
@@ -16,6 +17,8 @@ type Props = SettingsScreenProps<'Settings'>;
 
 export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
   const { theme, themeMode, setThemeMode, isDark } = useAppTheme();
+  const unitSystem = useUIStore((s) => s.unitSystem);
+  const setUnitSystem = useUIStore((s) => s.setUnitSystem);
   const { data: user } = useUser();
   const exportData = useExportData();
   const { refreshToken, logout } = useAuthStore();
@@ -140,6 +143,21 @@ export const SettingsScreen: React.FC<Props> = ({ navigation }) => {
                 />
               )}
             />
+            <Divider />
+            <List.Item
+              title="Measurement System"
+              left={(props) => <List.Icon {...props} icon="ruler" />}
+            />
+            <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.sm }}>
+              <SegmentedButtons
+                value={unitSystem}
+                onValueChange={(value) => setUnitSystem(value as 'metric' | 'imperial')}
+                buttons={[
+                  { value: 'metric', label: 'Metric' },
+                  { value: 'imperial', label: 'Imperial' },
+                ]}
+              />
+            </View>
           </List.Section>
         </Card>
 

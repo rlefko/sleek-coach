@@ -14,7 +14,7 @@ type Props = OnboardingScreenProps<'DietPreferences'>;
 
 export const DietPreferencesScreen: React.FC<Props> = ({ navigation }) => {
   const { theme } = useAppTheme();
-  const { currentStep, totalSteps, data, updateData } = useOnboardingStore();
+  const { currentStep, totalSteps, data, updateData, nextStep } = useOnboardingStore();
 
   const handleDietTypeSelect = (dietType: DietType) => {
     updateData({ dietType });
@@ -33,6 +33,7 @@ export const DietPreferencesScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleContinue = () => {
+    nextStep();
     navigation.navigate('PrivacySettings');
   };
 
