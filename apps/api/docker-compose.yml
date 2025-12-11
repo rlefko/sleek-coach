@@ -5,18 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - APP_ENV=development
-      - DEBUG=true
-      - SECRET_KEY=dev-secret-key-minimum-32-characters-long
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/sleek_coach
-      - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET_KEY=dev-jwt-secret-key-32-chars-minimum
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
-      - AWS_REGION=us-east-1
-      - S3_BUCKET_NAME=sleek-coach-photos
-      - S3_ENDPOINT_URL=http://minio:9000
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy

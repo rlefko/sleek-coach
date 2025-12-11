@@ -141,8 +141,12 @@ ultracoach/
 git clone https://github.com/rlefkowitz/sleek-coach.git
 cd sleek-coach
 
-# Start all services with Docker Compose
+# Set up environment variables
 cd apps/api
+cp .env.example .env
+# Edit .env if you need to customize (defaults work out-of-box)
+
+# Start all services with Docker Compose
 docker compose up --build
 
 # The API is available at http://localhost:8000
@@ -175,6 +179,10 @@ This app uses React Native New Architecture and requires a development build (Ex
 
 ```bash
 cd apps/mobile
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env to point to your API server (defaults to localhost:8000)
 
 # Install dependencies
 npm install
@@ -231,40 +239,42 @@ npx detox test --configuration ios.sim.debug
 
 ## Environment Variables
 
-### Backend (.env)
+Both the backend and mobile apps use `.env` files for configuration. Template files are provided.
+
+### Backend
+
+Copy the template and customize as needed:
 
 ```bash
-# Application
-APP_ENV=development
-DEBUG=true
-
-# Database
-DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/sleekcoach
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# JWT
-JWT_SECRET_KEY=your-secret-key
-JWT_ALGORITHM=HS256
-
-# AWS/MinIO
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=minioadmin
-AWS_S3_BUCKET=sleek-coach-photos
-AWS_S3_ENDPOINT_URL=http://localhost:9000
-
-# AI Provider
-OPENAI_API_KEY=your-openai-key
+cd apps/api
+cp .env.example .env
 ```
+
+See `apps/api/.env.example` for all available options. Key variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | Docker: `db:5432`, Local: `localhost:5432` |
+| `REDIS_URL` | Redis connection string | Docker: `redis:6379`, Local: `localhost:6379` |
+| `OPENAI_API_KEY` | Required for AI coach features | (none) |
+| `S3_ENDPOINT_URL` | MinIO/S3 endpoint | Docker: `http://minio:9000` |
 
 ### Mobile
 
-Configure in `app.config.js` or environment:
+Copy the template and customize as needed:
 
 ```bash
-API_BASE_URL=http://localhost:8000
+cd apps/mobile
+cp .env.example .env
 ```
+
+See `apps/mobile/.env.example` for all available options. Key variable:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EXPO_PUBLIC_API_URL` | Backend API URL | `http://localhost:8000` |
+
+**Note:** For physical devices, use your computer's IP address instead of `localhost`.
 
 ## Development Workflow
 
