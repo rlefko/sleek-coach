@@ -1,4 +1,4 @@
-import { useChatStore } from '@/stores/chatStore';
+import { useChatStore, isValidUUID } from '@/stores/chatStore';
 
 // Storage is mocked globally in jest.setup.js
 
@@ -463,5 +463,51 @@ describe('chatStore', () => {
 
       expect(messages).toEqual([]);
     });
+  });
+});
+
+describe('isValidUUID', () => {
+  it('returns true for valid UUID v4 format', () => {
+    // Standard UUID v4 examples
+    expect(isValidUUID('550e8400-e29b-41d4-a716-446655440000')).toBe(true);
+    expect(isValidUUID('f47ac10b-58cc-4372-a567-0e02b2c3d479')).toBe(true);
+    expect(isValidUUID('7c9e6679-7425-40de-944b-e07fc1f90ae7')).toBe(true);
+  });
+
+  it('returns true for UUID v4 with uppercase characters', () => {
+    expect(isValidUUID('550E8400-E29B-41D4-A716-446655440000')).toBe(true);
+    expect(isValidUUID('F47AC10B-58CC-4372-A567-0E02B2C3D479')).toBe(true);
+  });
+
+  it('returns false for old base-36 timestamp format', () => {
+    // Old format: timestamp-randombase36
+    expect(isValidUUID('1733932800000-abc123xyz')).toBe(false);
+    expect(isValidUUID('1733932800000-defghijklm')).toBe(false);
+    expect(isValidUUID('1702483200000-xyz789abc')).toBe(false);
+  });
+
+  it('returns false for invalid UUID formats', () => {
+    // Missing sections
+    expect(isValidUUID('550e8400-e29b-41d4-a716')).toBe(false);
+    // Too short
+    expect(isValidUUID('550e8400')).toBe(false);
+    // No hyphens
+    expect(isValidUUID('550e8400e29b41d4a716446655440000')).toBe(false);
+    // Invalid characters (g-z are not hex)
+    expect(isValidUUID('550e8400-e29b-41d4-a716-44665544000z')).toBe(false);
+    // Wrong version (not 4)
+    expect(isValidUUID('550e8400-e29b-31d4-a716-446655440000')).toBe(false);
+    // Wrong variant (not 8, 9, a, or b)
+    expect(isValidUUID('550e8400-e29b-41d4-0716-446655440000')).toBe(false);
+  });
+
+  it('returns false for empty string', () => {
+    expect(isValidUUID('')).toBe(false);
+  });
+
+  it('returns false for random strings', () => {
+    expect(isValidUUID('not-a-uuid')).toBe(false);
+    expect(isValidUUID('hello world')).toBe(false);
+    expect(isValidUUID('12345')).toBe(false);
   });
 });

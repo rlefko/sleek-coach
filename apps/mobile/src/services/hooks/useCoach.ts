@@ -65,7 +65,7 @@ export const useChat = () => {
       // Send to API
       const response = await coachService.chat({
         message,
-        session_id: sessionId,
+        session_id: currentSessionId,
       });
 
       // Update session ID if different (server-generated)
@@ -123,7 +123,7 @@ export const useChatStream = () => {
       try {
         for await (const event of coachService.chatStream({
           message,
-          session_id: sessionId,
+          session_id: currentSessionId,
         })) {
           switch (event.type) {
             case 'token':
