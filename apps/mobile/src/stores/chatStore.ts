@@ -8,6 +8,18 @@ import type { ChatMessage, ChatSession, ToolTrace, DataGap } from '@/services/ap
 const MAX_MESSAGES_PER_SESSION = 200; // 100 rounds of conversation
 const MAX_SESSIONS_TO_KEEP = 50;
 
+// UUID v4 format regex: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+// where y is one of 8, 9, a, or b
+const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Validate that a string is a valid UUID v4 format.
+ * Used to filter out old sessions with invalid IDs from before UUID v4 migration.
+ */
+export function isValidUUID(id: string): boolean {
+  return UUID_V4_REGEX.test(id);
+}
+
 /**
  * Generate a cryptographically secure UUID v4 using expo-crypto.
  */
@@ -399,6 +411,35 @@ export const useChatStore = create<ChatState & ChatActions>()(
           messages: trimmedMessages,
           currentSessionId: state.currentSessionId,
         };
+      },
+      onRehydrateStorage: () => (state) => {
+        // Migration: Remove sessions with invalid UUIDs (from before UUID v4 migration)
+        if (state) {
+          const validSessions = state.sessions.filter((s) => isValidUUID(s.id));
+          const invalidCount = state.sessions.length - validSessions.length;
+
+          if (invalidCount > 0) {
+            const validSessionIds = new Set(validSessions.map((s) => s.id));
+
+            // Clean up messages for removed sessions
+            const validMessages: Record<string, ChatMessage[]> = {};
+            for (const [id, msgs] of Object.entries(state.messages)) {
+              if (validSessionIds.has(id)) {
+                validMessages[id] = msgs;
+              }
+            }
+
+            // Update state with only valid sessions
+            useChatStore.setState({
+              sessions: validSessions,
+              messages: validMessages,
+              currentSessionId:
+                state.currentSessionId && validSessionIds.has(state.currentSessionId)
+                  ? state.currentSessionId
+                  : null,
+            });
+          }
+        }
       },
     }
   )
