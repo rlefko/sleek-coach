@@ -171,20 +171,25 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ### Mobile Development
 
+This app uses React Native New Architecture and requires a development build (Expo Go is not supported).
+
 ```bash
 cd apps/mobile
 
 # Install dependencies
 npm install
 
-# Start Expo development server
-npx expo start
+# Generate native projects (first time only)
+npx expo prebuild
 
-# Run on iOS simulator
+# Build and run on iOS simulator (requires Xcode)
 npx expo run:ios
 
-# Run on Android emulator
+# Build and run on Android emulator (requires Android Studio)
 npx expo run:android
+
+# After initial build, start the dev server for hot reload
+npx expo start --dev-client
 ```
 
 ### Running Tests
