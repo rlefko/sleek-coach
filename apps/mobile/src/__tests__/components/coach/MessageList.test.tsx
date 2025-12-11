@@ -57,7 +57,7 @@ describe('MessageList', () => {
       expect(getByTestId('typing-indicator')).toBeTruthy();
     });
 
-    it('does not show typing indicator when last message is from assistant', () => {
+    it('does not show typing indicator when last message is from assistant with content', () => {
       const messages: ChatMessage[] = [
         createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
         createMockMessage({ id: '2', content: 'Response', role: 'assistant' }),
@@ -66,6 +66,44 @@ describe('MessageList', () => {
       const { queryByTestId } = render(<MessageList messages={messages} isStreaming={true} />);
 
       expect(queryByTestId('typing-indicator')).toBeNull();
+    });
+
+    it('shows typing indicator when streaming assistant message is empty', () => {
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+        createMockMessage({ id: '2', content: '', role: 'assistant', status: 'streaming' }),
+      ];
+
+      const { getByTestId } = render(<MessageList messages={messages} isStreaming={true} />);
+
+      expect(getByTestId('typing-indicator')).toBeTruthy();
+    });
+
+    it('hides typing indicator when streaming assistant message has content', () => {
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+        createMockMessage({ id: '2', content: 'Partial', role: 'assistant', status: 'streaming' }),
+      ];
+
+      const { queryByTestId } = render(<MessageList messages={messages} isStreaming={true} />);
+
+      expect(queryByTestId('typing-indicator')).toBeNull();
+    });
+
+    it('filters out empty streaming messages from display', () => {
+      const messages: ChatMessage[] = [
+        createMockMessage({ id: '1', content: 'Hello', role: 'user' }),
+        createMockMessage({ id: '2', content: '', role: 'assistant', status: 'streaming' }),
+      ];
+
+      const { queryByText, getByText } = render(
+        <MessageList messages={messages} isStreaming={true} />
+      );
+
+      // User message should be visible
+      expect(getByText('Hello')).toBeTruthy();
+      // Empty streaming message should not render its bubble (no "..." visible)
+      expect(queryByText('...')).toBeNull();
     });
   });
 

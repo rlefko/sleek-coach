@@ -3,6 +3,7 @@ import React, {
   useRef,
   useState,
   useEffect,
+  useMemo,
   forwardRef,
   useImperativeHandle,
 } from 'react';
@@ -27,7 +28,7 @@ export interface MessageListRef {
 }
 
 const SCROLL_THRESHOLD = 100; // pixels from bottom to consider "at bottom"
-const SCROLL_THROTTLE_MS = 100; // minimum time between scroll commands during streaming
+const SCROLL_THROTTLE_MS = 50; // minimum time between scroll commands during streaming (reduced for smoother scroll)
 
 export const MessageList = forwardRef<MessageListRef, MessageListProps>(function MessageList(
   { messages, isStreaming, onRetryMessage, ListHeaderComponent, onScrollPositionChange },
@@ -88,8 +89,10 @@ export const MessageList = forwardRef<MessageListRef, MessageListProps>(function
       // Only scroll if at bottom
       if (isAtBottom) {
         if (isStreaming) {
-          // During streaming: throttle scroll commands to prevent jitter
-          throttledScrollToEnd(true);
+          // During streaming: schedule scroll after layout settles for smoother behavior
+          requestAnimationFrame(() => {
+            throttledScrollToEnd(true);
+          });
         } else {
           // Not streaming: immediate scroll (e.g., new message sent)
           flatListRef.current?.scrollToEnd({ animated: true });
@@ -125,10 +128,25 @@ export const MessageList = forwardRef<MessageListRef, MessageListProps>(function
 
   const keyExtractor = useCallback((item: ChatMessage) => item.id, []);
 
-  // Show typing indicator when streaming and last message is not from assistant
-  // or when last assistant message is still streaming
+  // Filter messages to display - hide empty streaming messages (TypingIndicator shows instead)
+  const displayMessages = useMemo(() => {
+    return messages.filter(
+      (m) => !(m.role === 'assistant' && m.status === 'streaming' && !m.content)
+    );
+  }, [messages]);
+
+  // Show typing indicator when streaming and:
+  // - No messages, or
+  // - Last message is from user, or
+  // - Last message is an empty streaming assistant message
+  const lastMessage = messages[messages.length - 1];
   const showTypingIndicator =
-    isStreaming && (messages.length === 0 || messages[messages.length - 1]?.role === 'user');
+    isStreaming &&
+    (messages.length === 0 ||
+      lastMessage?.role === 'user' ||
+      (lastMessage?.role === 'assistant' &&
+        lastMessage?.status === 'streaming' &&
+        !lastMessage?.content));
 
   if (messages.length === 0 && !isStreaming) {
     return (
@@ -145,7 +163,7 @@ export const MessageList = forwardRef<MessageListRef, MessageListProps>(function
   return (
     <FlatList
       ref={flatListRef}
-      data={messages}
+      data={displayMessages}
       renderItem={renderMessage}
       keyExtractor={keyExtractor}
       style={[styles.list, { backgroundColor: theme.colors.background }]}
