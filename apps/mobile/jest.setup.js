@@ -103,6 +103,24 @@ jest.mock('expo-file-system', () => ({
   cacheDirectory: 'file://cache/',
 }));
 
+// Mock expo-crypto
+jest.mock('expo-crypto', () => ({
+  getRandomValues: jest.fn((array) => {
+    // Fill the array with pseudo-random values for testing
+    for (let i = 0; i < array.length; i++) {
+      array[i] = Math.floor(Math.random() * 0xffffffff);
+    }
+    return array;
+  }),
+  randomUUID: jest.fn(() => 'test-uuid-1234-5678-9abc-def012345678'),
+  digestStringAsync: jest.fn(() => Promise.resolve('mock-hash')),
+  CryptoDigestAlgorithm: {
+    SHA256: 'SHA-256',
+    SHA512: 'SHA-512',
+    MD5: 'MD5',
+  },
+}));
+
 // Mock @expo/vector-icons
 jest.mock('@expo/vector-icons', () => ({
   MaterialCommunityIcons: 'MaterialCommunityIcons',

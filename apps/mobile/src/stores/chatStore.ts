@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getRandomValues } from 'expo-crypto';
 import { zustandStorage } from '@/lib/storage';
 import type { ChatMessage, ChatSession, ToolTrace, DataGap } from '@/services/api/types';
 
@@ -8,11 +9,11 @@ const MAX_MESSAGES_PER_SESSION = 200; // 100 rounds of conversation
 const MAX_SESSIONS_TO_KEEP = 50;
 
 /**
- * Generate a cryptographically secure unique ID
+ * Generate a cryptographically secure unique ID using expo-crypto.
  */
 function generateId(): string {
   const randomBytes = new Uint32Array(2);
-  crypto.getRandomValues(randomBytes);
+  getRandomValues(randomBytes);
   return `${Date.now()}-${randomBytes[0].toString(36)}${randomBytes[1].toString(36)}`;
 }
 
