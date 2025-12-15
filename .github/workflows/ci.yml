@@ -114,7 +114,7 @@ jobs:
           S3_BUCKET_NAME: test-bucket
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         if: matrix.python-version == '3.12'
         with:
           files: apps/api/coverage.xml
@@ -214,7 +214,7 @@ jobs:
         run: npm run mobile:test -- --coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: apps/mobile/coverage/lcov.info
           flags: mobile
